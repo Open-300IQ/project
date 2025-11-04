@@ -1,59 +1,60 @@
 package com.example.iq300.service;
 
 import com.example.iq300.domain.Board;
+import com.example.iq300.domain.User;
 import com.example.iq300.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List; // import 문이 있는지 확인!
 
-@Service
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import com.example.iq300.exception.DataNotFoundException; // (이것도 필요합니다)
+
+
 @RequiredArgsConstructor
+@Service
 public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    /**
-     * (FR-001) 모든 게시글 조회
-     * ❗️이 메서드가 누락되었을 가능성이 높습니다.❗️
-     */
-    public List<Board> getAllPosts() {
-        return boardRepository.findAll();
+    // BoardController (line 60)가 호출하는 메서드
+    public List<Board> getList() {
+        return this.boardRepository.findAll();
     }
 
-    /**
-     * (FR-002) 새 게시글 저장
-     */
-    public Board createPost(Board board) {
-        return boardRepository.save(board);
-    }
-
-    /**
-     * (FR-001) ID로 특정 게시글 조회
-     */
-    public Board getPostById(Long id) {
-        return boardRepository.findById(id).orElse(null); 
-    }
-
-    /**
-     * (FR-004) 게시글 수정
-     */
-    public Board updatePost(Long id, Board updatedPost) {
-        Board existingPost = boardRepository.findById(id).orElse(null);
-
-        if (existingPost != null) {
-            existingPost.setTitle(updatedPost.getTitle());
-            existingPost.setContent(updatedPost.getContent());
-            existingPost.setAuthor(updatedPost.getAuthor());
-            
-            return boardRepository.save(existingPost);
+    // BoardController (line 67, 88)가 호출하는 메서드
+    public Board getBoard(Integer id) {
+        Optional<Board> board = this.boardRepository.findById(id);
+        if (board.isPresent()) {
+            return board.get();
+        } else {
+            throw new DataNotFoundException("board not found");
         }
-        return null;
     }
 
-    /**
-     * (FR-005) 게시글 삭제
-     */
-    public void deletePost(Long id) {
-        boardRepository.deleteById(id);
+    // BoardController (line 82)가 호출하는 메서드
+    public void create(String title, String content, User user) {
+        Board b = new Board();
+        b.setTitle(title);
+        b.setContent(content);
+        b.setAuthor(user); // (GitHub 코드에 따라 author 설정)
+        b.setCreateDate(LocalDateTime.now());
+        this.boardRepository.save(b);
+    }
+
+    // BoardController (line 95)가 호출하는 메서드
+    public void update(Integer id, String title, String content) {
+        Board board = getBoard(id); // (getBoard 메서드 재사용)
+        board.setTitle(title);
+        board.setContent(content);
+        board.setModifyDate(LocalDateTime.now()); // (수정 날짜 추가 - 선택 사항)
+        this.boardRepository.save(board);
+    }
+    
+    // BoardController (line 101)가 호출하는 메서드
+    public void delete(Integer id) {
+        Board board = getBoard(id); // (getBoard 메서드 재사용)
+        this.boardRepository.delete(board);
     }
 }

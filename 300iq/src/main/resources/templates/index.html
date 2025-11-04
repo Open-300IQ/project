@@ -1,133 +1,77 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
-<head th:replace="~{fragments/header :: headerFragment}">
-    <title>청주시 상권 분석 커뮤니티</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>청주 부동산 분석 게시판</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
+        .container { padding: 20px; max-width: 1400px; margin: auto; }
+        h1, h2 { border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        table { border-collapse: collapse; margin-bottom: 30px; width: 100%; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em; }
+        th { background-color: #f7f7f7; }
+        .data-layout { display: flex; flex-wrap: wrap; gap: 30px; }
+        .data-section { flex: 1; min-width: 450px; }
+    </style>
 </head>
-
 <body>
 
-<div class="main-page-container">
+<nav th:replace="~{fragments/header :: headerFragment}"></nav>
 
-    <div class="board-section">
-        <h1>창업 Q&A</h1>
-        
-        <a th:href="@{/board/post}" class="new-post-btn" sec:authorize="isAuthenticated()">
-            새 글 작성하기
-        </a>
-
-        <table class="board-table">
-            <thead>
-                <tr>
-                    <th class="post-id">번호</th>
-                    <th class="post-title">제목</th>
-                    <th class="post-author">작성자</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="post : ${posts}">
-                    <td class="post-id" th:text="${post.id}">1</td>
-                    <td class="post-title">
-                        <a th:href="@{/board/detail/{id}(id=${post.id})}" th:text="${post.title}">
-                            게시글 제목입니다.
-                        </a>
-                    </td>
-                    <td class="post-author" th:text="${post.author}">김사장</td>
-                </tr>
-                
-                <tr th:if="${#lists.isEmpty(posts)}">
-                    <td colspan="3" style="text-align: center; padding: 20px;">
-                        등록된 게시글이 없습니다.
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<div class="container">
+    <h1>청주시 부동산 데이터 현황</h1>
+    <p>이 데이터는 앱 실행 시 `src/main/resources/csv/` 폴더의 파일들을 읽어 MySQL에 저장된 정보입니다.</p>
     
-    <div class="analysis-form-section">
-        <div class="form-container">
-
-            <div class="auth-section">
-                <div sec:authorize="isAnonymous()">
-                    <a th:href="@{/user/login}">로그인</a> | 
-                    <a th:href="@{/user/signup}">회원가입</a>
-                </div>
-                <div sec:authorize="isAuthenticated()">
-                    <span><strong th:text="${#authentication.name}"></strong>님 환영합니다!</span>
-                    <a th:href="@{/user/logout}" class="logout-link">(로그아웃)</a>
-                    <a th:href="@{/user/mypage}" class="mypage-link">마이페이지</a>
-                </div>
-            </div>
-
-            <h1>상권 분석 시작하기</h1>
-            
-            <form method="post" action="/analyze" id="analysis-form">
-                <label for="region">분석할 지역을 선택하세요:</label>
-                <select name="region" id="region" required>
-                    <option value="" disabled selected>읍/면/동 선택</option>
-                    <option value="오창읍">오창읍</option>
-                    <option value="복대동">복대동</option>
-                    <option value="용암1동">용암1동</option>
-                    <option value="율량사천동">율량사천동</option>
-                    <option value="성안동">성안동</option>
-                    </select>
-                
-                <label for="category">관심 업종을 선택하세요:</label>
-                <select name="category" id="category" required>
-                    <option value="" disabled selected>업종 선택</option>
-                    <option value="T&E/문화">T&E/문화</option>
-                    <option value="생활/음식">생활/음식</option>
-                    <option value="쇼핑/유흥">쇼핑/유흥</option>
-                    <option value="내구재/기타">내구재/기타</option>
-                </select>
-                
-                <button type="submit">분석하기</button>
-                <div class="error" id="form-error-message" style="display: none;"></div>
-            </form>
-
-            <div class="info-text">
-                청주시정연구원의 소비패턴 데이터와<br>
-                다양한 공공데이터를 기반으로<br>
-                AI가 최적의 상권 정보를 분석해 드립니다.
+    <div class="data-layout">
+        
+        <div class="data-section">
+            <h2>최근 실거래가 (Top 20)</h2>
+            <table th:if="${!transactions.isEmpty()}">
+                <thead>
+                    <tr> <th>유형</th> <th>주소</th> <th>단지명</th> <th>거래가(만)</th> <th>월세(만)</th> </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="tx : ${transactions}">
+                        <td th:text="${tx.transactionType}">아파트(매매)</td>
+                        <td th:text="${tx.address}">청주시 흥덕구</td>
+                        <td th:text="${tx.buildingName}">OO아파트</td>
+                        <td th:text="${tx.price}">50000</td>
+                        <td th:text="${tx.rent}">0</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div th:if="${transactions.isEmpty()}">
+                <p>최근 실거래가 데이터가 없습니다. (DB 적재 확인 필요)</p>
             </div>
         </div>
+
+        <div class="data-section">
+            <h2>서원구 아파트 매매가격지수</h2>
+            <table th:if="${!priceIndices.isEmpty()}">
+                <thead><tr><th>년월</th><th>지수</th></tr></thead>
+                <tbody>
+                    <tr th:each="index, iterStat : ${priceIndices}" th:if="${iterStat.size - iterStat.index <= 12}">
+                        <td th:text="${index.yearMonth}">202509</td>
+                        <td th:text="${index.value}">101.5</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>흥덕구 지가지수</h2>
+            <table th:if="${!landIndices.isEmpty()}">
+                <thead><tr><th>년월</th><th>지수</th></tr></thead>
+                <tbody>
+                    <tr th:each="index, iterStat : ${landIndices}" th:if="${iterStat.size - iterStat.index <= 12}">
+                        <td th:text="${index.yearMonth}">202509</td>
+                        <td th:text="${index.value}">102.2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-</div> <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('analysis-form');
-        const formErrorMessage = document.getElementById('form-error-message');
-
-        if(form) {
-            form.addEventListener('submit', function(event) {
-                const regionSelect = document.getElementById('region');
-                const categorySelect = document.getElementById('category');
-
-                let isValid = true;
-                let errorMessage = '';
-
-                if (regionSelect.value === "") {
-                    isValid = false;
-                    errorMessage = "분석할 지역을 선택해주세요!";
-                } else if (categorySelect.value === "") {
-                    isValid = false;
-                    errorMessage = "관심 업종을 선택해주세요!";
-                }
-
-                if (!isValid) {
-                    event.preventDefault();
-                    formErrorMessage.style.display = "block";
-                    formErrorMessage.textContent = errorMessage;
-                } else {
-                    formErrorMessage.style.display = "none";
-                    // (분석 기능은 아직 구현되지 않았으므로 임시로 막음)
-                    event.preventDefault(); 
-                    alert("'" + regionSelect.value + "' 지역의 '" + categorySelect.value + "' 업종 분석 기능은 준비 중입니다.");
-                }
-            });
-        }
-    });
-</script>
+</div>
 
 </body>
 </html>
