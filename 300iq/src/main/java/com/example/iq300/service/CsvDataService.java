@@ -37,20 +37,19 @@ public class CsvDataService {
         // (참고) "Type1" = 날짜별 2개 컬럼(지수, 변동률), "Type2" = 날짜별 1개 컬럼(값)
         int skipLines = 0; // CSV의 첫 줄이 헤더이므로, 0줄을 스킵하고 바로 헤더를 읽습니다.
 
-        // Type 1 (날짜별 2개 컬럼)
-        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 매매가격지수_아파트.csv", "매매가격지수", "아파트", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 전세가격지수_아파트.csv", "전세가격지수", "아파트", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 월세가격지수_아파트.csv", "월세가격지수", "아파트", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 지역별 지가변동률.csv", "지가변동률", "지가", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 행정구역별 아파트거래현황.csv", "아파트거래현황", "아파트", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 행정구역별 아파트매매거래현황.csv", "아파트매매거래현황", "아파트", ENC_UTF_8, skipLines));
+     // Type 1 (날짜별 2개 컬럼)
+        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 매매가격지수_아파트.csv", "매매가격지수", "아파트", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 전세가격지수_아파트.csv", "전세가격지수", "아파트", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 월세가격지수_아파트.csv", "월세가격지수", "아파트", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 지역별 지가변동률.csv", "지가변동률", "지가", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 행정구역별 아파트거래현황.csv", "아파트거래현황", "아파트", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type1("(월) 행정구역별 아파트매매거래현황.csv", "아파트매매거래현황", "아파트", ENC_EUC_KR, skipLines));
         
         // Type 2 (날짜별 1개 컬럼)
-        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 지역별 지가지수.csv", "지가지수", "지가", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 평균매매가격_아파트.csv", "평균매매가격", "아파트", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 평균전세가격_아파트.csv", "평균전세가격", "아파트", ENC_UTF_8, skipLines));
-        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 평균월세가격_아파트.csv", "평균월세가격", "아파트", ENC_UTF_8, skipLines));
-        
+        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 지역별 지가지수.csv", "지가지수", "지가", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 평균매매가격_아파트.csv", "평균매매가격", "아파트", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 평균전세가격_아파트.csv", "평균전세가격", "아파트", ENC_EUC_KR, skipLines));
+        allTimeSeries.addAll(parseTimeSeries_Type2("(월) 평균월세가격_아파트.csv", "평균월세가격", "아파트", ENC_EUC_KR, skipLines));        
         System.out.println("[CsvService] 총 " + allTimeSeries.size() + "건의 시계열(지수/현황) 데이터 로드 완료.");
         return allTimeSeries;
     }
@@ -151,16 +150,19 @@ public class CsvDataService {
         
         int skipLines = 12; // 실거래가 파일은 헤더 12줄
         
-        allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년_서원구.csv", "아파트(매매)", ENC_EUC_KR, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년_청원구.csv", "아파트(매매)", ENC_EUC_KR, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년_흥덕구.csv", "아파트(매매)", ENC_EUC_KR, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년도_상당구.csv", "아파트(매매)", ENC_EUC_KR, skipLines)); // "년도"
-        
-        allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년_서원구.csv", "아파트(전월세)", ENC_EUC_KR, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년_청원구.csv", "아파트(전월세)", ENC_EUC_KR, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년_흥덕구.csv", "아파트(전월세)", ENC_EUC_KR, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년도_상당구.csv", "아파트(전월세)", ENC_EUC_KR, skipLines)); // "년도"
-        
+        final String ENC_CP949 = "CP949"; // 또는 "EUC-KR"
+
+     // 매매
+     allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년_서원구.csv", "아파트(매매)", ENC_CP949, skipLines));
+     allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년_청원구.csv", "아파트(매매)", ENC_CP949, skipLines));
+     allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년_흥덕구.csv", "아파트(매매)", ENC_CP949, skipLines));
+     allTransactions.addAll(parseTransactionFile("아파트_매매__실거래가_2025년도_상당구.csv", "아파트(매매)", ENC_CP949, skipLines));
+
+     // 전월세
+     allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년_서원구.csv", "아파트(전월세)", ENC_CP949, skipLines));
+     allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년_청원구.csv", "아파트(전월세)", ENC_CP949, skipLines));
+     allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년_흥덕구.csv", "아파트(전월세)", ENC_CP949, skipLines));
+     allTransactions.addAll(parseTransactionFile("아파트_전월세__실거래가_2025년도_상당구.csv", "아파트(전월세)", ENC_CP949, skipLines));
         System.out.println("[CsvService] 총 " + allTransactions.size() + "건의 실거래가 데이터 로드 완료.");
         return allTransactions;
     }

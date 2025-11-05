@@ -1,75 +1,57 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>청주 부동산 분석 게시판</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
-        .container { padding: 20px; max-width: 1400px; margin: auto; }
-        h1, h2 { border-bottom: 2px solid #eee; padding-bottom: 5px; }
-        table { border-collapse: collapse; margin-bottom: 30px; width: 100%; background-color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9em; }
-        th { background-color: #f7f7f7; }
-        .data-layout { display: flex; flex-wrap: wrap; gap: 30px; }
-        .data-section { flex: 1; min-width: 450px; }
+      layout:decorate="~{layout}"> <head>
+    <title>메인</title> <style>
+        /* index.html 전용 스타일 */
+        .sidebar-right {
+            position: fixed;
+            top: 70px; /* 헤더 높이(약 56px) + 여백 */
+            right: 20px;
+            width: 250px;
+        }
+        .gemini-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 250px; /* 사이드바와 동일 너비 */
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .main-content {
+            margin-right: 290px; /* 사이드바 너비(250) + 여백(40) */
+        }
     </style>
 </head>
+
 <body>
 
-<nav th:replace="~{fragments/header :: headerFragment}"></nav>
+<div layout:fragment="content" class="container-fluid mt-4">
+    <div class="row">
 
-<div class="container">
-    <h1>청주시 부동산 데이터 현황</h1>
-    <p>이 데이터는 앱 실행 시 `src/main/resources/csv/` 폴더의 파일들을 읽어 MySQL에 저장된 정보입니다.</p>
-    
-    <div class="data-layout">
-        
-        <div class="data-section">
-            <h2>최근 실거래가 (Top 20)</h2>
-            <table th:if="${!transactions.isEmpty()}">
-                <thead>
-                    <tr> <th>유형</th> <th>주소</th> <th>단지명</th> <th>거래가(만)</th> <th>월세(만)</th> </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="tx : ${transactions}">
-                        <td th:text="${tx.transactionType}">아파트(매매)</td>
-                        <td th:text="${tx.address}">청주시 흥덕구</td>
-                        <td th:text="${tx.buildingName}">OO아파트</td>
-                        <td th:text="${tx.price}">50000</td>
-                        <td th:text="${tx.rent}">0</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div th:if="${transactions.isEmpty()}">
-                <p>최근 실거래가 데이터가 없습니다. (DB 적재 확인 필요)</p>
+        <div class="col-md-9 main-content">
+            <h1>청주시 부동산 데이터 대시보드</h1>
+            <p>이곳에 차트나 주요 데이터를 표시합니다.</p>
+            <canvas id="mainChart" style="width:100%; height:400px;"></canvas>
+        </div>
+
+        <div class="col-md-3 sidebar-right"> <h5>지역별 데이터 선택</h5>
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action" data-region="상당구">상당구</a>
+                <a href="#" class="list-group-item list-group-item-action" data-region="서원구">서원구</a>
+                <a href="#" class="list-group-item list-group-item-action" data-region="흥덕구">흥덕구</a>
+                <a href="#" class="list-group-item list-group-item-action" data-region="청원구">청원구</a>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="gemini-chat"> (추후 Gemini API 영역)
             </div>
         </div>
-
-        <div class="data-section">
-            <h2>서원구 아파트 매매가격지수</h2>
-            <table th:if="${!priceIndices.isEmpty()}">
-                <thead><tr><th>년월</th><th>지수</th></tr></thead>
-                <tbody>
-                    <tr th:each="index, iterStat : ${priceIndices}" th:if="${iterStat.size - iterStat.index <= 12}">
-                        <td th:text="${index.yearMonth}">202509</td>
-                        <td th:text="${index.value}">101.5</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2>흥덕구 지가지수</h2>
-            <table th:if="${!landIndices.isEmpty()}">
-                <thead><tr><th>년월</th><th>지수</th></tr></thead>
-                <tbody>
-                    <tr th:each="index, iterStat : ${landIndices}" th:if="${iterStat.size - iterStat.index <= 12}">
-                        <td th:text="${index.yearMonth}">202509</td>
-                        <td th:text="${index.value}">102.2</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        
     </div>
 </div>
 

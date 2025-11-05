@@ -26,8 +26,8 @@ public class UserController {
      * 회원가입 폼 페이지
      */
     @GetMapping("/signup")
-    public String signupForm(UserCreateForm userCreateForm) {
-        return "signup_form";
+    public String signup(UserCreateForm userCreateForm) {
+        return "signup_form"; // templates/signup_form.html 을 반환
     }
 
     /**

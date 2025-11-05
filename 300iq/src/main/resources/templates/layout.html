@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap.min.css}">
+    
+    <link rel="stylesheet" type="text/css" th:href="@{/style.css}">
+
+    <link rel="stylesheet" type="text/css" th:href="@{/css/custom.css}">
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">IQ 300</title>
+</head>
+<body>
+<nav th:replace="~{fragments/header :: header}"></nav>
+
+<main layout:fragment="content" class="container my-3">
+    </main>
+<script th:src="@{/bootstrap.min.js}"></script>
+
+<th:block layout:fragment="script"></th:block>
+</body>
+</html>
