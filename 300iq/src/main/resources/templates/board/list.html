@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>창업 Q&A</h1>
-    <a th:href="@{/board/post}">새 글 작성하기</a>
+              <a th:href="@{/board/create}">새 글 작성하기</a>
     
     <table border="1">
         <thead>
@@ -17,7 +17,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="post : ${posts}">
+           <tr th:each="post : ${boardList}">
                 <td th:text="${post.id}">1</td>
                 <td>
                     <a th:href="@{/board/detail/{id}(id=${post.id})}" th:text="${post.title}">

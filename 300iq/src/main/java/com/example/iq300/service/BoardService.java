@@ -24,7 +24,7 @@ public class BoardService {
     }
 
     // BoardController (line 67, 88)가 호출하는 메서드
-    public Board getBoard(Integer id) {
+    public Board getBoard(Long id) {
         Optional<Board> board = this.boardRepository.findById(id);
         if (board.isPresent()) {
             return board.get();
@@ -44,7 +44,7 @@ public class BoardService {
     }
 
     // BoardController (line 95)가 호출하는 메서드
-    public void update(Integer id, String title, String content) {
+    public void update(Long id , String title, String content) {
         Board board = getBoard(id); // (getBoard 메서드 재사용)
         board.setTitle(title);
         board.setContent(content);
@@ -53,7 +53,7 @@ public class BoardService {
     }
     
     // BoardController (line 101)가 호출하는 메서드
-    public void delete(Integer id) {
+    public void delete(Long id) {
         Board board = getBoard(id); // (getBoard 메서드 재사용)
         this.boardRepository.delete(board);
     }

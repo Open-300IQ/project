@@ -5,25 +5,36 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne; // (추가)
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime; // (추가)
+
 @Getter
 @Setter
-@Entity // 이 클래스가 데이터베이스 테이블임을 나타냅니다.
+@Entity
 public class Board {
 
-    @Id // 기본 키(PK)
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // AUTO_INCREMENT
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 200) // Varchar(200)
+    @Column(length = 200)
     private String title;
 
-    @Column(columnDefinition = "TEXT") // TEXT 타입
+    @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String author; // 작성자 (추후 회원 F1과 연동)
-    
-    // (날짜 등은 나중에 추가)
+    // (수정 전) private String author;
+
+    // (수정 후)
+    @ManyToOne // User 1명이 여러 Board 작성 가능
+    private User author; // 타입을 User 객체로 변경
+
+    @Column
+    private LocalDateTime createDate; // 생성일자 필드 추가
+
+    @Column
+    private LocalDateTime modifyDate; // 수정일자 필드 추가
 }

@@ -2,47 +2,47 @@ package com.example.iq300.service;
 
 import com.example.iq300.domain.User;
 import com.example.iq300.repository.UserRepository;
+import com.example.iq300.domain.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.ArrayList;
 import java.util.List;
-
-
-import java.util.ArrayList; // ArrayList 임포트
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class UserSecurityService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // "Username"으로 이메일을 사용합니다.
-        Optional<User> _user = userRepository.findByEmail(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // (중요) 로그인 폼에서 'username'으로 넘어온 값은 사실 'email'입니다.
+        
+        // (수정) 
+        // 27라인 오류: findByUsername(username) -> findByEmail(username)
+        Optional<User> _user = this.userRepository.findByEmail(username); 
+        
         if (_user.isEmpty()) {
-            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
+            // (수정) 오류 메시지도 email 기준으로 변경
+            throw new UsernameNotFoundException("사용자(이메일)를 찾을 수 없습니다.");
         }
         User user = _user.get();
-        
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(user.getRole().name()));
         
+        if ("admin".equals(user.getNickname())) { // 닉네임이 admin이면
+            authorities.add(new SimpleGrantedAuthority(UserRole.ADMIN.getValue()));
+        } else {
+            authorities.add(new SimpleGrantedAuthority(UserRole.USER.getValue()));
+        }
         
-
-        // Spring Security가 사용하는 UserDetails 객체로 변환하여 반환
-        // (여기서는 간단하게 사용자 이메일, 비밀번호, 권한(빈 리스트)만 반환)
-        return new org.springframework.security.core.userdetails.User(
-            user.getEmail(), 
-            user.getPassword(), 
-            authorities
-        );
+        // (중요) principal.getName()이 될 값으로 email을 반환합니다.
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
 }

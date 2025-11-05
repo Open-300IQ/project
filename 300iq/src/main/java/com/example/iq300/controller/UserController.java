@@ -60,7 +60,7 @@ public class UserController {
             return "signup_form";
         }
 
-        return "redirect:/"; // 회원가입 성공 시 메인 페이지로
+        return "redirect:/board/list"; 
     }
 
     /**
