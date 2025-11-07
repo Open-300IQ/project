@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+  <div th:fragment="detail(post, postType)" class="card p-4">
+    
+    <h2 class="border-bottom pb-2 mb-3" style="font-weight: 700;">
+      <span th:text="${post.subject ?: post.title}"></span>
+    </h2>
+
+    <div class="d-flex justify-content-end mb-3">
+        <div class="badge bg-dark p-2 text-white-50">
+            <span th:if="${post.author != null}" th:text="${post.author.username}"></span>
+            <span th:text="${#temporals.format(post.createDate ?: post.createdDate, 'yyyy-MM-dd HH:mm')}"></span>
+        </div>
+    </div>
+
+    <div class="card-body">
+      <div class="card-text" style="min-height: 150px;" 
+           th:utext="${#strings.replace(post.content, '\n', '<br/>')}">
+      </div>
+    </div>
+
+    <div class="text-center my-3">
+        <a sec:authorize="isAuthenticated()" 
+           th:href="@{|/${postType}/vote/${post.id}|}" 
+           class="btn btn-sm btn-outline-success">
+            
+            추천
+            <span class="badge bg-success text-white" EOD
+                    th:text="${#lists.size(post.voter)}"></span>
+        </a>
+    </div>
+
+  </div>
+</body>
+</html>

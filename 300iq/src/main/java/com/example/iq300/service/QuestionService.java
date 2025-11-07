@@ -1,5 +1,6 @@
 package com.example.iq300.service;
 
+import com.example.iq300.domain.Answer; 
 import com.example.iq300.domain.Question;
 import com.example.iq300.domain.User;
 import com.example.iq300.exception.DataNotFoundException;
@@ -10,6 +11,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,50 +32,74 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
 
-    /**
-     * Q&A 게시판 목록 조회 (페이징, 검색, 정렬 기능)
-     */
+    // [수정] sortType 파라미터 추가
+    private Specification<Question> search(String kw, String searchType, String sortType) {
+        return new Specification<>() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public Predicate toPredicate(Root<Question> q, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                
+                // [수정] "popularity" 정렬 로직을 Specification으로 이동
+                if ("popularity".equals(sortType)) {
+                    query.orderBy(cb.desc(cb.size(q.get("voter"))));
+                }
+                
+                if (kw == null || kw.trim().isEmpty()) {
+                    return cb.conjunction();
+                }
+                
+                String likePattern = "%" + kw.toLowerCase() + "%";
+
+                switch (searchType) {
+                    case "subject": 
+                        return cb.like(cb.lower(q.get("subject")), likePattern);
+                    case "content": 
+                        return cb.like(cb.lower(q.get("content")), likePattern);
+                    case "author": 
+                        query.distinct(true); // JOIN 시에만 distinct 적용
+                        Join<Question, User> u = q.join("author", JoinType.INNER);
+                        return cb.like(cb.lower(u.get("username")), likePattern);
+                    case "answer": 
+                        query.distinct(true); // JOIN 시에만 distinct 적용
+                        Join<Question, Answer> a = q.join("answerList", JoinType.LEFT);
+                        return cb.like(cb.lower(a.get("content")), likePattern);
+                    default: 
+                        Predicate subjectLike = cb.like(cb.lower(q.get("subject")), likePattern);
+                        Predicate contentLike = cb.like(cb.lower(q.get("content")), likePattern);
+                        return cb.or(subjectLike, contentLike);
+                }
+            }
+        };
+    }
+
     public Page<Question> getPage(int page, String kw, String searchType, String sortType) {
         
-        // 1. 정렬(Sort) 기준 설정
         List<Sort.Order> sorts = new ArrayList<>();
-        if ("popular".equals(sortType)) {
-            // (참고) '인기순'은 나중에 '답변 개수(answerList.size)' 등으로 구현 필요
-            sorts.add(Sort.Order.desc("createDate")); // 임시
-        } else {
-            sorts.add(Sort.Order.desc("createDate")); // '최신순'
+        
+        // [수정] 인기순 정렬은 Specification이 처리하므로, 여기서는 최신순만 처리
+        if ("latest".equals(sortType) || !"popularity".equals(sortType)) {
+            sorts.add(Sort.Order.desc("createDate")); 
         }
 
-        // 2. 페이징 설정 (페이지당 10개)
         Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-
-        // 3. 검색(kw) 및 조회
-        if (kw == null || kw.trim().isEmpty()) {
-            return this.questionRepository.findAll(pageable);
-        } else if ("subject".equals(searchType)) {
-            return this.questionRepository.findBySubjectContaining(kw, pageable);
-        } else if ("content".equals(searchType)) {
-            return this.questionRepository.findByContentContaining(kw, pageable);
-        } else {
-            return this.questionRepository.findBySubjectContaining(kw, pageable); // 기본값: 제목
-        }
+        // [수정] search 메서드에 sortType 전달
+        Specification<Question> spec = search(kw, searchType, sortType); 
+        
+        return this.questionRepository.findAll(spec, pageable);
     }
     
-    /**
-     * 질문 상세 조회
-     */
+    @Transactional 
     public Question getQuestion(Long id) {
-        Optional<Question> question = this.questionRepository.findById(id);
-        if (question.isPresent()) {
-            return question.get();
+        Optional<Question> questionOpt = this.questionRepository.findById(id);
+        if (questionOpt.isPresent()) {
+            Question question = questionOpt.get();
+            question.setViewCount(question.getViewCount() + 1); 
+            return question;
         } else {
             throw new DataNotFoundException("question not found");
         }
     }
 
-    /**
-     * 질문 생성
-     */
     public void create(String subject, String content, User author) {
         Question q = new Question();
         q.setSubject(subject);
@@ -73,5 +107,10 @@ public class QuestionService {
         q.setCreateDate(LocalDateTime.now());
         q.setAuthor(author); 
         this.questionRepository.save(q);
+    }
+
+    public void vote(Question question, User user) {
+        question.getVoter().add(user); 
+        this.questionRepository.save(question);
     }
 }

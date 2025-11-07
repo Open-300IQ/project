@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <nav class="left-sidebar" th:fragment="sidebar(activeMenu)">
+        <h6 class="nav-category">부동산 정보</h6>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/guide}" 
+                   th:classappend="${activeMenu == 'guide'} ? 'active'">안전 거래 가이드</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">부동산 용어사전</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">청약 가이드</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">청약 일정</a></li>
+        </ul>
+        
+        <h6 class="nav-category">커뮤니티</h6>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/}" 
+                   th:classappend="${activeMenu == 'board'} ? 'active'">자유 게시판</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/question/list}" 
+                   th:classappend="${activeMenu == 'qna'} ? 'active'">부동산 Q&A</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">공지사항</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">자료실</a></li>
+        </ul>
+        
+        <h6 class="nav-category">300IQ</h6>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/analysis}" 
+                   th:classappend="${activeMenu == 'analysis'} ? 'active'">자료 분석</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/ai}" 
+                   th:classappend="${activeMenu == 'ai'} ? 'active'">AI 상담</a>
+            </li>
+        </ul>
+    </nav>
+
+</body>
+</html>

@@ -11,53 +11,53 @@
 <body>
 <div layout:fragment="content">
     
-    <nav class="left-sidebar">
-        <h6 class="nav-category">부동산 정보</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item"><a class="nav-link" href="#">안전 거래 가이드</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">부동산 용어사전</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">청약 가이드</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">청약 일정</a></li>
-        </ul>
-        <h6 class="nav-category">커뮤니티</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item"><a class="nav-link" href="#">공지사항</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/}">자유 게시판</a></li>
-            <li class="nav-item"><a class="nav-link active" th:href="@{/question/list}">부동산 Q&A</a></li> <li class="nav-item"><a class="nav-link" href="#">자료실</a></li>
-        </ul>
-        <h6 class="nav-category">300IQ</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item"><a class="nav-link" th:href="@{/analysis}">자료 분석</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/ai}">AI 상담</a></li>
-        </ul>
-    </nav>
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='qna')}"></div>
     
     <div class="right-content">
         
-        <div class="card p-4">
-            <h2 class="border-bottom pb-2 mb-3" style="font-weight: 700;" th:text="${question.subject}"></h2>
+        <div class="post-detail-header">
+            <h2 class="post-detail-title" th:text="${question.subject}"></h2>
             
-            <div class="d-flex justify-content-end mb-3">
-                <div class="badge bg-dark p-2 text-white-50">
-                    <span th:if="${question.author != null}" th:text="${question.author.username}"></span>
-                    <span th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></span>
-                </div>
+            <div class="post-detail-meta">
+                <span class="author" th:text="${question.author != null ? question.author.username : '익명'}"></span>
+                <span class="date" th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                
+                <span class="stat-item" title="조회수">
+                    <i class="fa-solid fa-eye"></i>
+                    <span th:text="${question.viewCount}"></span>
+                </span>
+                <span class="stat-item" title="답변수">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span th:text="${#lists.size(question.answerList)}"></span>
+                </span>
+                <span class="stat-item" title="추천수">
+                    <i class="fa-solid fa-thumbs-up"></i>
+                    <span th:text="${#lists.size(question.voter)}"></span>
+                </span>
+            </div>
+            <div class="post-detail-content" 
+                 th:utext="${#strings.replace(question.content, '\n', '<br/>')}">
             </div>
             
-            <div class.card-body>
-                <div class="card-text" style="min-height: 150px;" 
-                     th:utext="${#strings.replace(question.content, '\n', '<br/>')}">
+            <div class="post-vote-section">
+                <div sec:authorize="isAuthenticated()" class="vote-buttons">
+                    <a th:href="@{|/question/vote/${question.id}|}" class="vote-btn like-btn">
+                        <i class="fa-solid fa-thumbs-up"></i>
+                        <span th:text="${#lists.size(question.voter)}"></span>
+                    </a>
                 </div>
             </div>
-        </div> <h4 class="my-4" th:text="|${#lists.size(question.answerList)}개의 답변|"></h4>
+            </div>
+        
+        <h4 class="comment-count" th:text="|${#lists.size(question.answerList)}개의 답변|"></h4>
         <div class="card mb-3" th:each="answer : ${question.answerList}">
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
                     <span class="fw-bold" th:if="${answer.author != null}" th:text="${answer.author.username}"></span>
                     <span class="text-body-secondary" th:text="${#temporals.format(answer.createDate, 'yyyy-MM-dd HH:mm')}"></span>
                 </div>
-				<p class="card-text" 
-				   th:utext="${#strings.replace(answer.content, '\n', '<br/>')}"></p>
+                <p class="card-text" 
+                   th:utext="${#strings.replace(answer.content, '\n', '<br/>')}"></p>
             </div>
         </div>
         
@@ -66,22 +66,23 @@
              <a th:href="@{/user/login}" class="btn btn-primary btn-sm" style="width: 150px; margin: 0 auto;">로그인</a>
         </div>
         
-        <div sec:authorize="isAuthenticated()" class="card p-4">
-            <h5 class="mb-3">답변하기</h5>
-            <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerCreateForm}" method="post">
+        <div sec:authorize="isAuthenticated()" class="comment-input-area">
+            <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerCreateForm}" method="post" class="comment-form">
                 
                 <div th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
-                    <div th:each="err : ${#fields.allErrors()}" th:text="${err}" />
+                    <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
                 </div>
                 
-                <div class="mb-3">
-                    <textarea th:field="*{content}" class="form-control" rows="5" placeholder="답변 내용을 입력하세요..."></textarea>
-                    <div class="form-text text-danger" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
+                <div class="comment-input-group">
+                    <input type="text" th:field="*{content}" class="form-control comment-input" placeholder="답변 내용을 입력하세요...">
+                    <button type="submit" class="comment-submit-btn">
+                        <i class="fa-solid fa-paper-plane"></i> 등록
+                    </button>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">답변 등록</button>
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
             </form>
         </div>
-
-    </div> </div>
+        </div> 
+</div>
 </body>
 </html>

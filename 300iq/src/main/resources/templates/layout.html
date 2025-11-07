@@ -10,10 +10,8 @@
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/darkly/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome (아이콘) CDN 추가 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <!-- (수정) lol.ps 2열 레이아웃 CSS로 변경 -->
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif !important; 
@@ -195,19 +193,165 @@
             border-color: #333;
             color: #555;
         }
+		/* 1. 메타 정보: 한 줄 정렬 스타일 */
+		        .post-detail-meta {
+		            display: flex;         
+		            align-items: center;   
+		            flex-wrap: wrap;       
+		            gap: 16px;             
+		            
+		            color: #aaa;          
+		            font-size: 0.9rem;
+		            margin-top: 8px;       
+		            margin-bottom: 24px;   
+		            border-bottom: 1px solid #333; 
+		            padding-bottom: 16px; 
+		        }
+
+		        .post-detail-meta .author {
+		            font-weight: bold;
+		            color: #eee;
+		            background-color: #4A60D0; /* 작성자 강조 배경색 */
+		            padding: 4px 10px;
+		            border-radius: 4px;
+		            font-size: 0.85rem;
+		        }
+
+		        .post-detail-meta .stat-item {
+		            display: inline-flex;  
+		            align-items: center;   
+		            gap: 4px;              
+		        }
+
+		        /* 2. 추천 버튼 스타일 */
+		        .post-vote-section {
+		            padding-top: 20px;
+		            border-top: 1px solid #333; 
+		            padding-bottom: 20px;
+		            border-bottom: 1px solid #333; 
+		            display: flex; 
+		            justify-content: center; 
+		        }
+
+		        .vote-buttons {
+		            display: flex;
+		        }
+
+		        .vote-btn {
+		            display: inline-flex;
+		            align-items: center;
+		            padding: 10px 20px;
+		            border-radius: 6px;
+		            font-size: 1rem;
+		            font-weight: bold;
+		            text-decoration: none;
+		            cursor: pointer;
+		            background-color: #4A60D0; 
+		            color: #fff;
+		            border: none;
+		            transition: background-color 0.2s;
+		        }
+		        .vote-btn:hover {
+		            background-color: #3A4CBB;
+		        }
+
+		        .vote-btn i {
+		            margin-right: 8px;
+		        }
+
+		        /* 3. 댓글 폼 스타일 */
+		        /* .card 스타일을 오버라이드하여 입력 영역 배경색 조정 */
+		        .comment-input-area {
+		            background-color: #262626; 
+		            padding: 15px 20px;
+		            border-radius: 8px;
+		            margin-top: 30px;
+		            margin-bottom: 30px;
+		            border: 1px solid #444;
+		        }
+		        
+		        /* 댓글 폼 레이아웃 */
+		        .comment-form {
+		            display: flex;
+		            flex-direction: column; 
+		            gap: 10px;
+		        }
+
+		        .comment-input-group {
+		            display: flex;
+		            align-items: center;
+		            width: 100%;
+		            background-color: #333; 
+		            border-radius: 6px;
+		            padding-right: 8px; 
+		        }
+
+		        .comment-input {
+		            /* 기존 .form-control 스타일을 오버라이드 */
+		            flex-grow: 1; 
+		            border: none;
+		            background-color: transparent; 
+		            color: #fff;
+		            padding: 12px 15px;
+		            font-size: 0.95rem;
+		        }
+		        .comment-input::placeholder { 
+		            color: #aaa;
+		        }
+		        .comment-input:focus {
+		            outline: none; 
+		            box-shadow: none;
+		            border: none; /* 부트스트랩 포커스 효과 제거 */
+		        }
+		        
+		        .comment-count {
+		            color: #eee;
+		            font-size: 1.2rem;
+		            margin-top: 40px;
+		            margin-bottom: 20px;
+		        }
+
+		        .comment-submit-btn {
+		            background-color: #4A60D0; 
+		            color: #fff;
+		            border: none;
+		            padding: 8px 15px;
+		            border-radius: 4px;
+		            cursor: pointer;
+		            font-size: 0.9rem;
+		            font-weight: bold;
+		            transition: background-color 0.2s;
+		            display: inline-flex;
+		            align-items: center;
+		            gap: 5px;
+		        }
+		        .comment-submit-btn:hover {
+		            background-color: #3A4CBB;
+		        }
+		        /* ==================================== */
+
+		    </style>
         
     </style>
 
     <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">IQ 300</title>
+
+    <script th:inline="javascript">
+        window.addEventListener('pageshow', function(event) {
+            // event.persisted가 true이면 '뒤로가기'로 캐시에서 로드된 페이지임
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+    </script>
+    
 </head>
 <body>
 
 <nav th:replace="~{fragments/header :: header}"></nav>
 
-<!-- (유지) 2열 레이아웃을 위해 비어있음 -->
 <div layout:fragment="content">
-    <!-- 이 부분에 index.html, analysis.html 등의 내용이 삽입됩니다 -->
-</div>
+    </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 

@@ -9,6 +9,12 @@
 
 <body>
 <div layout:fragment="content" class="container my-5">
+
+
+
+	    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='ai')}"></div>
+
+	    <div class="right-content">
     <div class="row justify-content-center">
         <div class="col-md-10">
             <h1 class="text-center mb-4">AI 부동산 상담</h1>

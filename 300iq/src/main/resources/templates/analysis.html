@@ -9,64 +9,15 @@
 <body>
 
 <div layout:fragment="content">
-    
-    <!-- 1. 왼쪽 사이드바 (메뉴) -->
-    <nav class="left-sidebar">
-        <!-- '부동산 팁' 카테고리 -->
-        <h6 class="nav-category">부동산 정보</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="#">안전 거래 가이드</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">부동산 용어사전</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">청약 가이드</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">청약 일정</a>
-            </li>
-        </ul>
-        
-        <!-- '커뮤니티' 카테고리 -->
-        <h6 class="nav-category">커뮤니티</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="#">공지사항</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/}">자유 게시판</a>
-            </li>
-        <li class="nav-item"><a class="nav-link" th:href="@{/question/list}">부동산 Q&A</a></li>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">자료실</a>
-            </li>
-        </ul>
 
-        <!-- '핵심 기능' 카테고리 (이전 추천안 기반) -->
-        <h6 class="nav-category">300IQ</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-                <a class="nav-link active" th:href="@{/analysis}">자료 분석</a> <!-- 현재 페이지 active -->
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/ai}">AI 상담</a>
-            </li>
-        </ul>
-    </nav>
-    
-    <!-- 2. 오른쪽 메인 컨텐츠 (차트) -->
-    <div class="right-content">
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='data')}"></div>
+
+    <div class="right-content">   
         
         <h3 style="font-weight: 700;">자료 분석하기</h3>
         <p class="text-body-secondary">청주시 부동산 지수 및 평균 가격을 차트로 확인합니다.</p>
         
-        <!-- (차트 조회 폼과 캔버스는 이전 6단계에서 만든 코드와 동일하게 넣으면 됩니다) -->
-        <!-- (이하 생략) ... -->
-        
-    </div> <!-- .right-content 끝 -->
+        </div>
     
 </div>
 </body>

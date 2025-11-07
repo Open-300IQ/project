@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set; // 1. Set 임포트 추가
 
 @Getter
 @Setter
@@ -16,17 +17,23 @@ public class Question {
     private Long id;
 
     @Column(length = 200)
-    private String subject; // 질문 제목
+    private String subject;
 
     @Column(columnDefinition = "TEXT")
-    private String content; // 질문 내용
+    private String content;
 
-    private LocalDateTime createDate; // 생성일시
+    private LocalDateTime createDate;
 
-    @ManyToOne
-    private User author; // 질문자
-
-    // (중요) 질문 1개에 답변 N개가 달림
     @OneToMany(mappedBy = "question", cascade = CascadeType.REMOVE)
     private List<Answer> answerList;
+
+    @ManyToOne
+    private User author;
+    
+    // 2. 추천인(voter) 필드를 @ManyToMany로 추가
+    @ManyToMany
+    Set<User> voter;
+ // 1. [추가] 조회수 필드 (기본값 0)
+    @Column(columnDefinition = "integer default 0")
+    private int viewCount = 0;
 }

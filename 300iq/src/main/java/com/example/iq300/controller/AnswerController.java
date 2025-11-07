@@ -19,38 +19,28 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 
-@RequestMapping("/answer")
+
 @RequiredArgsConstructor
 @Controller
+@RequestMapping("/answer")
 public class AnswerController {
 
     private final QuestionService questionService;
     private final AnswerService answerService;
     private final UserService userService;
 
-    /**
-     * 답변 등록 처리 (POST)
-     * @param id 답변이 달릴 '질문'의 ID
-     */
+  
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create/{id}")
-    public String createAnswer(Model model, @PathVariable("id") Long id,
+    public String createAnswer(Model model, @PathVariable("id") Long id, // Integer -> Long
                                @Valid AnswerCreateForm answerCreateForm, BindingResult bindingResult, Principal principal) {
-        
-        Question question = this.questionService.getQuestion(id); // 1. 질문을 찾고
-        User user = this.userService.findUser(principal.getName()) // 2. 답변자를 찾고
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-
+        Question question = this.questionService.getQuestion(id);
+        User user = this.userService.getUser(principal.getName());
         if (bindingResult.hasErrors()) {
-            // 폼 유효성 검사 실패 시,
-            model.addAttribute("question", question); // (중요) 상세 보기 페이지를 다시 렌더링해야 하므로 question 객체를 모델에 담아줌
-            return "question_detail"; // question_detail.html을 다시 보여줌
+            model.addAttribute("question", question);
+            return "question_detail";
         }
-
-        // 3. 답변 생성 서비스 호출
         this.answerService.create(question, answerCreateForm.getContent(), user);
-        
-        // 4. 성공 시, 해당 질문 상세 페이지로 새로고침
         return String.format("redirect:/question/detail/%s", id);
     }
 }

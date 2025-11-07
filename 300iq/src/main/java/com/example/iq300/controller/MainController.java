@@ -17,8 +17,7 @@ public class MainController {
     private final BoardService boardService;
 
     /**
-     * (수정) 메인 페이지 ("/")
-     * - 페이징, 검색, 정렬 파라미터를 받아서 처리
+     * 메인 페이지 ("/") - 자유게시판
      */
     @GetMapping("/")
     public String root(Model model,
@@ -27,10 +26,8 @@ public class MainController {
                        @RequestParam(value="searchType", defaultValue="subject") String searchType,
                        @RequestParam(value="sort", defaultValue="latest") String sortType) {
         
-        // 서비스에서 Page 객체를 받아옴
         Page<Board> paging = this.boardService.getPage(page, kw, searchType, sortType);
         
-        // Model에 Page 객체와 검색어/정렬방식을 전달
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
         model.addAttribute("searchType", searchType);
@@ -38,9 +35,16 @@ public class MainController {
         
         return "index"; // templates/index.html
     }
+    
+    // --- [ 1. (신규) "안전 거래 가이드" 페이지 매핑 추가 ] ---
+    @GetMapping("/guide")
+    public String guidePage() {
+        return "guide"; // templates/guide.html
+    }
+    // --- [ 1. (끝) ] ---
 
     /**
-     * (유지) 자료 분석하기 페이지
+     * 자료 분석하기 페이지
      */
     @GetMapping("/analysis")
     public String analysisPage() {
@@ -48,7 +52,7 @@ public class MainController {
     }
 
     /**
-     * (유지) AI 상담받기 페이지
+     * AI 상담받기 페이지
      */
     @GetMapping("/ai")
     public String aiPage() {

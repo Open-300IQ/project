@@ -4,79 +4,112 @@ import com.example.iq300.domain.Board;
 import com.example.iq300.domain.User;
 import com.example.iq300.exception.DataNotFoundException;
 import com.example.iq300.repository.BoardRepository;
+
+import jakarta.persistence.criteria.*;
+import org.springframework.data.jpa.domain.Specification;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page; // (추가)
-import org.springframework.data.domain.PageRequest; // (추가)
-import org.springframework.data.domain.Pageable; // (추가)
-import org.springframework.data.domain.Sort; // (추가)
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList; // (추가)
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Optional; 
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    /**
-     * (수정) 게시판 목록 조회 (페이징, 검색, 정렬 기능 추가)
-     */
+    // [수정] sortType 파라미터 추가
+    private Specification<Board> search(String kw, String searchType, String sortType) {
+        return new Specification<>() {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public Predicate toPredicate(Root<Board> b, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                
+                // [수정] "popularity" 정렬 로직을 Specification으로 이동
+                if ("popularity".equals(sortType)) {
+                    // voter(추천인) 컬렉션의 size(개수)로 정렬
+                    query.orderBy(cb.desc(cb.size(b.get("voter"))));
+                }
+                
+                if (kw == null || kw.trim().isEmpty()) {
+                    return cb.conjunction();
+                }
+                
+                String likePattern = "%" + kw.toLowerCase() + "%";
+
+                switch (searchType) {
+                    case "subject": 
+                        return cb.like(cb.lower(b.get("title")), likePattern);
+                    case "content": 
+                        return cb.like(cb.lower(b.get("content")), likePattern);
+                    case "author": 
+                        query.distinct(true); // JOIN 시에만 distinct 적용
+                        Join<Board, User> u = b.join("author", JoinType.INNER);
+                        return cb.like(cb.lower(u.get("username")), likePattern);
+                    default: 
+                        Predicate titleLike = cb.like(cb.lower(b.get("title")), likePattern);
+                        Predicate contentLike = cb.like(cb.lower(b.get("content")), likePattern);
+                        return cb.or(titleLike, contentLike);
+                }
+            }
+        };
+    }
+
     public Page<Board> getPage(int page, String kw, String searchType, String sortType) {
         
-        // 1. 정렬(Sort) 기준 설정
         List<Sort.Order> sorts = new ArrayList<>();
-        if ("popular".equals(sortType)) {
-            // (참고) '인기순'은 '추천수(voter)' 기능이 없으므로 일단 '최신순'으로 대체합니다.
-            // (추후 추천 기능 구현 시 'voter.size()' 등으로 변경 필요)
-            sorts.add(Sort.Order.desc("createDate")); // 임시
-        } else {
-            // 'latest' (최신순)
-            sorts.add(Sort.Order.desc("createDate"));
+        
+        // [수정] 인기순 정렬은 Specification이 처리하므로, 여기서는 최신순만 처리
+        if ("latest".equals(sortType) || !"popularity".equals(sortType)) {
+            sorts.add(Sort.Order.desc("createdDate"));
         }
 
-        // 2. 페이징 설정 (페이지당 10개)
         Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-
-        // 3. 검색(kw) 및 조회
-        if (kw == null || kw.trim().isEmpty()) {
-            // 검색어가 없을 때
-            return this.boardRepository.findAll(pageable);
-        } else {
-            // 검색어가 있을 때
-            if ("subject".equals(searchType)) {
-                // 제목으로 검색
-                return this.boardRepository.findBySubjectContaining(kw, pageable);
-            } else if ("content".equals(searchType)) {
-                // 내용으로 검색
-                return this.boardRepository.findByContentContaining(kw, pageable);
-            } else {
-                // (기본값) 제목으로 검색
-                return this.boardRepository.findBySubjectContaining(kw, pageable);
-            }
-        }
+        // [수정] search 메서드에 sortType 전달
+        Specification<Board> spec = search(kw, searchType, sortType); 
+        
+        return this.boardRepository.findAll(spec, pageable);
     }
-    
-    // (유지) 게시글 상세 조회
-    public Board getBoard(Long id) {
-        Optional<Board> board = this.boardRepository.findById(id);
-        if (board.isPresent()) {
-            return board.get();
+
+    // --- (이하 나머지 메서드는 동일) ---
+
+    public Page<Board> getAllPosts(int page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Order.desc("createdDate")));
+        return boardRepository.findAll(pageable);
+    }
+
+    public Board createPost(String title, String content, User user) {
+        Board post = new Board();
+        post.setTitle(title);
+        post.setContent(content);
+        post.setCreatedDate(LocalDateTime.now());
+        post.setAuthor(user);
+        this.boardRepository.save(post);
+        return post; 
+    }
+
+    @Transactional 
+    public Board getPostById(Long id) {
+        Optional<Board> boardOpt = this.boardRepository.findById(id);
+        if (boardOpt.isPresent()) {
+            Board board = boardOpt.get();
+            board.setViewCount(board.getViewCount() + 1);
+            return board;
         } else {
             throw new DataNotFoundException("board not found");
         }
     }
 
-    // (유지) 게시글 생성
-    public void create(String subject, String content, User author) {
-        Board b = new Board();
-        b.setSubject(subject);
-        b.setContent(content);
-        b.setCreateDate(LocalDateTime.now());
-        b.setAuthor(author); 
-        this.boardRepository.save(b);
+    public void vote(Board board, User user) {
+        board.getVoter().add(user);
+        this.boardRepository.save(board);
     }
 }
