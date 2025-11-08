@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>자료 분석</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='data')}"></div>
+
+    <div class="right-content">   
+        
+        <h3 style="font-weight: 700;">자료 분석하기</h3>
+        <p class="text-body-secondary">청주시 부동산 지수 및 평균 가격을 차트로 확인합니다.</p>
+        
+		<div class="row">
+			<div class="col-md-9">
+				<div class="card shadow-sm mb-4">
+					<div class="card-header bg-white">
+						<h5 class="mb-0">월별 평당 평균 가격</h5>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+    </div>
+</div>
+</body>
+</html>

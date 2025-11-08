@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"> <head>
+    <title>회원가입</title>
+</head>
+
+<body>
+<div layout:fragment="content" class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+             <div class="card p-4" style="border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.08);">
+                <h3 class="text-center mb-4" style="font-weight: 700; color: var(--bs-primary);">회원가입</h3>
+                
+                <form th:action="@{/user/signup}" th:object="${userCreateForm}" method="post">
+                    
+                    <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                        <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label" style="font-weight: 500;">사용자ID</label>
+                        <input type="text" th:field="*{username}" class="form-control">
+                        <div class="form-text text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label" style="font-weight: 500;">이메일</label>
+                        <input type="email" th:field="*{email}" class="form-control">
+                        <div class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label" style="font-weight: 500;">비밀번호</label>
+                        <input type="password" th:field="*{password}" class="form-control">
+                        <div class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password2" class="form-label" style="font-weight: 500;">비밀번호 확인</label>
+                        <input type="password" th:field="*{password2}" class="form-control">
+                        <div class="form-text text-danger" th:if="${#fields.hasErrors('password2')}" th:errors="*{password2}"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">회원가입</button>
+                    
+                    <div class="text-center mt-3">
+                        <a th:href="@{/user/login}" class="text-decoration-none">이미 회원이신가요? 로그인</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="${board.title}"></title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='board')}"></div>
+    
+    <div class="right-content">
+        
+        <div class="post-detail-header">
+            <h2 class="post-detail-title" th:text="${board.title}"></h2>
+            
+            <div class="post-detail-meta">
+                <span class="author" th:text="${board.author != null ? board.author.username : '익명'}"></span>
+                <span class="date" th:text="${#temporals.format(board.createdDate, 'yyyy-MM-dd HH:mm')}"></span>
+                
+                <span class="stat-item" title="조회수">
+                    <i class="fa-solid fa-eye"></i>
+                    <span th:text="${board.viewCount}"></span>
+                </span>
+                <span class="stat-item" title="댓글수">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    <span th:text="${#lists.size(board.commentList)}"></span>
+                </span>
+                <span class="stat-item" title="추천수">
+                    <i class="fa-solid fa-thumbs-up"></i>
+                    <span th:text="${#lists.size(board.voter)}"></span>
+                </span>
+            </div>
+            <div class="post-detail-content" 
+                 th:utext="${#strings.replace(board.content, '\n', '<br/>')}">
+            </div>
+            
+            <div class="post-vote-section">
+                <div sec:authorize="isAuthenticated()" class="vote-buttons">
+                    <a th:href="@{|/board/vote/${board.id}|}" class="vote-btn like-btn">
+                        <i class="fa-solid fa-thumbs-up"></i>
+                        <span th:text="${#lists.size(board.voter)}"></span>
+                    </a>
+                </div>
+            </div>
+            </div>
+        
+        <h4 class="comment-count" th:text="|${#lists.size(board.commentList)}개의 댓글|"></h4>
+        <div class="card mb-3" th:each="comment : ${board.commentList}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold" th:if="${comment.author != null}" th:text="${comment.author.username}"></span>
+                    <span class="text-body-secondary" th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                </div>
+                <p class="card-text" 
+                   th:utext="${#strings.replace(comment.content, '\n', '<br/>')}"></p>
+            </div>
+        </div>
+        
+        <div sec:authorize="isAnonymous()" class="card p-4 text-center">
+             <p class="text-body-secondary mb-2">댓글을 작성하려면 로그인이 필요합니다.</p>
+             <a th:href="@{/user/login}" class="btn btn-primary btn-sm" style="width: 150px; margin: 0 auto;">로그인</a>
+        </div>
+        
+        <div sec:authorize="isAuthenticated()" class="comment-input-area">
+            <form th:action="@{|/comment/create/${board.id}|}" th:object="${commentCreateForm}" method="post" class="comment-form">
+                
+                <div th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
+                    <div th:each="err : ${#fields.allErrors()}" th:text="${err}"></div>
+                </div>
+                
+                <div class="comment-input-group">
+                    <input type="text" th:field="*{content}" class="form-control comment-input" placeholder="댓글 내용을 입력하세요...">
+                    <button type="submit" class="comment-submit-btn">
+                        <i class="fa-solid fa-paper-plane"></i> 등록
+                    </button>
+                </div>
+                <div class="form-text text-danger" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
+            </form>
+        </div>
+        </div> 
+</div>
+</body>
+</html>

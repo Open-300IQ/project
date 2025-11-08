@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/darkly/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif !important; 
+            background-color: #121212;
+            /* (중요) 헤더(56px) 때문에 상단 패딩 추가 */
+            padding-top: 56px; 
+        }
+
+        /* ----- 헤더(네비게이션 바) 스타일 (유지) ----- */
+        .navbar {
+            background-color: #1c1c1c !important; 
+            border-bottom: 1px solid #333 !important;
+            /* (중요) 화면 상단에 고정 */
+            position: fixed; 
+            top: 0;
+            width: 100%;
+            z-index: 1030;
+        }
+        .navbar-brand { color: #54c700 !important; font-weight: 700; font-size: 1.5rem; }
+        .nav-link { color: #aaa !important; font-weight: 500; }
+        .nav-link:hover, .nav-link.active { color: #fff !important; }
+        
+        /* ----- 폼/버튼 스타일 (유지) ----- */
+        .form-control, .form-select {
+            border-radius: 8px; border: 1px solid #444;
+            background-color: #2a2a2a; color: #fff; padding: 12px 15px;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #2a2a2a; border-color: #54c700;
+            box-shadow: 0 0 0 4px rgba(84, 199, 0, 0.2); color: #fff;
+        }
+        .card { background-color: #1e1e1e; border: 1px solid #333; }
+        .btn { border-radius: 8px; font-weight: 600; padding: 0.5rem 1rem; }
+        .btn-primary {
+            background-color: #54c700; border-color: #54c700;
+            color: #121212; font-weight: 700;
+        }
+        .btn-primary:hover {
+            background-color: #76ff03; border-color: #76ff03; color: #121212;
+        }
+        
+        /* ----- (신규) 2열 레이아웃 CSS ----- */
+        .left-sidebar {
+            width: 240px;
+            height: calc(100vh - 56px); /* 100% 높이 - 헤더 높이 */
+            position: fixed; /* 화면에 고정 */
+            top: 56px; /* 헤더 바로 아래 */
+            left: 0;
+            background: #1e1e1e; /* lol.ps 왼쪽 메뉴 배경색 */
+            border-right: 1px solid #333;
+            padding: 1.5rem 1rem;
+            overflow-y: auto; 
+        }
+        .right-content {
+            margin-left: 240px; /* 왼쪽 사이드바 너비만큼 밀어내기 */
+            padding: 2rem;
+            width: calc(100% - 240px); /* 나머지 너비 채우기 */
+        }
+        
+        /* ----- (신규) 왼쪽 메뉴 네비게이션 스타일 ----- */
+        .left-sidebar .nav-pills .nav-link {
+            color: #aaa; font-weight: 500;
+            padding: 0.75rem 1rem; border-radius: 8px;
+            margin-bottom: 4px;
+        }
+        .left-sidebar .nav-pills .nav-link:hover {
+            background-color: #2a2a2a; color: #fff;
+        }
+        .left-sidebar .nav-pills .nav-link.active {
+            background-color: #54c700; color: #121212; font-weight: 700;
+        }
+        .left-sidebar .nav-category { /* "커뮤니티" 같은 소제목 */
+            font-size: 0.9rem; font-weight: 700;
+            color: #777; text-transform: uppercase;
+            padding: 1.5rem 0rem 0.5rem 0.5rem;
+        }
+        .left-sidebar .nav-category:first-of-type {
+            padding-top: 0; /* 첫번째 소제목은 위쪽 패딩 제거 */
+        }
+
+        /* ----- (신규) lol.ps 게시판 컨트롤바 스타일 ----- */
+        .board-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .sort-tabs .nav-link {
+            color: #aaa;
+            font-weight: 700;
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            padding: 0.25rem 0.5rem;
+            margin-right: 1rem;
+        }
+        .sort-tabs .nav-link.active {
+            color: #fff;
+            background-color: transparent;
+            border-bottom-color: #54c700;
+        }
+        .search-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .search-form .form-select { width: 120px; }
+        .search-form .form-control { width: 250px; }
+
+        /* ----- (수정) lol.ps 게시판 테이블 스타일 ----- */
+        .table {
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #1e1e1e;
+            overflow: hidden; /* 모서리 둥글게 */
+        }
+        .table > :not(caption) > * > * {
+            background-color: transparent;
+            border-bottom-width: 1px;
+            border-color: #333;
+            padding: 1rem 0.75rem; 
+            vertical-align: middle; 
+        }
+        .table thead th {
+            font-weight: 500;
+            color: #aaa;
+            border-bottom-width: 1px; /* 얇은 선으로 통일 */
+            border-color: #444;
+            text-align: center;
+        }
+        .table tbody tr {
+            transition: background-color 0.2s;
+        }
+        .table tbody tr:hover {
+            background-color: #2a2a2a; 
+        }
+        .table tbody td {
+            text-align: center;
+            color: #ddd;
+        }
+        .table tbody td:nth-child(2) { /* 제목만 왼쪽 정렬 */
+            text-align: left;
+        }
+        .table tbody td a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .table tbody td a:hover {
+            color: #54c700;
+        }
+        
+        /* 페이지네이션 스타일 */
+        .pagination .page-item {
+            margin: 0 2px;
+        }
+        .pagination .page-link {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            color: #aaa;
+            border-radius: 8px;
+        }
+        .pagination .page-link:hover {
+            background-color: #333;
+            border-color: #555;
+            color: #fff;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #54c700;
+            border-color: #54c700;
+            color: #121212;
+            font-weight: 700;
+        }
+        .pagination .page-item.disabled .page-link {
+            background-color: #1e1e1e;
+            border-color: #333;
+            color: #555;
+        }
+		/* 1. 메타 정보: 한 줄 정렬 스타일 */
+		        .post-detail-meta {
+		            display: flex;         
+		            align-items: center;   
+		            flex-wrap: wrap;       
+		            gap: 16px;             
+		            
+		            color: #aaa;          
+		            font-size: 0.9rem;
+		            margin-top: 8px;       
+		            margin-bottom: 24px;   
+		            border-bottom: 1px solid #333; 
+		            padding-bottom: 16px; 
+		        }
+
+		        .post-detail-meta .author {
+		            font-weight: bold;
+		            color: #eee;
+		            background-color: #4A60D0; /* 작성자 강조 배경색 */
+		            padding: 4px 10px;
+		            border-radius: 4px;
+		            font-size: 0.85rem;
+		        }
+
+		        .post-detail-meta .stat-item {
+		            display: inline-flex;  
+		            align-items: center;   
+		            gap: 4px;              
+		        }
+
+		        /* 2. 추천 버튼 스타일 */
+		        .post-vote-section {
+		            padding-top: 20px;
+		            border-top: 1px solid #333; 
+		            padding-bottom: 20px;
+		            border-bottom: 1px solid #333; 
+		            display: flex; 
+		            justify-content: center; 
+		        }
+
+		        .vote-buttons {
+		            display: flex;
+		        }
+
+		        .vote-btn {
+		            display: inline-flex;
+		            align-items: center;
+		            padding: 10px 20px;
+		            border-radius: 6px;
+		            font-size: 1rem;
+		            font-weight: bold;
+		            text-decoration: none;
+		            cursor: pointer;
+		            background-color: #4A60D0; 
+		            color: #fff;
+		            border: none;
+		            transition: background-color 0.2s;
+		        }
+		        .vote-btn:hover {
+		            background-color: #3A4CBB;
+		        }
+
+		        .vote-btn i {
+		            margin-right: 8px;
+		        }
+
+		        /* 3. 댓글 폼 스타일 */
+		        /* .card 스타일을 오버라이드하여 입력 영역 배경색 조정 */
+		        .comment-input-area {
+		            background-color: #262626; 
+		            padding: 15px 20px;
+		            border-radius: 8px;
+		            margin-top: 30px;
+		            margin-bottom: 30px;
+		            border: 1px solid #444;
+		        }
+		        
+		        /* 댓글 폼 레이아웃 */
+		        .comment-form {
+		            display: flex;
+		            flex-direction: column; 
+		            gap: 10px;
+		        }
+
+		        .comment-input-group {
+		            display: flex;
+		            align-items: center;
+		            width: 100%;
+		            background-color: #333; 
+		            border-radius: 6px;
+		            padding-right: 8px; 
+		        }
+
+		        .comment-input {
+		            /* 기존 .form-control 스타일을 오버라이드 */
+		            flex-grow: 1; 
+		            border: none;
+		            background-color: transparent; 
+		            color: #fff;
+		            padding: 12px 15px;
+		            font-size: 0.95rem;
+		        }
+		        .comment-input::placeholder { 
+		            color: #aaa;
+		        }
+		        .comment-input:focus {
+		            outline: none; 
+		            box-shadow: none;
+		            border: none; /* 부트스트랩 포커스 효과 제거 */
+		        }
+		        
+		        .comment-count {
+		            color: #eee;
+		            font-size: 1.2rem;
+		            margin-top: 40px;
+		            margin-bottom: 20px;
+		        }
+
+		        .comment-submit-btn {
+		            background-color: #4A60D0; 
+		            color: #fff;
+		            border: none;
+		            padding: 8px 15px;
+		            border-radius: 4px;
+		            cursor: pointer;
+		            font-size: 0.9rem;
+		            font-weight: bold;
+		            transition: background-color 0.2s;
+		            display: inline-flex;
+		            align-items: center;
+		            gap: 5px;
+		        }
+		        .comment-submit-btn:hover {
+		            background-color: #3A4CBB;
+		        }
+		        /* ==================================== */
+
+		    </style>
+        
+    </style>
+
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">IQ 300</title>
+
+    <script th:inline="javascript">
+        window.addEventListener('pageshow', function(event) {
+            // event.persisted가 true이면 '뒤로가기'로 캐시에서 로드된 페이지임
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+    </script>
+    
+</head>
+<body>
+
+<nav th:replace="~{fragments/header :: header}"></nav>
+
+<div layout:fragment="content">
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
+        crossorigin="anonymous"></script>
+
+<th:block layout:fragment="script"></th:block>
+
+</body>
+</html>

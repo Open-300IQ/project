@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>새 질문 작성</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    
+    <nav class="left-sidebar">
+        <h6 class="nav-category">부동산 정보</h6>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item"><a class="nav-link" href="#">안전 거래 가이드</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">부동산 용어사전</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">청약 가이드</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">청약 일정</a></li>
+        </ul>
+        <h6 class="nav-category">커뮤니티</h6>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item"><a class="nav-link" href="#">공지사항</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/}">자유 게시판</a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="@{/question/list}">부동산 Q&A</a></li> <li class="nav-item"><a class="nav-link" href="#">자료실</a></li>
+        </ul>
+        <h6 class="nav-category">300IQ</h6>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item"><a class="nav-link" th:href="@{/analysis}">자료 분석</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="@{/ai}">AI 상담</a></li>
+        </ul>
+    </nav>
+    
+    <div class="right-content">
+        <h3 class="mb-4" style="font-weight: 700;">새 질문 작성</h3>
+        
+        <div class="card p-4">
+            <form th:action="@{/question/create}" th:object="${questionCreateForm}" method="post">
+                
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">
+                    <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="subject" class="form-label" style="font-weight: 500;">제목</label>
+                    <input type="text" th:field="*{subject}" class="form-control">
+                    <div class="form-text text-danger" th:if="${#fields.hasErrors('subject')}" th:errors="*{subject}"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="content" class="form-label" style="font-weight: 500;">내용</label>
+                    <textarea th:field="*{content}" class="form-control" rows="10"></textarea>
+                    <div class="form-text text-danger" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100">저장하기</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

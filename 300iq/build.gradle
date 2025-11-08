@@ -1,0 +1,52 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.4' // Spring Boot 버전에 따라 달라질 수 있습니다.
+	id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring Boot의 핵심 웹 기능 라이브러리
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	
+	// Controller가 templates 폴더의 HTML을 찾아 연결해주는 라이브러리
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// 개발 편의성을 위한 라이브러리 (선택 사항)
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	
+	// 테스트를 위한 라이브러리
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	
+	//runtimeOnly 'com.h2database:h2'
+	
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'mysql:mysql-connector-java:8.0.33'
+	implementation 'com.opencsv:opencsv:5.7.1'	
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+	
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
