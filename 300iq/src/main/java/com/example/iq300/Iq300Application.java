@@ -35,11 +35,13 @@ public class Iq300Application {
         return (args) -> {
             System.out.println("====== (시작) CSV 데이터 DB 적재 ======");
 
+
             csvDataService.loadTransactions();
             monthlyAvgPriceService.aggregateAndSaveData(); 
             csvDataService.loadAgents();
             csvDataService.loadPopulation();
             csvDataService.loadTotal();
+
 
 
             System.out.println("데이터 로드 완료. 사용자 데이터 생성 시작...");
@@ -78,6 +80,7 @@ public class Iq300Application {
     public CommandLineRunner initCsvData(CsvDataService csvDataService) {
         return args -> {
             System.out.println("====== [CsvDataService] 데이터 로드 시작 ======");
+
             csvDataService.loadTransactions(); // (필요하면 주석 해제)
             csvDataService.loadAgents();       // (필요하면 주석 해제)
             csvDataService.loadPopulation();   // (필요하면 주석 해제)
@@ -85,6 +88,7 @@ public class Iq300Application {
             
             // (중요!) 부동산 용어사전 CSV 로드 실행
             csvDataService.loadRealEstateTerms(); 
+
             
             System.out.println("====== [CsvDataService] 모든 데이터 로드 완료 ======");
         };

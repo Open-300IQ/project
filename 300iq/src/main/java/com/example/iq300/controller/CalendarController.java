@@ -67,6 +67,7 @@ public class CalendarController {
             e.printStackTrace();
         }
         model.addAttribute("eventsJson", eventsJson);
+        model.addAttribute("activeMenu", "calendar");
         return "calendar"; 
     }
 }

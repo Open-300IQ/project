@@ -32,7 +32,10 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/calendar"),
                         new AntPathRequestMatcher("/question/list"),
                         new AntPathRequestMatcher("/question/detail/**"),
-                        new AntPathRequestMatcher("/dictionary/list")
+                        new AntPathRequestMatcher("/dictionary/list"),
+                        new AntPathRequestMatcher("/pdf/**"),
+                        new AntPathRequestMatcher("/guide"), // /guide (안전거래)
+                        new AntPathRequestMatcher("/guide/subscription") // /guide/subscription (주택청약)
                         
                 ).permitAll()
                 .anyRequest().authenticated()

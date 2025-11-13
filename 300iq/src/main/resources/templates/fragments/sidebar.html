@@ -2,49 +2,110 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-    <nav class="left-sidebar" th:fragment="sidebar(activeMenu)">
-        <h6 class="nav-category">부동산 정보</h6>
+<nav class="left-sidebar" th:fragment="sidebar(activeMenu)">
+
+    <h6 class="nav-category">300 IQ</h6>
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/analysis}"
+               th:classappend="${activeMenu == 'analysis'} ? 'active'"> 자료 분석</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/ai}"
+               th:classappend="${activeMenu == 'ai'} ? 'active'"> AI 상담</a>
+        </li>
+    </ul>
+    
+    <hr class="text-secondary my-2">
+
+
+    <h6 class="nav-category" 
+        data-bs-toggle="collapse" 
+        href="#collapseInfo" 
+        role="button" 
+        aria-expanded="false" 
+        aria-controls="collapseInfo"
+        style="cursor: pointer;">
+        부동산 정보 <i class="fa-solid fa-chevron-down fa-xs ms-1"></i>
+    </h6>
+    
+    <div class="collapse" id="collapseInfo"
+         th:classappend="${#lists.contains({'realty', 'calendar', 'dictionary'}, activeMenu)} ? 'show' : ''">
         <ul class="nav nav-pills flex-column">
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/guide}" 
-                   th:classappend="${activeMenu == 'guide'} ? 'active'">안전 거래 가이드</a>
+                <a class="nav-link" href="#">(준비중) 실제 매물 보기</a>
             </li>
-           		<li class="nav-item">
-			                <a class="nav-link" th:href="@{/dictionary/list}"
-			                   th:classappend="${activeMenu == 'dictionary'} ? 'active'">부동산 용어사전</a>
-			            </li>
-            <li class="nav-item"><a class="nav-link" href="#">청약 가이드</a></li>
-			<li class="nav-item">
-			                <a class="nav-link" th:href="@{/calendar}"
-			                   th:classappend="${activeMenu == 'calendar'} ? 'active'">청약 일정</a>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/calendar}"
+                   th:classappend="${activeMenu == 'calendar'} ? 'active'"> 청약 일정</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/dictionary/list}"
+                   th:classappend="${activeMenu == 'dictionary'} ? 'active'"> 부동산 용어사전</a>
+            </li>
         </ul>
-        
-        <h6 class="nav-category">커뮤니티</h6>
+    </div>
+
+
+    <h6 class="nav-category" 
+        data-bs-toggle="collapse" 
+        href="#collapseGuide" 
+        role="button" 
+        aria-expanded="false" 
+        aria-controls="collapseGuide"
+        style="cursor: pointer;">
+        가이드 <i class="fa-solid fa-chevron-down fa-xs ms-1"></i>
+    </h6>
+    
+    <div class="collapse" id="collapseGuide"
+         th:classappend="${#lists.contains({'guide', 'guide_fraud', 'guide_sub'}, activeMenu)} ? 'show' : ''">
         <ul class="nav nav-pills flex-column">
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/}" 
-                   th:classappend="${activeMenu == 'board'} ? 'active'">자유 게시판</a>
+                <a class="nav-link" th:href="@{/guide}"
+                   th:classappend="${activeMenu == 'guide'} ? 'active'"> 부동산 거래 가이드</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/question/list}" 
-                   th:classappend="${activeMenu == 'qna'} ? 'active'">부동산 Q&A</a>
+                <a class="nav-link" href="#">(준비중) 전세사기 방지 가이드</a>
             </li>
-            <li class="nav-item"><a class="nav-link" href="#">공지사항</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">자료실</a></li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/guide/subscription}"
+                   th:classappend="${activeMenu == 'guide_sub'} ? 'active'"> 청약 가이드</a>
+            </li>
         </ul>
-        
-        <h6 class="nav-category">300IQ</h6>
+    </div>
+
+
+    <h6 class="nav-category" 
+        data-bs-toggle="collapse" 
+        href="#collapseCommunity" 
+        role="button" 
+        aria-expanded="false" 
+        aria-controls="collapseCommunity"
+        style="cursor: pointer;">
+        커뮤니티 <i class="fa-solid fa-chevron-down fa-xs ms-1"></i>
+    </h6>
+
+    <div class="collapse" id="collapseCommunity"
+         th:classappend="${#lists.contains({'notice', 'board', 'qna', 'archive'}, activeMenu)} ? 'show' : ''">
         <ul class="nav nav-pills flex-column">
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/analysis}" 
-                   th:classappend="${activeMenu == 'analysis'} ? 'active'">자료 분석</a>
+                <a class="nav-link" href="#"> 공지사항</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" th:href="@{/ai}" 
-                   th:classappend="${activeMenu == 'ai'} ? 'active'">AI 상담</a>
+                <a class="nav-link" th:href="@{/board/list}"
+                   th:classappend="${activeMenu == 'board'} ? 'active'"> 자유 게시판</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/question/list}"
+                   th:classappend="${activeMenu == 'qna'} ? 'active'"> 부동산 Q&A</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"> 자료실</a>
             </li>
         </ul>
-    </nav>
+    </div>
+
+</nav>
 
 </body>
 </html>

@@ -32,6 +32,7 @@ public class BoardController {
     public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page) {
         Page<Board> paging = this.boardService.getAllPosts(page);
         model.addAttribute("paging", paging);
+        model.addAttribute("activeMenu", "board");
         return "index"; 
     }
 
@@ -42,6 +43,7 @@ public class BoardController {
         
         Board board = boardService.getPostById(id);
         model.addAttribute("board", board);
+        model.addAttribute("activeMenu", "board");
         // commentCreateForm은 파라미터로 받으면 자동으로 모델에 추가됩니다.
         
         return "board/detail";
@@ -54,26 +56,30 @@ public class BoardController {
         Board board = this.boardService.getPostById(id);
         User user = this.userService.getUser(principal.getName());
         this.boardService.vote(board, user);
+        
         return String.format("redirect:/board/detail/%s", id);
     }
 
     // (newPost 메서드는 그대로)
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String newPost(BoardPostForm boardPostForm) {
+    public String newPost(Model model, BoardPostForm boardPostForm) { // 1. Model model 추가
+        model.addAttribute("activeMenu", "board"); // 2. 이 줄 추가
         return "board/post_form";
     }
 
-    // (createPost 메서드는 그대로)
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String createPost(@Valid BoardPostForm boardPostForm, BindingResult bindingResult, Principal principal) {
+    public String createPost(@Valid BoardPostForm boardPostForm, BindingResult bindingResult, Principal principal, Model model) { // 1. Model model 추가
         if (bindingResult.hasErrors()) {
+            model.addAttribute("activeMenu", "board"); // 2. 이 줄 추가
             return "board/post_form";
         }
         User user = this.userService.getUser(principal.getName());
         this.boardService.createPost(boardPostForm.getTitle(),
                 boardPostForm.getContent(), user);
-        return "redirect:/"; // 루트 페이지로 리다이렉트
+                
+        // 3. (추천) 새 사이드바 링크와 맞추기 위해 "/" -> "/board/list"로 변경
+        return "redirect:/board/list"; 
     }
 }

@@ -313,41 +313,41 @@ h2, h4 {
 
 
 
+/* ======== [ 캘린더 일정 색상 (정리본) ] ======== */
 
-/* 1순위 (className: "rank-1") */
-.rank-1, .fc-event.rank-1 {
-  background-color: #0d6efd !important; /* 파란색 (Bootstrap primary) */
-  border-color: #0d6efd !important;
-  color: white !important;
+/* 1. 기본 스타일: 모든 이벤트의 글자색은 흰색 */
+.fc-event, .fc-event-main {
+    border-width: 1px !important; 
+    color: #ffffff !important;   
 }
 
-/* 2순위 (className: "rank-2") */
-.rank-2, .fc-event.rank-2 {
-  background-color: #198754 !important; /* 초록색 (Bootstrap success) */
-  border-color: #198754 !important;
-  color: white !important;
-}
-
-/* ======== [ 이 블록 추가 ] ======== */
-/* 특별공급 (className: "rank-special") */
+/* 2. 특별공급 (경고색 - 노랑) */
+/* .btn-warning (#ffc107) 색상과 매칭 */
 .rank-special, .fc-event.rank-special {
-  background-color: #ffc107 !important; /* 노란색 (Bootstrap warning) */
-  border-color: #ffc107 !important;
-  color: #333 !important; /* 노란색 배경에는 어두운 글씨 */
+    background-color: #ffc107 !important; 
+    border-color: #ffc107 !important;
+    color: #000 !important; /* 노란색 배경에는 검은 글씨 */
 }
 
-/* ======== [ 이 블록 추가 ] ======== */
-/* 무순위 (className: "rank-unranked") */
-.rank-unranked, .fc-event.rank-unranked {
-  background-color: #6c757d !important; /* 회색 (Bootstrap secondary) */
-  border-color: #6c757d !important;
-  color: white !important;
+/* 3. 1순위 (정보색 - 하늘색) */
+/* .btn-info (#0dcaf0) 색상과 매칭 */
+.rank-1, .fc-event.rank-1 {
+    background-color: #0dcaf0 !important; 
+    border-color: #0dcaf0 !important;
+    color: #000 !important; /* 하늘색 배경에는 검은 글씨 */
 }
-/* 캘린더 일정 항목: 유형별 색상 매핑 */
-.schedule-item.type-private-pre { background-color: #008080; }
-.schedule-item.type-special { background-color: #6a006a; }
-.schedule-item.type-rank1 { background-color: #E6A8FF; color: #121212; }
-.schedule-item.type-rank2 { background-color: #00CED1; color: #121212; }
-.schedule-item.type-unranked { background-color: #808080; }
-.schedule-item.type-office { background-color: #ff9933; }
-.schedule-item.type-public-rental { background-color: #ffcc00; color: #121212; }
+
+/* 4. 2순위 (성공색 - 초록) */
+/* .btn-success (#198754) 색상과 매칭 */
+.rank-2, .fc-event.rank-2 {
+    background-color: #198754 !important; 
+    border-color: #198754 !important;
+}
+
+/* 5. 무순위 (보조색 - 회색) */
+/* .btn-secondary (#6c757d) 색상과 매칭 */
+.rank-unranked, .fc-event.rank-unranked {
+    background-color: #6c757d !important; 
+    border-color: #6c757d !important;
+}
+
