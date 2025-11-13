@@ -323,13 +323,15 @@ public class CsvDataService {
         System.out.println("[CsvService] 부동산 용어사전 CSV 파일 로드 시작...");
         
         int skipLines = 1; // 헤더(첫 줄) 스킵
-        final String filePath = "부동산용어_신조어_전체.csv";
+        
+        // ======== [ 2. 파일명 변경 ] ========
+        final String filePath = "부동산용어_신조어_전체_초성추가.csv"; 
         
         // 파이썬 크롤링 파일이 UTF-8이므로 ENC_UTF8 사용
         List<RealEstateTerm> terms = parseTermsFile(filePath, ENC_UTF8, skipLines);
         
-        // (선택 사항) DB에 저장하기 전 기존 데이터 모두 삭제 (중복 방지)
-        // realEstateTermRepository.deleteAll(); 
+        // (중요!) DB에 저장하기 전 기존 데이터 모두 삭제 (중복 방지)
+        realEstateTermRepository.deleteAll(); 
         
         List<RealEstateTerm> savedTerms = realEstateTermRepository.saveAll(terms);
         
@@ -350,12 +352,14 @@ public class CsvDataService {
 
             String[] line;
             while ((line = csvReader.readNext()) != null) {
-                if (line.length < 2) continue; // 최소 2개 컬럼(용어, 설명) 필요
+                // ======== [ 3. 컬럼 개수 3개로 변경 ] ========
+                if (line.length < 3) continue; // 용어, 초성, 설명
 
                 RealEstateTerm term = new RealEstateTerm();
                 try {
-                    term.setTerm(line[0].trim());       // 첫 번째 컬럼
-                    term.setDefinition(line[1].trim()); // 두 번째 컬럼
+                    term.setTerm(line[0].trim());       // 첫 번째 컬럼 (용어)
+                    term.setInitial(line[1].trim());    // 두 번째 컬럼 (초성)
+                    term.setDefinition(line[2].trim()); // 세 번째 컬럼 (설명)
                     
                     if (!term.getTerm().isEmpty()) {
                         list.add(term);

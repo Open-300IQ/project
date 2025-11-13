@@ -69,15 +69,23 @@
                         eventClick: function(info) {
                             // 1. 기본 동작(새 탭으로 열기)을 막습니다.
                             info.jsEvent.preventDefault(); 
-                            
+						
                             // 2. DTO의 url 속성에 PDF 경로가 있는지 확인
                             if (info.event.url) {
-                                // 3. 모달의 제목과 iframe의 src를 설정
-                                pdfModalLabel.textContent = info.event.title; // 모달 제목 변경
-                                pdfIframe.src = info.event.url; // iframe에 PDF 경로 설정
-                                
-                                // 4. 모달(팝업)을 띄웁니다.
-                                pdfModal.show();
+								const popupWidth = 800;
+								                                const popupHeight = 600;
+
+								                                // 3. 사용자의 모니터 해상도에서 팝업이 중앙에 오도록 left, top 값 계산
+								                                const popupLeft = (window.screen.width / 2) - (popupWidth / 2);
+								                                const popupTop = (window.screen.height / 2) - (popupHeight / 2);
+								                                
+								                                // 4. 계산된 left, top 값을 포함하여 팝업을 엽니다.
+								                                window.open(
+								                                    info.event.url, 
+								                                    "_blank", 
+								                                    `width=${popupWidth},height=${popupHeight},left=${popupLeft},top=${popupTop}`
+								                                );
+                             
                             } else {
                                 alert(info.event.title + '\n(연결된 PDF 파일이 없습니다)');
                             }

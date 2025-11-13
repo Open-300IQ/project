@@ -6,10 +6,12 @@ import com.example.iq300.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.context.annotation.Lazy;
 import java.time.LocalDateTime; // isVerified를 위해 추가
 import java.util.Optional; 
 
+
+@Lazy
 @RequiredArgsConstructor
 @Service
 public class UserService {

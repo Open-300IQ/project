@@ -45,13 +45,7 @@ public class MainController {
         
         return "index"; // templates/index.html
     }
-    
-    // --- [ 1. (신규) "안전 거래 가이드" 페이지 매핑 추가 ] ---
-    @GetMapping("/guide")
-    public String guidePage() {
-        return "guide"; // templates/guide.html
-    }
-    // --- [ 1. (끝) ] ---
+
 
     /**
      * 자료 분석하기 페이지
@@ -61,7 +55,7 @@ public class MainController {
         // 이 라인이 실행될 때 데이터가 조회되어야 합니다.
 	    	List<MonthlyAvgPrice> avgPriceList = monthlyAvgPriceService.getDistrictAvgPriceData(); 
         model.addAttribute("avgPriceData", avgPriceList);
-
+        model.addAttribute("activeMenu", "analysis");
         return "analysis";
     }
 
@@ -69,8 +63,9 @@ public class MainController {
      * AI 상담받기 페이지
      */
     @GetMapping("/ai")
-    public String aiPage() {
-        return "ai"; // templates/ai.html
+    public String ai(Model model) { // 👈 2. Model 파라미터 추가
+        model.addAttribute("activeMenu", "ai"); // 👈 3. 이 줄 추가
+        return "ai";
     }
    
 }
