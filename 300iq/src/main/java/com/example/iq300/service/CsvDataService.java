@@ -7,10 +7,13 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 // 2. (추가) 새 도메인 임포트
 import com.example.iq300.domain.RealEstateTerm; 
@@ -18,6 +21,8 @@ import com.example.iq300.domain.Population;
 import com.example.iq300.domain.RealEstateAgent;
 import com.example.iq300.domain.RealEstateTransaction;
 import com.example.iq300.domain.TotalData;
+import com.example.iq300.domain.MonthlyVolume;
+import com.example.iq300.domain.GrowthRate;
 
 // 3. (추가) 새 리포지토리 임포트
 import com.example.iq300.repository.RealEstateTermRepository; 
@@ -25,6 +30,8 @@ import com.example.iq300.repository.PopulationRepository;
 import com.example.iq300.repository.RealEstateAgentRepository;
 import com.example.iq300.repository.TransactionRepository;
 import com.example.iq300.repository.TotalDataRepository;
+import com.example.iq300.repository.MonthlyVolumeRepository;
+import com.example.iq300.repository.GrowthRateRepository;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -40,6 +47,8 @@ public class CsvDataService {
     private final RealEstateAgentRepository realEstateAgentRepository;
     private final PopulationRepository populationRepository;
     private final TotalDataRepository totalDataRepository;
+    private final MonthlyVolumeRepository monthlyVolumeRepository;
+    private final GrowthRateRepository growthRateRepository;
     
     // 4. (추가) 새 리포지토리 필드
     private final RealEstateTermRepository realEstateTermRepository;
@@ -59,6 +68,8 @@ public class CsvDataService {
             RealEstateAgentRepository realEstateAgentRepository,
             PopulationRepository populationRepository,
             TotalDataRepository totalDataRepository,
+            MonthlyVolumeRepository monthlyVolumeRepository,
+            GrowthRateRepository growthRateRepository,
             // 6. (추가) 생성자에 새 리포지토리 주입
             RealEstateTermRepository realEstateTermRepository) { 
         this.resourceLoader = resourceLoader;
@@ -67,6 +78,8 @@ public class CsvDataService {
         this.realEstateAgentRepository = realEstateAgentRepository;
         this.populationRepository = populationRepository;
         this.totalDataRepository = totalDataRepository;
+        this.monthlyVolumeRepository = monthlyVolumeRepository;
+        this.growthRateRepository = growthRateRepository;
         // 7. (추가) 리포지토리 초기화
         this.realEstateTermRepository = realEstateTermRepository;
     }
@@ -449,6 +462,146 @@ public class CsvDataService {
         	}
         }
         return list;
+    }
+    
+    public void calculateAndSaveMonthlyVolumes() {
+    	System.out.println("[CsvService] '구 + 월별' 거래량 집계 시작");
+    	
+    	jdbcTemplate.execute("TRUNCATE TABLE monthlyvolume");
+    	
+    	String sql = "SELECT " +
+                "    CASE " +
+                "        WHEN address LIKE '%상당구%' THEN '상당구' " +
+                "        WHEN address LIKE '%흥덕구%' THEN '흥덕구' " +
+                "        WHEN address LIKE '%서원구%' THEN '서원구' " +
+                "        WHEN address LIKE '%청원구%' THEN '청원구' " +
+                "        ELSE '기타' " +
+                "    END AS guName, " +
+                "    SUBSTRING(contractDate, 1, 6) AS contractMonth, " + 
+                "    COUNT(*) AS transactionCount " + 
+                "FROM " +
+                "    realestatetransaction " + 
+                "WHERE " +
+                "    (address LIKE '%상당구%' OR address LIKE '%흥덕구%' OR address LIKE '%서원구%' OR address LIKE '%청원구%') " +
+                "    AND contractDate IS NOT NULL AND LENGTH(contractDate) >= 6 " + 
+                "	 AND transactionType LIKE '%전월세%'" + 
+                "GROUP BY " + 
+                "    guName, contractMonth " +
+                "ORDER BY " + 
+                "    guName, contractMonth";
+    	
+    	RowMapper<MonthlyVolume> rowMapper = (rs, rowNum) -> new MonthlyVolume(
+    			rs.getString("guName"),
+    			rs.getString("contractMonth"),
+    			rs.getLong("transactionCount")
+    	);
+    	
+    	List<MonthlyVolume> results = jdbcTemplate.query(sql, rowMapper);
+    	
+    	monthlyVolumeRepository.saveAll(results);
+    	
+    	System.out.println("[CsvService] '구 + 월별' 거래량 집계 및 저장 완료. (" + results.size() + "개 그룹)");
+    }
+    
+    public void calculateAndSaveALLGrowthRates() {
+    	System.out.println("[CsvService] 3개월/1년 가격/거래량 증가율 계산 시작");
+    	
+    	jdbcTemplate.execute("TRUNCATE TABLE growthrate");
+    	
+    	String sql =
+    			// 1) 구별 월간 통계 (거래량, 평균가격) - (변경 없음)
+    			"WITH MonthlyGuStats AS ( " +
+    		            "    SELECT  " +
+    		            "        CASE  " +
+    		            "            WHEN address LIKE '%상당구%' THEN '상당구'  " +
+    		            "            WHEN address LIKE '%흥덕구%' THEN '흥덕구'  " +
+    		            "            WHEN address LIKE '%서원구%' THEN '서원구'  " +
+    		            "            WHEN address LIKE '%청원구%' THEN '청원구'  " +
+    		            "        END AS guName,  " +
+    		            "        SUBSTRING(contractDate, 1, 6) AS contractMonth,  " +
+    		            "        COUNT(*) AS monthVolume,  " +
+    		            "        AVG(price) AS monthAvgPrice  " + 
+    		            "    FROM realestatetransaction  " +
+    		            "    WHERE  " +
+    		            "        transactionType LIKE '%전월세%'  " +
+    		            "        AND (address LIKE '%상당구%' OR address LIKE '%흥덕구%' OR address LIKE '%서원구%' OR address LIKE '%청원구%')  " +
+    		            "        AND price > 100  " + 
+    		            "        AND LENGTH(contractDate) >= 6  " +
+    		            "    GROUP BY guName, contractMonth  " +
+    		            "),  " +
+    		    // 2) 청주시 전체 월간 통계 - (변경 없음)
+    		    "CityMonthlyStats AS ( " +
+    		            "    SELECT  " +
+    		            "        '청주시 전체' AS guName,  " +
+    		            "        SUBSTRING(contractDate, 1, 6) AS contractMonth,  " +
+    		            "        COUNT(*) AS monthVolume,  " +
+    		            "        AVG(price) AS monthAvgPrice  " +
+    		            "    FROM realestatetransaction  " +
+    		            "    WHERE  " +
+    		            "        transactionType LIKE '%전월세%'  " +
+    		            "        AND (address LIKE '%상당구%' OR address LIKE '%흥덕구%' OR address LIKE '%서원구%' OR address LIKE '%청원구%')  " +
+    		            "        AND price > 100  " +
+    		            "        AND LENGTH(contractDate) >= 6  " +
+    		            "    GROUP BY contractMonth  " +
+    		            "),  " +
+    		    // 3) 구별 + 시전체 통계를 하나로 합침 - (변경 없음)
+    		    "CombinedStats AS ( " +
+    		            "    SELECT * FROM MonthlyGuStats " +
+    		            "    UNION ALL " +
+    		            "    SELECT * FROM CityMonthlyStats " +
+    		            "),  " +
+    		            
+    		    // 4) [핵심 수정] 202501, 202507, 202510 데이터만 피벗(Pivot)하여 한 줄로 만듭니다.
+    		    "PivotedStats AS ( " +
+    		            "    SELECT " +
+    		            "        guName, " +
+    		            // '현재' (2025년 10월) 데이터
+    		            "        MAX(CASE WHEN contractMonth = '202510' THEN monthVolume END) AS volume_current, " +
+    		            "        MAX(CASE WHEN contractMonth = '202510' THEN monthAvgPrice END) AS price_current, " +
+    		            
+    		            // '3개월' 비교 시작점 (2025년 7월) 데이터
+    		            "        MAX(CASE WHEN contractMonth = '202507' THEN monthVolume END) AS volume_start_3m, " +
+    		            "        MAX(CASE WHEN contractMonth = '202507' THEN monthAvgPrice END) AS price_start_3m, " +
+    		            
+    		            // '9개월' 비교 시작점 (2025년 1월) 데이터
+    		            "        MAX(CASE WHEN contractMonth = '202501' THEN monthVolume END) AS volume_start_9m, " +
+    		            "        MAX(CASE WHEN contractMonth = '202501' THEN monthAvgPrice END) AS price_start_9m " +
+    		            
+    		            "    FROM CombinedStats " +
+    		            "    WHERE contractMonth IN ('202501', '202507', '202510') " + // 필요한 3개 월만 필터링
+    		            "    GROUP BY guName " +
+    		            ") " +
+    		            
+    		    // 5) [수정] 피벗된 데이터를 바탕으로 증가율 계산
+    		    "SELECT areaName, txpriceType, period, growthRate FROM ( " +
+    		            // '3개월' (202510 vs 202507) 거래량
+    		            "    SELECT guName AS areaName, '거래량' AS txpriceType, '3개월' AS period, (volume_current - volume_start_3m) * 100.0 / volume_start_3m AS growthRate " +
+    		            "    FROM PivotedStats WHERE volume_start_3m > 0 " +
+    		            "    UNION ALL " +
+    		            // '9개월' (202510 vs 202501) 거래량
+    		            "    SELECT guName AS areaName, '거래량' AS txpriceType, '9개월' AS period, (volume_current - volume_start_9m) * 100.0 / volume_start_9m AS growthRate " +
+    		            "    FROM PivotedStats WHERE volume_start_9m > 0 " +
+    		            "    UNION ALL " +
+    		            // '3개월' (202510 vs 202507) 가격
+    		            "    SELECT guName AS areaName, '가격' AS txpriceType, '3개월' AS period, (price_current - price_start_3m) * 100.0 / price_start_3m AS growthRate " +
+    		            "    FROM PivotedStats WHERE price_start_3m > 0 " +
+    		            "    UNION ALL " +
+    		            // '9개월' (202510 vs 202501) 가격
+    		            "    SELECT guName AS areaName, '가격' AS txpriceType, '9개월' AS period, (price_current - price_start_9m) * 100.0 / price_start_9m AS growthRate " +
+    		            "    FROM PivotedStats WHERE price_start_9m > 0 " +
+    		            ") AS FinalResults";
+    	RowMapper<GrowthRate> rowMapper = (rs, rowNum) -> new GrowthRate(
+			rs.getString("areaName"),
+			rs.getString("txpriceType"),
+			rs.getString("period"),
+			rs.getDouble("growthRate")
+    	);
+    	
+    	List<GrowthRate> results = jdbcTemplate.query(sql, rowMapper);
+    	
+    	growthRateRepository.saveAll(results);
+    	
+    	System.out.println("[CsvService] 모든 증가율 통계 계산 및 저장 완료. (\" + results.size() + \"개 지표)");
     }
     
     // --- 2. 중개인 CSV 데이터 로드 및 DB 적재 ---

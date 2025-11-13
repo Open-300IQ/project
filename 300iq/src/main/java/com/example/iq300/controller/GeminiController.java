@@ -4,13 +4,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.iq300.service.GeminiService;
+import com.example.iq300.service.GptService;
 
 @Controller
 public class GeminiController {
-	private final GeminiService geminiService;
+	private final GptService geminiService;
 	
-	public GeminiController(GeminiService geminiService) {
+	public GeminiController(GptService geminiService) {
 		this.geminiService = geminiService;
 	}
 	
