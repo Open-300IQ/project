@@ -1,19 +1,29 @@
 package com.example.iq300.controller;
 
-import com.example.iq300.domain.Board;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 // (추가) Page 임포트
 import org.springframework.data.domain.Page;
-import com.example.iq300.service.BoardService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam; // (추가)
 
+import com.example.iq300.domain.Board;
+import com.example.iq300.domain.MonthlyAvgPrice;
+import com.example.iq300.service.BoardService;
+import com.example.iq300.service.MonthlyAvgPriceService;
+
+import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @Controller
 public class MainController {
-
+	
+	@Autowired
+	private MonthlyAvgPriceService monthlyAvgPriceService;
+	
     private final BoardService boardService;
 
     /**
@@ -47,8 +57,12 @@ public class MainController {
      * 자료 분석하기 페이지
      */
     @GetMapping("/analysis")
-    public String analysisPage() {
-        return "analysis"; // templates/analysis.html
+    public String analysis(Model model) {
+        // 이 라인이 실행될 때 데이터가 조회되어야 합니다.
+	    	List<MonthlyAvgPrice> avgPriceList = monthlyAvgPriceService.getDistrictAvgPriceData(); 
+        model.addAttribute("avgPriceData", avgPriceList);
+
+        return "analysis";
     }
 
     /**
