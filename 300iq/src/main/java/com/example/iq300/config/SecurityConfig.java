@@ -28,7 +28,7 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/board/detail/**"),
                         new AntPathRequestMatcher("/analysis"),
                         new AntPathRequestMatcher("/ai"),
-                        
+                        new AntPathRequestMatcher("/ai/chat"),
                         new AntPathRequestMatcher("/calendar"),
                         new AntPathRequestMatcher("/question/list"),
                         new AntPathRequestMatcher("/question/detail/**"),

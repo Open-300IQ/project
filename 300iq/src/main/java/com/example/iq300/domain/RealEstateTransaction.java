@@ -20,7 +20,7 @@ public class RealEstateTransaction {
     private Long id;
 
     @Column(length = 30) private String transactionType; // "아파트(매매)", "아파트(전월세)" 등
-    @Column(length = 30) private String address;         // 시군구 (예: "충청북도 청주시 흥덕구")
+    @Column(length = 255) private String address;         // 시군구 (예: "충청북도 청주시 흥덕구")
     @Column(length = 30) private String buildingName;    // 단지명 또는 건물명
     private double area;            // 전용면적(㎡)
     @Column(length = 30) private String contractDate;    // 계약년월일 (예: "20251009")

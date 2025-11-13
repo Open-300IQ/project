@@ -4,21 +4,27 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets; // 1. (추가) UTF-8 임포트
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Arrays;
 
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 // 2. (추가) 새 도메인 임포트
 import com.example.iq300.domain.RealEstateTerm; 
 import com.example.iq300.domain.Population;
 import com.example.iq300.domain.RealEstateAgent;
 import com.example.iq300.domain.RealEstateTransaction;
+import com.example.iq300.domain.TotalData;
 
 // 3. (추가) 새 리포지토리 임포트
 import com.example.iq300.repository.RealEstateTermRepository; 
 import com.example.iq300.repository.PopulationRepository;
 import com.example.iq300.repository.RealEstateAgentRepository;
 import com.example.iq300.repository.TransactionRepository;
+import com.example.iq300.repository.TotalDataRepository;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -27,11 +33,13 @@ import com.opencsv.CSVReaderBuilder;
 public class CsvDataService {
 
     private final ResourceLoader resourceLoader;
+    private final JdbcTemplate jdbcTemplate;
 
     // JPA Repository 주입
     private final TransactionRepository transactionRepository;
     private final RealEstateAgentRepository realEstateAgentRepository;
     private final PopulationRepository populationRepository;
+    private final TotalDataRepository totalDataRepository;
     
     // 4. (추가) 새 리포지토리 필드
     private final RealEstateTermRepository realEstateTermRepository;
@@ -46,15 +54,19 @@ public class CsvDataService {
      */
     public CsvDataService(
             ResourceLoader resourceLoader,
+            JdbcTemplate jdbcTemplate,
             TransactionRepository transactionRepository,
             RealEstateAgentRepository realEstateAgentRepository,
             PopulationRepository populationRepository,
+            TotalDataRepository totalDataRepository,
             // 6. (추가) 생성자에 새 리포지토리 주입
             RealEstateTermRepository realEstateTermRepository) { 
         this.resourceLoader = resourceLoader;
+        this.jdbcTemplate = jdbcTemplate;
         this.transactionRepository = transactionRepository;
         this.realEstateAgentRepository = realEstateAgentRepository;
         this.populationRepository = populationRepository;
+        this.totalDataRepository = totalDataRepository;
         // 7. (추가) 리포지토리 초기화
         this.realEstateTermRepository = realEstateTermRepository;
     }
@@ -64,51 +76,53 @@ public class CsvDataService {
     public List<RealEstateTransaction> loadTransactions() {
         System.out.println("[CsvService] 실거래가 CSV 파일 로드 시작...");
 
-        int skipLines = 20;
+        jdbcTemplate.execute("TRUNCATE TABLE realestatetransaction");
+        
+//        int skipLines = 20;
         final String ENC_FOR_TRANSACTION = ENC_MS949;
-
+        
         List<RealEstateTransaction> allTransactions = new ArrayList<>();
         
         // 서원구 (Seowon)
-        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_서원구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_서원구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_서원구.csv", "아파트(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_서원구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_서원구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_서원구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_서원구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_서원구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION, skipLines));
+        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_서원구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_서원구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_서원구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_서원구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_서원구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_서원구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_서원구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_서원구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
 
 
         // 청원구 (Cheongwon)
-        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_청원구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_청원구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_청원구.csv", "아파트(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_청원구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_청원구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_청원구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_청원구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_청원구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION, skipLines));
+        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_청원구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_청원구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_청원구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_청원구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_청원구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_청원구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_청원구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_청원구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
         
         // 흥덕구 (Heungdeok)
-        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_흥덕구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_흥덕구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_흥덕구.csv", "아파트(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_흥덕구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_흥덕구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_흥덕구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_흥덕구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_흥덕구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION, skipLines));
+        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_흥덕구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_흥덕구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_흥덕구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_흥덕구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_흥덕구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_흥덕구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_흥덕구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_흥덕구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
         
         // 상당구 (Sangdang)
-        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_상당구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_상당구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_상당구.csv", "아파트(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_상당구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_상당구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_상당구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_상당구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION, skipLines));
-        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_상당구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION, skipLines));
+        allTransactions.addAll(parseTransactionFile("단독다가구_매매_실거래가_2025년_상당구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("단독다가구_전월세_실거래가_2025년_상당구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_매매_실거래가_2025년_상당구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("아파트_전월세_실거래가_2025년_상당구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_매매_실거래가_2025년_상당구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("연립다세대_전월세_실거래가_2025년_상당구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_매매_실거래가_2025년_상당구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTransactions.addAll(parseTransactionFile("오피스텔_전월세_실거래가_2025년_상당구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
         
         
         // 단일 Repository를 사용해 모든 데이터를 일괄 저장
@@ -125,13 +139,42 @@ public class CsvDataService {
      * 실거래가 CSV 파일을 파싱합니다.
      * (기존 코드와 동일)
      */
-    private List<RealEstateTransaction> parseTransactionFile(String filePath, String txType, String encoding, int skipLines) {
+    private List<RealEstateTransaction> parseTransactionFile(String filePath, String txType, String encoding) {
         List<RealEstateTransaction> list = new ArrayList<>();
+        
+        final List<String> EXPECTED_HEADER_KEYWORDS = Arrays.asList("시군구", "전용면적", "계약년월", "계약일", "거래금액", "보증금", "월세금", "도로명");
+        
+        final int MIN_HEADERS_TO_MATCH = 3;
+        
         String fullPath = "classpath:csv/" + filePath;
+        
+        CSVReader csvReader = null;
 
         try (InputStreamReader reader = new InputStreamReader(resourceLoader.getResource(fullPath).getInputStream(), encoding);
-             CSVReader csvReader = new CSVReaderBuilder(reader).withSkipLines(skipLines).build()) {
-
+             BufferedReader bufferedReader = new BufferedReader(reader)) {
+        	
+        	String currentLine;
+        	boolean headerFound = false;
+        	int linesRead = 0;
+        	
+        	while((currentLine = bufferedReader.readLine()) != null) {
+        		linesRead++;
+        		
+        		long matchCount = EXPECTED_HEADER_KEYWORDS.stream().filter(currentLine::contains).count();
+        		
+        		if(matchCount >= MIN_HEADERS_TO_MATCH) {
+        			headerFound = true;
+        			
+        			break;
+        		}
+        		
+        		if(linesRead > 100) {
+        			throw new IOException("100줄을 지나도 헤더가 없습니다. : " + filePath);
+        		}
+        	}
+        	
+        	csvReader = new CSVReaderBuilder(bufferedReader).build();
+        	
             String[] line;
             while ((line = csvReader.readNext()) != null) {
                 if (line.length < 10) continue; 
@@ -183,7 +226,7 @@ public class CsvDataService {
                         tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
                         tx.setRent(Integer.parseInt(line[11].replace(",", "")));  
                     } else if (txType.equals("오피스텔(매매)")) {
-                        tx.setAddress(line[1]);      
+                        tx.setAddress(line[1]);
                         tx.setBuildingName(line[5]); 
                         tx.setArea(Double.parseDouble(line[6])); 
                         tx.setContractDate(line[7] + String.format("%02d", Integer.parseInt(line[8]))); 
@@ -207,6 +250,203 @@ public class CsvDataService {
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("[CsvService] 실거래가 CSV 파싱 실패: " + filePath);
+        } finally {
+        	if(csvReader != null) {
+        		try {
+        			csvReader.close();
+        		} catch (IOException e) {
+        			e.printStackTrace();
+        		}
+        	}
+        }
+        return list;
+    }
+    
+    public List<TotalData> loadTotal() {
+        System.out.println("[CsvService] 실거래가 CSV 파일 로드 시작...");
+
+        jdbcTemplate.execute("TRUNCATE TABLE totaldata");
+        
+//        int skipLines = 20;
+        final String ENC_FOR_TRANSACTION = ENC_MS949;
+        
+        List<TotalData> allTotals = new ArrayList<>();
+        
+        // 서원구 (Seowon)
+        allTotals.addAll(parseTotalFile("단독다가구_매매_실거래가_2025년_서원구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("단독다가구_전월세_실거래가_2025년_서원구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_매매_실거래가_2025년_서원구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_전월세_실거래가_2025년_서원구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_매매_실거래가_2025년_서원구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_전월세_실거래가_2025년_서원구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_매매_실거래가_2025년_서원구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_전월세_실거래가_2025년_서원구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
+
+
+        // 청원구 (Cheongwon)
+        allTotals.addAll(parseTotalFile("단독다가구_매매_실거래가_2025년_청원구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("단독다가구_전월세_실거래가_2025년_청원구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_매매_실거래가_2025년_청원구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_전월세_실거래가_2025년_청원구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_매매_실거래가_2025년_청원구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_전월세_실거래가_2025년_청원구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_매매_실거래가_2025년_청원구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_전월세_실거래가_2025년_청원구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
+        
+        // 흥덕구 (Heungdeok)
+        allTotals.addAll(parseTotalFile("단독다가구_매매_실거래가_2025년_흥덕구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("단독다가구_전월세_실거래가_2025년_흥덕구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_매매_실거래가_2025년_흥덕구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_전월세_실거래가_2025년_흥덕구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_매매_실거래가_2025년_흥덕구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_전월세_실거래가_2025년_흥덕구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_매매_실거래가_2025년_흥덕구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_전월세_실거래가_2025년_흥덕구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
+        
+        // 상당구 (Sangdang)
+        allTotals.addAll(parseTotalFile("단독다가구_매매_실거래가_2025년_상당구.csv", "단독다가구(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("단독다가구_전월세_실거래가_2025년_상당구.csv", "단독다가구(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_매매_실거래가_2025년_상당구.csv", "아파트(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("아파트_전월세_실거래가_2025년_상당구.csv", "아파트(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_매매_실거래가_2025년_상당구.csv", "연립다세대(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("연립다세대_전월세_실거래가_2025년_상당구.csv", "연립다세대(전월세)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_매매_실거래가_2025년_상당구.csv", "오피스텔(매매)", ENC_FOR_TRANSACTION));
+        allTotals.addAll(parseTotalFile("오피스텔_전월세_실거래가_2025년_상당구.csv", "오피스텔(전월세)", ENC_FOR_TRANSACTION));
+        
+        
+        // 단일 Repository를 사용해 모든 데이터를 일괄 저장
+        List<TotalData> allSavedTotals = totalDataRepository.saveAll(allTotals); 
+        
+        int totalLoaded = allTotals.size();
+        System.out.println("[CsvService] 총 " + totalLoaded + "건의 실거래가 데이터 로드 완료.");
+        System.out.println("[CsvService] 총 " + allSavedTotals.size() + "건의 실거래가 데이터 DB 적재 완료.");
+        return allSavedTotals;
+
+    }
+
+    /**
+     * 실거래가 CSV 파일을 파싱합니다.
+     * (기존 코드와 동일)
+     */
+    private List<TotalData> parseTotalFile(String filePath, String txType, String encoding) {
+        List<TotalData> list = new ArrayList<>();
+        
+        final List<String> EXPECTED_HEADER_KEYWORDS = Arrays.asList("시군구", "전용면적", "계약년월", "계약일", "거래금액", "보증금", "월세금", "도로명");
+        
+        final int MIN_HEADERS_TO_MATCH = 3;
+        
+        String fullPath = "classpath:csv/" + filePath;
+        
+        CSVReader csvReader = null;
+
+        try (InputStreamReader reader = new InputStreamReader(resourceLoader.getResource(fullPath).getInputStream(), encoding);
+             BufferedReader bufferedReader = new BufferedReader(reader)) {
+        	
+        	String currentLine;
+        	boolean headerFound = false;
+        	int linesRead = 0;
+        	
+        	while((currentLine = bufferedReader.readLine()) != null) {
+        		linesRead++;
+        		
+        		long matchCount = EXPECTED_HEADER_KEYWORDS.stream().filter(currentLine::contains).count();
+        		
+        		if(matchCount >= MIN_HEADERS_TO_MATCH) {
+        			headerFound = true;
+        			
+        			break;
+        		}
+        		
+        		if(linesRead > 100) {
+        			throw new IOException("100줄을 지나도 헤더가 없습니다. : " + filePath);
+        		}
+        	}
+        	
+        	csvReader = new CSVReaderBuilder(bufferedReader).build();
+      
+            String[] line;
+            while ((line = csvReader.readNext()) != null) {
+                if (line.length < 10) continue; 
+
+                TotalData tx = new TotalData();
+                tx.setTransactionType(txType);
+
+                try {
+                    if (txType.equals("단독다가구(매매)")) {
+                        tx.setAddress(line[1] + " " + line[13]);      
+                        tx.setBuildingName("-"); 
+                        tx.setArea(Double.parseDouble(line[5])); 
+                        tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
+                        tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
+                        tx.setRent(0); 
+                    } else if (txType.equals("단독다가구(전월세)")) {
+                        tx.setAddress(line[1] + " " + line[11]);      
+                        tx.setBuildingName("-"); 
+                        tx.setArea(Double.parseDouble(line[4])); 
+                        tx.setContractDate(line[6] + String.format("%02d", Integer.parseInt(line[7]))); 
+                        tx.setPrice(Integer.parseInt(line[8].replace(",", ""))); 
+                        tx.setRent(Integer.parseInt(line[9].replace(",", "")));  
+                    } else if (txType.equals("아파트(매매)")) {
+                        tx.setAddress(line[1] + " " + line[15]);      
+                        tx.setBuildingName(line[5]); 
+                        tx.setArea(Double.parseDouble(line[6])); 
+                        tx.setContractDate(line[7] + String.format("%02d", Integer.parseInt(line[8]))); 
+                        tx.setPrice(Integer.parseInt(line[9].replace(",", ""))); 
+                        tx.setRent(0); 
+                    } else if (txType.equals("아파트(전월세)")) {
+                        tx.setAddress(line[1] + " " + line[14]);      
+                        tx.setBuildingName(line[5]); 
+                        tx.setArea(Double.parseDouble(line[7])); 
+                        tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
+                        tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
+                        tx.setRent(Integer.parseInt(line[11].replace(",", "")));  
+                    } else if (txType.equals("연립다세대(매매)")) {
+                        tx.setAddress(line[1] + " " + line[15]);      
+                        tx.setBuildingName(line[5]); 
+                        tx.setArea(Double.parseDouble(line[6])); 
+                        tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
+                        tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
+                        tx.setRent(0); 
+                    } else if (txType.equals("연립다세대(전월세)")) {
+                        tx.setAddress(line[1] + " " + line[14]);      
+                        tx.setBuildingName(line[5]); 
+                        tx.setArea(Double.parseDouble(line[7])); 
+                        tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
+                        tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
+                        tx.setRent(Integer.parseInt(line[11].replace(",", "")));  
+                    } else if (txType.equals("오피스텔(매매)")) {
+                        tx.setAddress(line[1] + " " + line[14]);
+                        tx.setBuildingName(line[5]); 
+                        tx.setArea(Double.parseDouble(line[6])); 
+                        tx.setContractDate(line[7] + String.format("%02d", Integer.parseInt(line[8]))); 
+                        tx.setPrice(Integer.parseInt(line[9].replace(",", ""))); 
+                        tx.setRent(0); 
+                    } else if (txType.equals("오피스텔(전월세)")) {
+                        tx.setAddress(line[1] + " " + line[14]);      
+                        tx.setBuildingName(line[5]); 
+                        tx.setArea(Double.parseDouble(line[7])); 
+                        tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
+                        tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
+                        tx.setRent(Integer.parseInt(line[11].replace(",", "")));  
+                    }
+                    if (tx.getAddress() != null && !tx.getAddress().isEmpty()) { 
+                        list.add(tx);
+                    }
+                } catch (Exception e) {
+                    // 파싱 중 오류 발생 시 무시
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("[CsvService] 실거래가 CSV 파싱 실패: " + filePath);
+        } finally {
+        	if(csvReader != null) {
+        		try {
+        			csvReader.close();
+        		} catch (IOException e) {
+        			e.printStackTrace();
+        		}
+        	}
         }
         return list;
     }
@@ -215,6 +455,8 @@ public class CsvDataService {
     // (기존 코드와 동일)
     public List<RealEstateAgent> loadAgents(){
     	System.out.println("[CsvService] 중개인 CSV 파일 로드 시작...");
+    	
+    	jdbcTemplate.execute("TRUNCATE TABLE realestateagent");
     	
     	int skipLines=1;
     	final String ENC_FOR_AGENT = ENC_MS949;
@@ -266,6 +508,8 @@ public class CsvDataService {
     // (기존 코드와 동일)
     public List<Population> loadPopulation(){
     	System.out.println("[CsvService] 인구 CSV 파일 로드 시작...");
+    	
+    	jdbcTemplate.execute("TRUNCATE TABLE population");
     	
     	int skipLines=1;
     	final String ENC_FOR_AGENT = ENC_MS949; // (변수명은 agent지만 MS949)
@@ -321,6 +565,8 @@ public class CsvDataService {
      */
     public List<RealEstateTerm> loadRealEstateTerms() {
         System.out.println("[CsvService] 부동산 용어사전 CSV 파일 로드 시작...");
+        
+        jdbcTemplate.execute("TRUNCATE TABLE realestateterm");
         
         int skipLines = 1; // 헤더(첫 줄) 스킵
         

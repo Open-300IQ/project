@@ -62,10 +62,9 @@ public class MainController {
     /**
      * AI 상담받기 페이지
      */
-    @GetMapping("/ai")
-    public String ai(Model model) { // 👈 2. Model 파라미터 추가
-        model.addAttribute("activeMenu", "ai"); // 👈 3. 이 줄 추가
-        return "ai";
-    }
-   
+//    @GetMapping("/ai")
+//    public String aiPage() {
+//        return "ai"; // templates/ai.html
+//    }  GeminiController로 매핑 이동   
+
 }
