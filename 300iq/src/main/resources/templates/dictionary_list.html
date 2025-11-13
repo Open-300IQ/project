@@ -2,14 +2,18 @@
 <html lang="ko" 
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}"> <head>
+      layout:decorate="~{layout}">
+<head>
     <title>부동산 용어사전</title>
+    
     <style>
-        /* 이미지와 유사한 'ㄱ','ㄴ','ㄷ' 탭 스타일 */
+        /* 'ㄱ','ㄴ','ㄷ' 탭 스타일 (다크 모드) */
         .dic_button_dl {
             display: flex; flex-wrap: wrap;
             gap: 5px; padding: 10px;
-            background-color: #2a2a2a; border-radius: 8px;
+            background-color: #2a2a2a; /* 탭 배경 */
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         .dic_button_dl a {
             flex-grow: 1; text-align: center;
@@ -24,14 +28,14 @@
         .dic_button_dl a:hover {
             background-color: #444; color: #fff;
         }
-        /* 현재 선택된 탭 (컨트롤러의 'part'와 일치) */
+        /* 현재 선택된 탭 */
         .dic_button_dl a.active {
             background-color: #54c700; /* layout.html의 primary color */
             color: #121212;
             border-color: #54c700;
         }
         
-        /* 용어 목록 스타일 */
+        /* 용어 목록 스타일 (다크 모드) */
         .term-list-group {
             margin-top: 20px;
         }
@@ -41,6 +45,9 @@
             margin-bottom: -1px; /* 테두리 겹침 */
             padding: 1rem 1.25rem;
         }
+        .term-item:first-child { border-top-left-radius: .25rem; border-top-right-radius: .25rem; }
+        .term-item:last-child { margin-bottom: 0; border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem; }
+
         .term-item dt {
             font-size: 1.2rem;
             font-weight: 600;
@@ -56,47 +63,85 @@
 </head>
 <body>
 
-    <div layout:fragment="content"> 
+<div layout:fragment="content"> 
+    
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='dictionary')}"></div>
+    
+    <div class="right-content">
         
-        <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='dictionary')}"></div> <div class="right-content">
+        <h2 class="border-bottom pb-2 mb-4">📚 부동산 용어사전</h2>
+
+        <form th:action="@{/dictionary/list}" method="get" class="mb-4">
+            <input type="hidden" name="part" th:value="${part}">
+            <div class="input-group">
+                <select name="searchType" class="form-select" style="max-width: 100px;">
+                    <option value="term" th:selected="${searchType == 'term'}">용어</option>
+                    <option value="content" th:selected="${searchType == 'content'}">설명</option>
+                </select>
+                <input type="text" name="kw" class="form-control" th:value="${kw}" placeholder="검색어를 입력하세요">
+                <button class="btn btn-primary" type="submit">검색</button>
+            </div>
+        </form>
+
+        <div class="dic_button_dl">
+            <a th:href="@{/dictionary/list(part='전체')}" th:classappend="${part == '전체'} ? 'active'">전체</a>
+            <a th:href="@{/dictionary/list(part='ㄱ')}" th:classappend="${part == 'ㄱ'} ? 'active'">ㄱ</a>
+            <a th:href="@{/dictionary/list(part='ㄴ')}" th:classappend="${part == 'ㄴ'} ? 'active'">ㄴ</a>
+            <a th:href="@{/dictionary/list(part='ㄷ')}" th:classappend="${part == 'ㄷ'} ? 'active'">ㄷ</a>
+            <a th:href="@{/dictionary/list(part='ㄹ')}" th:classappend="${part == 'ㄹ'} ? 'active'">ㄹ</a>
+            <a th:href="@{/dictionary/list(part='ㅁ')}" th:classappend="${part == 'ㅁ'} ? 'active'">ㅁ</a>
+            <a th:href="@{/dictionary/list(part='ㅂ')}" th:classappend="${part == 'ㅂ'} ? 'active'">ㅂ</a>
+            <a th:href="@{/dictionary/list(part='ㅅ')}" th:classappend="${part == 'ㅅ'} ? 'active'">ㅅ</a>
+            <a th:href="@{/dictionary/list(part='ㅇ')}" th:classappend="${part == 'ㅇ'} ? 'active'">ㅇ</a>
+            <a th:href="@{/dictionary/list(part='ㅈ')}" th:classappend="${part == 'ㅈ'} ? 'active'">ㅈ</a>
+            <a th:href="@{/dictionary/list(part='ㅊ')}" th:classappend="${part == 'ㅊ'} ? 'active'">ㅊ</a>
+            <a th:href="@{/dictionary/list(part='ㅋ')}" th:classappend="${part == 'ㅋ'} ? 'active'">ㅋ</a>
+            <a th:href="@{/dictionary/list(part='ㅌ')}" th:classappend="${part == 'ㅌ'} ? 'active'">ㅌ</a>
+            <a th:href="@{/dictionary/list(part='ㅍ')}" th:classappend="${part == 'ㅍ'} ? 'active'">ㅍ</a>
+            <a th:href="@{/dictionary/list(part='ㅎ')}" th:classappend="${part == 'ㅎ'} ? 'active'">ㅎ</a>
+            <a th:href="@{/dictionary/list(part='A-Z')}" th:classappend="${part == 'A-Z'} ? 'active'">A-Z</a>
+        </div>
+
+        <div class="term-list-group">
+            <div th:if="${paging.isEmpty()}" class="alert alert-info" role="alert">
+                조회된 용어가 없습니다.
+            </div>
             
-            <h2 class="border-bottom pb-2 mb-4">📚 부동산 용어사전</h2>
+            <dl th:unless="${paging.isEmpty()}" th:each="term : ${paging}" class="term-item">
+                <dt th:text="${term.term}">가건물</dt>
+                <dd th:text="${term.definition}">설명...</dd>
+            </dl>
+        </div>
 
-            <form th:action="@{/dictionary/list}" method="get" class="mb-4">
-                <input type="hidden" name="part" th:value="${part}">
+        <nav th:if="${!paging.isEmpty()}"
+             th:with="currentPart=${part}, currentKw=${kw != null ? kw : ''}, currentSearchType=${searchType}"
+             aria-label="Page navigation" class="d-flex justify-content-center mt-4">
+            
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${paging.first} ? 'disabled'">
+                    <a class="page-link" 
+                       th:href="@{|/dictionary/list?part=${currentPart}&page=${paging.number - 1}&kw=${currentKw}&searchType=${currentSearchType}|}">
+                        <span>&laquo;</span>
+                    </a>
+                </li>
                 
-                <div class="input-group">
-                    <select name="searchType" class="form-select" style="max-width: 150px;">
-                        <option value="term" th:selected="${searchType == 'term'}">용어명칭</option>
-                        <option value="content" th:selected="${searchType == 'content'}">용어내용</option>
-                    </select>
-                    
-                    <input type="text" name="kw" class="form-control" placeholder="검색어를 입력하세요." th:value="${kw}">
-                    
-                    <button type="submit" class="btn btn-primary">검색</button>
-                </div>
-            </form>
-
-            <div class="dic_button_dl">
-                <a th:each="char : ${charTabs}" 
-                   th:href="@{/dictionary/list(part=${char}, searchType=${searchType}, kw=${kw})}"
-                   th:classappend="${part == char} ? 'active'"
-                   th:text="${char}">
-                   </a>
-            </div>
-
-            <div class="term-list-group">
-                <div th:if="${termList.isEmpty()}" class="card text-center p-5">
-                    <p class="text-body-secondary fs-5">
-                        '<span th:text="${part}"></span>'(으)로 시작하고 '<span th:text="${kw}"></span>'(을)를 포함하는 용어가 없습니다.
-                    </p>
-                </div>
+                <li th:each="pageNumber : ${#numbers.sequence(paging.number - 5 < 0 ? 0 : paging.number - 5, paging.number + 4 >= paging.totalPages ? paging.totalPages - 1 : paging.number + 4)}"
+                    class="page-item" th:classappend="${pageNumber == paging.number} ? 'active'">
+                    <a th:text="${pageNumber + 1}" class="page-link"
+                       th:href="@{|/dictionary/list?part=${currentPart}&page=${pageNumber}&kw=${currentKw}&searchType=${currentSearchType}|}"></a>
+                </li>
                 
-                <dl th:unless="${termList.isEmpty()}" th:each="term : ${termList}" class="term-item">
-                    <dt th:text="${term.term}">가건물(假建物)</dt>
-                    <dd th:text="${term.definition}">가건물이란 건물로서의 구조나 형태...</dd>
-                </dl>
-            </div>
+                <li class="page-item" th:classappend="${paging.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{|/dictionary/list?part=${currentPart}&page=${paging.number + 1}&kw=${currentKw}&searchType=${currentSearchType}|}">
+                        <span>&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+    </div> 
+</div> 
 
-        </div> </div> </body>
+</body>
 </html>

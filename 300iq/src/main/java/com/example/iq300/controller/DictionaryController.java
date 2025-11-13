@@ -3,46 +3,38 @@ package com.example.iq300.controller;
 import com.example.iq300.domain.RealEstateTerm;
 import com.example.iq300.service.DictionaryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page; // [추가]
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
-@RequestMapping("/dictionary")
 @RequiredArgsConstructor
 @Controller
-
 public class DictionaryController {
 
     private final DictionaryService dictionaryService;
-    
-    // 'ㄱ'부터 'A-Z'까지의 자음/알파벳 배열
-    private final String[] CHAR_TABS = {
-        "ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ", "ㅂ", "ㅅ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ", "A-Z"
-    };
 
-    @GetMapping("/list")
+    @GetMapping("/dictionary/list")
     public String list(Model model,
-                       @RequestParam(value="part", defaultValue="ㄱ") String part,
-                       @RequestParam(value="searchType", defaultValue="term") String searchType,
-                       @RequestParam(value="kw", defaultValue="") String kw) {
+                       // ======== [ 6. 'page' 파라미터 추가 ] ========
+                       @RequestParam(value = "page", defaultValue = "0") int page,
+                       @RequestParam(value = "part", defaultValue = "전체") String part, // 기본값 '전체'로
+                       @RequestParam(value = "kw", required = false) String kw,
+                       @RequestParam(value = "searchType", defaultValue = "term") String searchType) {
 
-        // 1. 서비스에서 검색 결과 조회
-        List<RealEstateTerm> termList = dictionaryService.getList(part, searchType, kw);
-
-        // 2. 모델에 데이터 추가
-        model.addAttribute("termList", termList);
-        model.addAttribute("charTabs", CHAR_TABS); // 'ㄱ','ㄴ','ㄷ'... 탭 배열
+        // [수정] Service 호출 시 page 파라미터 전달, 반환값을 Page로 받기
+        Page<RealEstateTerm> paging = this.dictionaryService.getList(part, searchType, kw, page);
         
-        // 3. 검색 조건 유지를 위해 모델에 추가
-        model.addAttribute("part", part);
-        model.addAttribute("searchType", searchType);
+        // [수정] Model에 'list' 대신 'paging' 객체를 전달
+        model.addAttribute("paging", paging);
+        
+        // 검색어와 타입을 유지하기 위해 model에 추가
+        model.addAttribute("part", part); 
         model.addAttribute("kw", kw);
+        model.addAttribute("searchType", searchType);
         model.addAttribute("activeMenu", "dictionary");
 
-        return "dictionary_list"; // templates/dictionary_list.html 파일을 반환
+        return "dictionary_list";
     }
 }

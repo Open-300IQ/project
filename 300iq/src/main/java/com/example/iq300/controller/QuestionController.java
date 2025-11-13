@@ -41,7 +41,7 @@ public class QuestionController {
         model.addAttribute("kw", kw);
         model.addAttribute("searchType", searchType);
         model.addAttribute("sortType", sortType);
-        
+        model.addAttribute("activeMenu", "qna");
         return "question_list";
     }
 
@@ -49,30 +49,32 @@ public class QuestionController {
     public String detail(Model model, @PathVariable("id") Long id, AnswerCreateForm answerCreateForm) {
         Question question = this.questionService.getQuestion(id);
         model.addAttribute("question", question);
+        model.addAttribute("activeMenu", "qna");
         return "question_detail";
+        
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String questionCreate(QuestionCreateForm questionCreateForm) {
+    public String questionCreate(Model model, QuestionCreateForm questionCreateForm) { // 1. Model 추가
+        model.addAttribute("activeMenu", "qna"); // 2. 이 줄 추가
         return "question_form";
     }
 
+ 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String questionCreate(@Valid QuestionCreateForm questionCreateForm, BindingResult bindingResult, Principal principal) {
+    public String questionCreate(@Valid QuestionCreateForm questionCreateForm, BindingResult bindingResult, Principal principal, Model model) { // 1. Model 추가
         if (bindingResult.hasErrors()) {
-            return "question_form";
+            model.addAttribute("activeMenu", "qna"); // 2. 이 줄 추가
+            return "question_form"; 
         }
         
-        // 2. [수정] findUser().orElseThrow() -> getUser()
         User user = this.userService.getUser(principal.getName());
-        
         this.questionService.create(questionCreateForm.getSubject(), questionCreateForm.getContent(), user);
         
         return "redirect:/question/list"; 
     }
-    
     // 3. [추가] 추천 기능 (이전에 빠져있던 것)
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{id}")
