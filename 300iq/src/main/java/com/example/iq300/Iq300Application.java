@@ -36,13 +36,13 @@ public class Iq300Application {
             System.out.println("====== (시작) CSV 데이터 DB 적재 ======");
 
 
-//            csvDataService.loadTransactions();
-//            monthlyAvgPriceService.aggregateAndSaveData(); 
-//            csvDataService.loadAgents();
-//            csvDataService.loadPopulation();
-//            csvDataService.loadTotal();
-//            csvDataService.calculateAndSaveMonthlyVolumes();
-//            csvDataService.calculateAndSaveALLGrowthRates();
+            csvDataService.loadTransactions();
+            monthlyAvgPriceService.aggregateAndSaveData(); 
+            csvDataService.loadAgents();
+            csvDataService.loadPopulation();
+            csvDataService.loadTotal();
+            csvDataService.calculateAndSaveMonthlyVolumes();
+            csvDataService.calculateAndSaveALLGrowthRates();
 
 
 
@@ -83,14 +83,14 @@ public class Iq300Application {
         return args -> {
             System.out.println("====== [CsvDataService] 데이터 로드 시작 ======");
 
-//            csvDataService.loadTransactions(); 
-//            csvDataService.loadAgents();       
-//            csvDataService.loadPopulation();   
-//            csvDataService.loadTotal();
-//            csvDataService.calculateAndSaveMonthlyVolumes();
-//            csvDataService.calculateAndSaveALLGrowthRates();
-//           
-//            csvDataService.loadRealEstateTerms(); 
+            csvDataService.loadTransactions(); 
+            csvDataService.loadAgents();       
+            csvDataService.loadPopulation();   
+            csvDataService.loadTotal();
+            csvDataService.calculateAndSaveMonthlyVolumes();
+            csvDataService.calculateAndSaveALLGrowthRates();
+           
+            csvDataService.loadRealEstateTerms(); 
 
             
             System.out.println("====== [CsvDataService] 모든 데이터 로드 완료 ======");
