@@ -14,7 +14,7 @@ import com.example.iq300.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
-// import java.util.Optional; // (사용 안 함)
+
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -83,14 +83,13 @@ public class Iq300Application {
         return args -> {
             System.out.println("====== [CsvDataService] 데이터 로드 시작 ======");
 
-            csvDataService.loadTransactions(); // (필요하면 주석 해제)
-            csvDataService.loadAgents();       // (필요하면 주석 해제)
-            csvDataService.loadPopulation();   // (필요하면 주석 해제)
+            csvDataService.loadTransactions(); 
+            csvDataService.loadAgents();       
+            csvDataService.loadPopulation();   
             csvDataService.loadTotal();
             csvDataService.calculateAndSaveMonthlyVolumes();
             csvDataService.calculateAndSaveALLGrowthRates();
-            
-            // (중요!) 부동산 용어사전 CSV 로드 실행
+           
             csvDataService.loadRealEstateTerms(); 
 
             

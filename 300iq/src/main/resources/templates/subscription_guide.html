@@ -1,127 +1,553 @@
-	<!DOCTYPE html>
-	<html lang="ko" 
-	      xmlns:th="http://www.thymeleaf.org"
-	      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	      layout:decorate="~{layout}">
-	<head>
-	    <title>주택청약 가이드</title>
-	    
-	    <style>
-	        .guide-section {
-	            margin-bottom: 2.5rem;
-	        }
-	        .guide-section h3 {
-	            color: #54c700; /* Primary color */
-	            border-bottom: 2px solid #333;
-	            padding-bottom: 0.5rem;
-	            margin-bottom: 1rem;
-	            font-weight: 700;
-	        }
-	        .guide-section .card {
-	            background-color: #2a2a2a; /* 더 어두운 카드 배경 */
-	        }
-	        .guide-section ul {
-	            padding-left: 20px;
-	        }
-	        .guide-section li {
-	            margin-bottom: 0.75rem;
-	            line-height: 1.7;
-	        }
-	        .text-warning {
-	            color: #ffc107 !important;
-	        }
-	    </style>
-	</head>
-	<body>
-	    <div layout:fragment="content"> 
-	        
-	        <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='guide_sub')}"></div>
-	        
-	        <div class="right-content">
-	            <h2 class="border-bottom pb-2 mb-4">🏠 주택청약 가이드</h2>
-	            
-	            <div class="guide-section">
-	                <h3>주택청약, 왜 필요할까요?</h3>
-	                <p>
-	                    주택청약은 **새로 짓는 아파트를 분양받을 수 있는 자격**을 얻는 것입니다. 청약통장에 꾸준히 돈을 납입하면 순위가 발생하며, 이 순위를 가진 사람들끼리 경쟁하여 당첨자를 정합니다.
-	                </p>
-	                <p>
-	                    청약의 가장 큰 매력은 **새 아파트를 시세보다 저렴한 '초기 분양가'로 구입**할 수 있다는 점입니다. 특히 '신혼부부 특별공급'이나 '생애최초 특별공급' 등 특정 조건을 만족하면 당첨 확률을 더 높일 수 있습니다.
-	                </p>
-	            </div>
-	
-	            <div class="guide-section">
-	                <h3>주택청약통장의 주요 혜택</h3>
-	                <div class="card">
-	                    <div class="card-body">
-	                        <ul>
-	                            <li>
-	                                <strong>소득공제 혜택:</strong> 연봉 7,000만 원 이하의 무주택 세대주(또는 배우자)라면, 연간 납입액(최대 300만 원 한도)의 40%까지 (최대 120만 원) 소득공제를 받을 수 있습니다.
-	                            </li>
-	                            <li>
-	                                <strong>이자 수익:</strong> 일반 적금보다 높은 수준의 이자를 제공합니다. (예: 24개월 이상 유지 시 연 3% 이상)
-	                            </li>
-	                            <li>
-	                                <strong>정책 대출 연계:</strong> '내집마련 디딤돌 대출'과 같은 정부 지원 주택담보대출 상품을 이용할 때 청약통장 가입 기간에 따라 금리 할인 혜택을 받을 수 있습니다.
-	                            </li>
-	                        </ul>
-	                    </div>
-	                </div>
-	            </div>
-	
-	            <div class="guide-section">
-	                <h3>당첨 확률을 높이려면? (가점제)</h3>
-	                <p>
-	                    청약 당첨은 '추첨제'와 '가점제'로 나뉩니다. 가점제는 아래 3가지 항목의 점수를 합산하여 점수가 높은 순으로 당첨자를 선정하는 방식입니다.
-	                </p>
-	                <div class="card">
-	                    <div class="card-body">
-	                        <dl class="row mb-0">
-	                            <dt class="col-sm-4">1. 무주택 기간 (최대 32점)</dt>
-	                            <dd class="col-sm-8">집을 소유하지 않은 기간이 길수록 점수가 높습니다.</dd>
-	
-	                            <dt class="col-sm-4">2. 부양가족 수 (최대 35점)</dt>
-	                            <dd class="col-sm-8">함께 사는 부양가족(배우자, 자녀, 부모 등)이 많을수록 점수가 높습니다.</dd>
-	
-	                            <dt class="col-sm-4">3. 청약통장 가입 기간 (최대 17점)</dt>
-	                            <dd class="col-sm-8">통장 가입 기간이 길수록 점수가 높습니다. (최대 15년 이상)</dd>
-	                        </dl>
-	                    </div>
-	                </div>
-	            </div>
-	            
-	            <div class="guide-section">
-	                <h3>청약통장, 해지하고 싶다면?</h3>
-	                <p>청약통장 해지는 간단하지만, 신중해야 합니다. 해지 방법은 두 가지입니다.</p>
-	                <ul>
-	                    <li><strong>은행 방문 해지:</strong> 신분증을 지참하고 통장을 개설했던 은행 창구에 방문하여 해지 신청서를 작성합니다.</li>
-	                    <li><strong>온라인 해지:</strong> 해당 은행의 모바일 앱(App)을 통해 비대면으로 해지 신청이 가능합니다.</li>
-	                </ul>
-	            </div>
-	
-	            <div class="guide-section">
-	                <h3 class="text-warning">⚠️ 해지하기 전에 꼭 확인하세요!</h3>
-	                <p>
-	                    당장 목돈이 필요해서 해지를 고민한다면, 다음과 같은 불이익을 반드시 고려해야 합니다.
-	                </p>
-	                <div class="card border-warning">
-	                    <div class="card-body text-warning">
-	                        <ul>
-	                            <li>
-	                                <strong>모든 가산점 소멸:</strong> 통장을 해지하는 순간, 그동안 쌓아온 **무주택 기간, 가입 기간 점수가 모두 0점**이 됩니다. 다시 가입해도 처음부터 다시 시작해야 합니다.
-	                            </li>
-	                            <li>
-	                                <strong>낮은 이율 적용:</strong> 해지 후 재가입 시, 낮은 신규 가입 이율부터 다시 적용받게 되어 이자 수익에서 손해를 봅니다.
-	                            </li>
-	                            <li>
-	                                <strong>대안 (청약 담보대출):</strong> 정말 급하게 돈이 필요하다면, 해지하지 말고 **'청약통장 담보대출'**을 알아보세요. 납입액의 일정 부분(약 90~95%)을 통장을 유지하면서 대출받을 수 있습니다.
-	                            </li>
-	                        </ul>
-	                    </div>
-	                </div>
-	            </div>
-	
-	        </div>
-	    </div>
-	</body>
-	</html>
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>주택청약 가이드</title>
+    
+    <style>
+        /* 기본 스타일 (이전과 동일) */
+        .guide-section {
+            margin-bottom: 2.5rem;
+            /* 부드러운 스크롤을 위해 추가 (선택 사항) */
+            scroll-margin-top: 20px; 
+        }
+        .guide-section h3 {
+            color: #54c700; /* Primary color */
+            border-bottom: 2px solid #333;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        .guide-section .card {
+            background-color: #2a2a2a; /* 더 어두운 카드 배경 */
+        }
+        .guide-section ul, .guide-section ol {
+            padding-left: 20px;
+        }
+        .guide-section li {
+            margin-bottom: 0.75rem;
+            line-height: 1.7;
+        }
+        .text-warning {
+            color: #ffc107 !important;
+        }
+        .guide-section table {
+            width: 100%;
+            margin-bottom: 0;
+            color: #fff;
+        }
+        .guide-section th, .guide-section td {
+            padding: 0.75rem;
+            vertical-align: top;
+            border-top: 1px solid #444;
+        }
+        .guide-section th {
+            font-weight: 600;
+        }
+
+        /* --- 목차 스타일 (새로 추가) --- */
+        .toc-card {
+            background-color: #333; /* 목차 카드 배경 */
+            border: 1px solid #444;
+            margin-bottom: 2.5rem;
+        }
+        .toc-card .card-header {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #54c700; /* 헤더 강조 색상 */
+            border-bottom: 1px solid #444;
+        }
+        .toc-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-bottom: 0;
+            display: flex;
+            flex-wrap: wrap; /* 항목이 많으면 줄바꿈 */
+        }
+        .toc-list li {
+            padding: 0.5rem 1rem;
+            flex-basis: 33.33%; /* 3열 레이아웃 */
+            box-sizing: border-box;
+        }
+        .toc-list li a {
+            text-decoration: none;
+            color: #e0e0e0;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .toc-list li a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+        /* -------------------------- */
+    </style>
+</head>
+<body>
+    <div layout:fragment="content"> 
+        
+        <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='guide_sub')}"></div>
+        
+        <div class="right-content">
+            <h2 class="border-bottom pb-2 mb-4">  2030을 위한 주택청약 가이드</h2>
+
+            <div class="card toc-card">
+                <div class="card-header">
+                    주택청약 알아보기 ⭐
+                </div>
+                <div class="card-body">
+                    <ul class="toc-list">
+                        <li><a href="#section-intro">주택청약이란? 🏠</a></li>
+                        <li><a href="#section-general">일반공급</a></li>
+                        <li><a href="#section-special">특별공급</a></li>
+                        <li><a href="#section-priority">주택청약 1순위 조건</a></li>
+                        <li><a href="#section-meaning">주택청약 의미 있을까?</a></li>
+                        <li><a href="#section-payment">주택청약 얼마씩 넣어야 할까?</a></li>
+                        <li><a href="#section-apply">주택청약 신청 방법</a></li>
+                        <li><a href="#section-penalty">주택청약 해지 불이익</a></li>
+                        <li><a href="#section-cancel">주택청약 해지 방법</a></li>
+                    </ul>
+                </div>
+            </div>
+			<div class="guide-section">
+			    <h3 id="section-intro">주택청약이란? 🏠</h3>
+			    <p>
+			        주택청약은 주택을 분양받고자 하는 사람이 일정한 입주 자격을 갖추어, 사겠다는 의사표시로 예금에 가입하는 것을 의미해요. 청약한 사람 중 선정하여, 신축 아파트를 분양해요. 청약에 당첨되면 새 아파트를 비교적 저렴하게 구입하기 때문에, 분양가의 10~20%인 예약금만 있어도 도전할 수 있어요.
+			    </p>
+			    <p>
+			        분양주택은 공급 주체에 따라 국민주택과 민영주택으로 나뉘어요. 국가, 지자체, LH 등이 건설하는 주택이 국민주택이고, 이러한 국민주택을 제외한 모든 주택이 민영주택이에요. 푸르지오, 레미안 등 친숙한 브랜드가 모두 민영주택이에요.
+			    </p>
+			    
+			    <div class="card">
+			        <div class="card-body">
+			            <dl class="row mb-0">
+			                <dt class="col-sm-4">국민주택</dt>
+			                <dd class="col-sm-8">국가나 지자체, LH에서 건설한 전용면적 85㎡(약 26평) 이하 주택</dd>
+
+			                <dt class="col-sm-4">민영주택</dt>
+			                <dd class="col-sm-8">민간 건설사에서 건설한 주택</dd>
+			            </dl>
+			        </div>
+			    </div>
+
+			    <p class="mt-4">
+			        <strong>집 살 때, 주택청약 꼭 필요한가요?🤔</strong><br/>
+			        기존에 지어진 주택을 구매한다면, 주택청약이 필요하지 않아요.<br/>
+			        다만 새로 짓는 아파트를 분양받고 싶다면, 주택청약을 반드시 해야 해요.<br/>
+			        30세대 이상인 아파트를 분양하려면 반드시 청약을 통해 입주자를 모집해야 한다고 법으로 정해져 있기 때문이죠.
+			    </p>
+			    <p>
+			        주택청약 공급 주택은 국민주택, 민영주택 두 가지로 나뉘고, 두 주택은 모두 분양 자격 및 조건에 따라 일반공급과 특별공급으로 나뉘어요.
+			    </p>
+			</div>
+
+ 
+            
+			<div class="guide-section">
+			    <h3 id="section-general">일반공급</h3>
+			    <p>
+			        일반공급은 가점제와 추첨제로 분양받을 사람을 선정해요. 가점제는 납입 금액을, 추첨제는 무작위 선정이에요. 2030 청년에게 유리한 것은 가점제보다는 추첨제예요. 가점제에서 좋은 점수를 받기 위해서는 오랜 기간이 필요해요.
+			    </p>
+
+			    <h5 class="mt-4">국민주택</h5>
+			    <p>
+			        국민주택 일반공급에서 순위가 높아지기 위해서는 납입 급액이 중요해요. 납입 인정 금액은 월 최대 10만 원으로 적기 때문에, 오래 납입하신 분들이 유리하겠죠. 2030 청년들은 점수가 높지 않을 가능성이 커요.
+			    </p>
+			    <p>
+			        국민주택 일반공급에도 20%는 추첨제로 진행하기 때문에, 2030 청년이라면 추첨제를 노려보세요. 추첨제란 납입 금액과 무관한 무작위 선정이기 때문에, 납입 금액이 적은 2030 청년도 도전해 볼 수 있어요.
+			    </p>
+			    
+			    <h5 class="mt-4">민영주택</h5>
+			    <p>
+			        민영주택을 가점제로 당첨되기 위해서는 점수가 높을수록 유리해요. 그 점수를 측정하는 기준은 1) 무주택 기간 2) 부양가족 수 3) 가입 기간으로 3가지예요. 해당 기준으로 2030 청년이 청약 당첨을 노리는 것은 어려워 보여요. 따라서 2030 청년이 민영주택 일반공급에 당첨되고자 한다면, 추첨제를 노리는 것이 맞아요.
+			    </p>
+
+			    <div class="card mt-4">
+			        <div class="card-body">
+			            <h5 class="card-title">민영주택 가점/추첨 비율</h5>
+			            <div class="table-responsive">
+			                <table class="table table-dark">
+			                    <thead>
+			                        <tr>
+			                            <th>주거전용면적</th>
+			                            <th>85㎡초과 공공건설임대주택</th>
+			                            <th>수도권 내 공공주택 지구</th>
+			                            <th>투기과열지구</th>
+			                            <th>청약과열지역</th>
+			                            <th>그 외의 지역</th>
+			                        </tr>
+			                    </thead>
+			                    <tbody>
+			                        <tr>
+			                            <td>60㎡ 이하</td>
+			                            <td>-</td>
+			                            <td>가점제 40%</td>
+			                            <td>가점제 40%</td>
+			                            <td>가점제 40% </td>
+			                            <td>가점제 40% 이하</td>
+			                        </tr>
+			                        <tr>
+			                            <td>60㎡ 초과 85㎡ 이하</td>
+			                            <td>-</td>
+			                            <td>가점제 70%</td>
+			                            <td>가점제 70%</td>
+			                            <td>가점제 70%</td>
+			                            <td>가점제 40% 이하</td>
+			                        </tr>
+			                        <tr>
+			                            <td>85㎡초과</td>
+			                            <td>가점제 100%</td>
+			                            <td>가점제 80%</td>
+			                            <td>가점제 80%</td>
+			                            <td>가점제 50%</td>
+			                            <td>추첨제 100%</td>
+			                        </tr>
+			                    </tbody>
+			                </table>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+
+			<div class="guide-section">
+			    <h3 id="section-special">특별공급</h3>
+			    <p>
+			        특별공급은 정책 배려가 필요한 사회계층을 대상으로 분양을 지원하는 제도예요. 특별공급은 일반공급과 달리 조건이 맞을 시, 추첨을 통해 공급돼요. 해당 물량은 총건설량의 20% 범위 이내 공급하고, 소득과 근로 조건이 있다 보니 경쟁률이 낮다는 장점이 있어요.
+			    </p>
+			    <p>
+			        청년, 신혼부부, 다자녀 가구, 노부모 부양 가구, 국가 유공자 등 지원 대상은 다양해요. 이 중에서 2030에게 해당되는 특별공급을 알려드릴게요. 바로 생애 최초 특별공급이에요.
+			    </p>
+
+			    <h5 class="mt-4">생애 최초 특별공급</h5>
+			    <p>
+			        생애 최초 특별공급은 말 그대로 태어나서 첫 번째 내 집 마련에 도전하는 분들을 위한 제도예요. 중요한 점은 청약 신청자 본인뿐 아니라 신청자가 속한 세대의 구성원 모두가 과거에 주택을 소유한 이력이 없어야 생애 최초 특별공급을 신청할 수 있어요.
+			    </p>
+
+			    <div class="card mt-3">
+			        <div class="card-body">
+			            <h5 class="card-title">생애 최초 특별공급 자격 요건</h5>
+			            <ul>
+			                <li>
+			                    본인과 신청자가 속한 세대 구성원 모두 생애 첫 주택 구입자여야 해요.
+			                </li>
+			                <li>
+			                    혼인했거나 자녀가 있는 분이어야 해요.
+			                </li>
+			                <li>
+			                    근로자 혹은 자영업자로 5년 이상 소득세를 납부한 이력이 있어야 해요.
+			                </li>
+			                <li>
+			                    도시근로자 월평균 소득의 130% 이하여야 해요. 국민주택은 100% 이하여야 해요.
+			                </li>
+			            </ul>
+			        </div>
+			    </div>
+
+			    <p class="mt-4">
+			        생애 최초 특별공급은 일반공급, 우선공급, 추첨공급 이렇게 3가지로 나뉘는데요. 미혼일 경우는 추첨공급이 진행될 때만 신청할 수 있어요. 만약 청약 공고에서 추첨공급 물량이 없다면 청약을 넣을 수 없어요. 또한 미혼 1인 가구는 전용면적 60㎡ 이하의 주택만 신청할 수 있다는 점 기억해 주세요.
+			    </p>
+			</div>
+
+			<div class="guide-section">
+			    <h3 id="section-priority">주택청약 1순위 조건</h3>
+			    <p>
+			        가장 기준이 높은 투기과열지구(용산, 강남 3구) 기준으로 청약 1순위 조건은 청약 통장 가입 기간은 2년 이상, 청약 예치금은 1,500만 원 이상이어야 해요. 청약에 관심 있는 분들은 안정적으로 이 두 가지 조건을 충족해 두면 청약 당첨 확률을 올릴 수 있겠죠. 청약 통장을 신청하기 위한 기본 조건은 다음과 같아요.
+			    </p>
+			    <ul>
+			        <li>청약 통장에 가입한 분</li>
+			        <li>최초 입주자 모집 공고일 기준 해당 주택건설지역에 살고 있는 만 19세 이상인 분</li>
+			    </ul>
+
+			    <h5 class="mt-4">주택청약 1순위 가입기간 조건</h5>
+			    <p>민영주택 기준으로 보면, 청약통장 가입 기간은 지역별로 1순위 조건이 달라요.</p>
+			    <div class="card">
+			        <div class="card-body">
+			            <div class="table-responsive">
+			                <table class="table table-dark mb-0">
+			                    <thead>
+			                        <tr>
+			                            <th>위치</th>
+			                            <th>청약통장 가입 기간</th>
+			                        </tr>
+			                    </thead>
+			                    <tbody>
+			                        <tr>
+			                            <td>투기과열지구</td>
+			                            <td>주택청약 가입 후 2년 경과</td>
+			                        </tr>
+			                        <tr>
+			                            <td>그 외 수도권</td>
+			                            <td>주택 청약 가입 후 1년 경과</td>
+			                        </tr>
+			                        <tr>
+			                            <td>그 외 지방권</td>
+			                            <td>주택 청약 가입 후 6개월 경과</td>
+			                        </tr>
+			                        <tr>
+			                            <td>위축 지역</td>
+			                            <td>주택 청약 가입 후 1개월 경과</td>
+			                        </tr>
+			                    </tbody>
+			                </table>
+			            </div>
+			        </div>
+			    </div>
+
+			    <h5 class="mt-4">주택청약 1순위 예치금 조건</h5>
+			    <p>
+			        청약 신청하고자 하는 지역을 확인한 후, 가입 기간에서 1순위 조건을 충족하셨다면, 주택 면적에 따른 1순위 청약 예치금을 확인해 주세요.
+			    </p>
+			    <div class="card">
+			        <div class="card-body">
+			            <div class="table-responsive">
+			                <table class="table table-dark mb-0">
+			                    <thead>
+			                        <tr>
+			                            <th>구분</th>
+			                            <th>서울/부산</th>
+			                            <th>기타 광역시</th>
+			                            <th>기타 시/군</th>
+			                        </tr>
+			                    </thead>
+			                    <tbody>
+			                        <tr>
+			                            <td>85㎡(약 26평) 이하</td>
+			                            <td>300만 원</td>
+			                            <td>250만 원</td>
+			                            <td>200만 원</td>
+			                        </tr>
+			                        <tr>
+			                            <td>102㎡(약 31평) 이하</td>
+			                            <td>600만 원</td>
+			                            <td>400만 원</td>
+			                            <td>300만 원</td>
+			                        </tr>
+			                        <tr>
+			                            <td>135㎡(약 41평) 이하</td>
+			                            <td>1,000만 원</td>
+			                            <td>700만 원</td>
+			                            <td>400만 원</td>
+			                        </tr>
+			                        <tr>
+			                            <td>모든 면적</td>
+			                            <td>1,500만 원</td>
+			                            <td>1,000만 원</td>
+			                            <td>500만 원</td>
+			                        </tr>
+			                    </tbody>
+			                </table>
+			            </div>
+			        </div>
+			    </div>
+			    
+			    <p class="mt-3">
+			        지역별로 1순위 조건 예치금이 달라요. 청약 예치금을 신경 쓰기 귀찮으신 분들은 청약 통장에 1,500만 원 이상 넣어두시면 모든 면적에 신청할 수 있어요.
+			    </p>
+			</div>
+
+            <div class="guide-section">
+                <h3 id="section-meaning">주택청약, 의미 있을까? (주요 혜택)</h3>
+                <p>
+                    청약 당첨 확률이 낮고 분양가가 높아 의미가 있는지 고민될 수 있지만, 내 집 마련의 기회를 넓힌다는 점에서 여전히 중요합니다.
+                </p>
+                <div class="card">
+                    <div class="card-body">
+                        <ul>
+                            <li>
+                                <strong>저렴한 내 집 마련:</strong> 시세보다 저렴한 가격으로 주택을 살 수 있다는 점에서 의미가 있어요. 민영주택의 경우 시세차익을 노려볼 수 있죠.
+                            </li>
+                            <li>
+                                <strong>소득공제 혜택:</strong> 연 소득이 7,000만 원 이하, 무주택세대주라면 연간 240만 원 한도로, 40%까지 소득공제를 받을 수 있어요.
+                            </li>
+                            <li>
+                                <strong>이자소득 비과세:</strong> 단순한 적금 통장 기능을 하면서 발생하는 이자소득에 대한 비과세 혜택을 받을 수 있어요.
+                            </li>
+                            <li>
+                                <strong>분양 기회 확보:</strong> 청약통장을 만들지 않으면 신축 아파트 분양 기회를 아예 잃게 됩니다. 구매 기회를 넓히는 것만으로도 충분히 의미가 있습니다.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+       		<div class="guide-section">
+			    <h3 id="section-payment">주택청약 얼마씩 넣어야 할까?</h3>
+			    <p>
+			        주택청약을 위해 꼭 만들어야 하는 청약 통장 만드는 방법부터 매월 얼마씩 넣어야 하는지까지 모두 알려드릴게요.
+			    </p>
+
+			    <h5 class="mt-4">주택청약통장 만들기</h5>
+			    <p>
+			        주택청약종합저축 통장에 가입하시면 돼요. 주택청약종합저축 통장은 국민주택과 민영주택 모두 청약할 수 있어요.
+			    </p>
+			    <p>
+			        해당 통장에 가입하려면 신분증을 지참해, 은행에 직접 방문해야 해요. 주택도시기금의 수탁은행인 우리, 국민, 신한, 농협, 기업, 하나, 대구, 부산, 경남은행 등에서 가능해요. 이 청약통장을 개설한 후 얼마나 납부했는지, 가입 기간이 어느 정도인지에 따라 청약 당첨 순위가 달라져요.
+			    </p>
+			    
+			    <div class="card bg-dark text-warning border-warning mt-3 mb-3">
+			        <div class="card-body">
+			            <p class="mb-0">
+			                만약 19~34세에 해당하고, 연 소득 5천만 원 이하 근로자이며, 무주택자라면 더 혜택이 많은 <strong style="color: #ffc107;">청년주택드림청약통장</strong>을 개설해 주세요!
+			            </p>
+			        </div>
+			    </div>
+
+			    <h5 class="mt-4">주택청약 납입 금액</h5>
+			    <p>
+			        주택청약 통장에는 매월 최소 2만 원부터 최대 50만 원까지 납입할 수 있어요. 월 1회 납입이 원칙이기 때문에 분할 납입은 불가능해요. 만약 9월에 두 번을 납입했다면, 마지막 납입은 10월 금액을 선납한 것으로 인정돼요.
+			    </p>
+			    <p>
+			        잔액이 1,500만 원 미만이라면 월 50만 원을 초과해 잔액 1,500만 원까지 일시 예치가 가능하지만, 잔액이 1,500만 원 이상이라면 월 50만 원 이내에서만 자유롭게 적립할 수 있어요.
+			    </p>
+
+			    <h5 class="mt-4">주택청약 납입 추천 금액</h5>
+			    <p>
+			        청약통장은 오랜 기간 꾸준히 납입하는 것이 중요하기 때문에, 본인이 유지할 수 있는 금액을 상황에 맞게 선택하시는 것이 좋아요.
+			    </p>
+			    <p>
+			        그래서 얼마 내야 되는데요? 라고 물으신다면, 에디터가 가장 추천하는 금액은 <strong class="text-warning">월 10만 원</strong>이에요. 민영주택 1순위 예치금도 모아가면서, 전체 입금 금액을 국민주택 납입금액으로도 인정받을 수 있기 때문이에요.
+			    </p>
+			    <p>
+			        민영주택 지역별 예치금액은 아래 표과 같아요. 국민주택은 아무리 납입한 금액이 많더라도, 회당 10만 원까지만 인정되기 때문에, 아무리 많이 납입해도 10만 원만 인정돼요. 따라서 10만 원 납입 시, 국민주택과 민영주택 두 유형의 가점을 모두 챙길 수 있죠.
+			    </p>
+
+			    <div class="card mt-3">
+			        <div class="card-body">
+			            <div class="table-responsive">
+			                <table class="table table-dark mb-0">
+			                    <thead>
+			                        <tr>
+			                            <th>구분</th>
+			                            <th>서울/부산</th>
+			                            <th>기타 광역시</th>
+			                            <th>기타 시/군</th>
+			                        </tr>
+			                    </thead>
+			                    <tbody>
+			                        <tr>
+			                            <td>85㎡(약 26평) 이하</td>
+			                            <td>300만 원</td>
+			                            <td>250만 원</td>
+			                            <td>200만 원</td>
+			                        </tr>
+			                        <tr>
+			                            <td>102㎡(약 31평) 이하</td>
+			                            <td>600만 원</td>
+			                            <td>400만 원</td>
+			                            <td>300만 원</td>
+			                        </tr>
+			                        <tr>
+			                            <td>135㎡(약 41평) 이하</td>
+			                            <td>1,000만 원</td>
+			                            <td>700만 원</td>
+			                            <td>400만 원</td>
+			                        </tr>
+			                        <tr>
+			                            <td>모든 면적</td>
+			                            <td>1,500만 원</td>
+			                            <td>1,000만 원</td>
+			                            <td>500만 원</td>
+			                        </tr>
+			                    </tbody>
+			                </table>
+			            </div>
+			        </div>
+			    </div>
+
+			    <h5 class="mt-4">주택청약 납입 기간</h5>
+			    <p>
+			        청약통장 납입 기간은 정확히 몇 년으로 정해져 있지 않아요. 당첨되는 순간 전까지라고 봐야 해요. 당첨되었다면 설령 계약을 하지 않았다 하더라도, 기존 청약통장은 해지하고 다시 가입해야 해요.
+			    </p>
+			</div>
+
+			<div class="guide-section">
+			    <h3 id="section-apply">주택청약 신청 방법</h3>
+			    <p>
+			        은행 지점에 직접 방문해서 신청할 수도 있고, 온라인으로도 편하게 가능해요. 바로 ‘<a href="https://www.applyhome.co.kr/co/coa/selectMainView.do" target="_blank" rel="noopener noreferrer">청약홈</a>’ 사이트를 이용하는 거예요.
+			    </p>
+
+			    <div class="card mt-3">
+			        <div class="card-body">
+			            <ol>
+			                <li class="mb-3">
+			                    <strong>청약 일정을 확인해요</strong><br/>
+			                    청약홈 첫 화면에서 ‘청약 일정 및 통계’→ ‘청약캘린더’에서 주택 공급 유형에 따른 청약 일정을 확인할 수 있어요. 주택을 선택하면 접수일, 당첨자 발표일, 계약일 등 상세 일정과 공급 세대수 등을 확인할 수 있어요.
+			                </li>
+			                <li class="mb-3">
+			                    <strong>주택의 모집 공고문을 확인해요</strong><br/>
+			                    구체적인 정보는 해당 주택의 모집 공고문을 내려받아 꼭 확인해 주세요. 모집 공고문에서 자세한 청약 자격을 확인해서 준비해야 하기 때문이에요.
+			                </li>
+			                <li class="mb-3">
+			                    <strong>청약 신청 연습 후 신청해요</strong><br/>
+			                    주택청약 본 신청 전, 연습을 할 수 있어요. 청약홈의 좌측 메뉴 ‘공고단지 청약 연습’ → ‘청약 연습’ 또는 ‘청약 가상 체험’에서 사전 연습이 가능해요. 연습해 보면, 청약 신청 당일 날 헤매지 않을 수 있겠죠?
+			                </li>
+			                <li>
+			                    <strong>청약 신청하기</strong><br/>
+			                    본격적으로 청약을 신청해요! 청약 신청 전 인증서를 통해 로그인해 주세요. 주택청약 신청은 메인화면 중앙 APT 하위 메뉴에서 ‘청약 신청’을 클릭해 진행해 주세요. 청약 방식 및 주택 선택 > 주택형 선택 > 청약 자격 확인 > 신청 내역 확인 > 청약 완료의 순서로 이루어져요.
+			                    
+			                    <h5 class="mt-4">청약 방식 및 주택 선택</h5>
+			                    <p>
+			                        청약 신청을 클릭해 들어가면, 상단에 특별공급, 1순위, 2순위 등에서 본인이 신청하고자 하는 청약 방식을 선택하고 ‘청약 신청하기’를 클릭해 주세요. 그다음으로 청약하고자 하는 주택을 선택하세요.
+			                    </p>
+
+			                    <h5 class="mt-4">주택형 선택과 청약통장 및 자격 확인</h5>
+			                    <p>
+			                        다음으로는 본인이 가입한 청약통장의 정보를 확인할 수 있어요. 예치금과 주택 규모를 확인하고 원하는 평형을 선택해요. 마지막 단계는 본인의 청약 자격 거주지를 확인하는 거예요. 잘못 선택하지 않게 주의해 주세요! 최종적으로 당첨 시 연락받을 주소와 연락처를 기입하고 본인 인증을 마치면 절차는 끝이에요.
+			                    </p>
+			                </li>
+			            </ol>
+			        </div>
+			    </div>
+			</div>
+
+			<div class="guide-section">
+			    <h3 id="section-penalty" class="text-warning">⚠️ 주택청약 해지 불이익</h3>
+			    <p>
+			        주택청약 해지 시 발생하는 불이익이 있기 때문에, 해지를 신중하게 결정해야 해요.
+			    </p>
+			    
+			    <h5 class="mt-4 text-warning">청약 기회를 상실해요</h5>
+			    <p>
+			        신축 아파트를 분양받는 방법은 청약에 당첨되는 방법밖에 없는데, 주택청약 통장을 해지하게 되면, 신축 아파트를 분양받을 수 없게 돼요. 부동산 상승기 혹은 집을 구매하고자 할 때 선택지가 하나 줄어드는 거죠.
+			    </p>
+
+			    <h5 class="mt-4 text-warning">청약 점수가 소멸해요</h5>
+			    <p>
+			        주택청약은 가입 기간과 납입 금액 및 횟수에 따라 가점이 부여되는 상품이기 때문에 중도 해지하게 되면, 그동안 쌓아온 가입 기간과 납입 횟수가 모두 소멸해요. 따라서 해지하고 마음이 바뀌어 신규 가입을 한다면, 그동안 해지하지 않고 착실하게 납입해온 분과는 당연히 격차가 벌어질 수밖에 없어요.
+			    </p>
+
+			    <h5 class="mt-4 text-warning">연말정산 소득공제 혜택을 못 받아요</h5>
+			    <p>
+			        연 소득 7,000만 원 이하의 근로자라면, 240만 원 한도 내에서 납입액의 40%에 해당하는 금액만큼 소득공제를 받게 돼요. 하지만 청약 통장 해지 시, 일부를 돌려받는 혜택을 누리지 못하게 돼요.
+			    </p>
+			    
+			    <p class="mt-4">
+			        이렇게 주택청약 해지 시, 불이익이 있으니 해지 전 신중하게 고민해 주세요!
+			    </p>
+			</div>
+			<div class="guide-section">
+			    <h3 id="section-cancel">주택청약 해지 방법</h3>
+			    <p>
+			        주택청약 해지 방법은 간단해요. 신분증을 지참하여, 은행에 방문할 수도 있고, 각 금융사 앱을 통해 온라인으로도 간편하게 해지할 수 있어요.
+			    </p>
+
+			    <hr style="border-top: 1px solid #444; margin: 2rem 0;">
+
+			    <h5 class="mt-4" style="font-weight: 700;">목돈이 필요하다면, 주택청약 담보대출</h5>
+			    <p>
+			        주택청약통장 해지 시의 위 불이익들을 알고 있어도 목돈이 급하게 필요하여 해지를 고려하실 수도 있죠. 급한 목돈 마련이 이유라면, 청약통장을 가입한 은행의 주택청약 담보대출 상품을 추천드려요.
+			    </p>
+
+			    <div class="card" style="background-color: #3a3a3a;"> <div class="card-body">
+			            <p class="mb-0">
+			                모든 은행에는 청약 담보대출 상품이 있고, <strong class="text-warning">주택청약통장을 해지하지 않아도, 저축액을 담보로 납입액의 95%를 대출</strong>받을 수 있어요. 아무래도 같은 은행사에 있는 본인의 돈을 담보로 하기 때문에 금리가 높지 않고, 많은 금액을 대출할 수 있다는 점이 장점이에요.
+			            </p>
+			        </div>
+			    </div>
+			</div>
+
+        </div>
+    </div>
+</body>
+</html>
