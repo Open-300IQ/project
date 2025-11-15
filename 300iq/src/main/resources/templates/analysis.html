@@ -23,10 +23,10 @@
                     <div class="card-body">
                         <form class="row align-items-center g-3">
                             <div class="col-auto">
-                                <label for="guFilter" class="col-form-label text-dark">구</label>
+                                <label for="guFilter" class="col-form-label text-dark" >구</label>
                             </div>
                             <div class="col-auto">
-                                <select id="guFilter" class="form-select" onchange="updateDongFilter(); drawChart();">
+                                <select id="guFilter" class="form-select" style="width: 100px;" onchange="updateDongFilter(); drawChart();">
                                     <option value="전체">전체</option>
                                     <option value="상당구">상당구</option>
                                     <option value="서원구">서원구</option>
@@ -39,7 +39,7 @@
                                 <label for="dongFilter" class="col-form-label text-dark">읍면동</label>
                             </div>
                             <div class="col-auto">
-                                <select id="dongFilter" class="form-select" onchange="drawChart()">
+                                <select id="dongFilter" class="form-select" style="width: 100px;" onchange="drawChart()">
                                     <option value="전체">전체</option>
                                 </select>
                             </div>
@@ -48,7 +48,7 @@
                                 <label for="buildingFilter" class="col-form-label text-dark">건물 종류</label>
                             </div>
                             <div class="col-auto">
-                                <select id="buildingFilter" class="form-select" onchange="drawChart()">
+                                <select id="buildingFilter" class="form-select" style="width: 130px;" onchange="drawChart()">
                                     <option value="아파트">아파트</option>
                                     <option value="연립다세대">연립다세대</option>
                                     <option value="오피스텔">오피스텔</option>
@@ -60,7 +60,7 @@
                                 <label for="transactionFilter" class="col-form-label text-dark">거래 종류</label>
                             </div>
                             <div class="col-auto">
-                                <select id="transactionFilter" class="form-select" onchange="drawChart()">
+                                <select id="transactionFilter" class="form-select" style="width: 100px;" onchange="drawChart()">
                                     <option value="매매">매매</option>
                                     <option value="전세">전세</option>
                                     <option value="월세">월세</option>
@@ -83,7 +83,22 @@
 				</div>
 			</div>
 		</div>
-        
+    	    <div class="row mt-5" id="total-data-display-area">
+			<div class="col-mb-12">
+				<div class="card shadow-sm">
+					<div class="card-header" style="background-color: #54c700 !important;">
+						<h5 class="mb-0" style="color: #121212;">선택된 시점의 상세 거래 내역</h5>
+					</div>
+					<div class="card-body">
+						<div id="total-data-table-container">
+							<p class="text-body-secondary" id="initial-data-message"> 
+								차트의 데이터 점을 클릭하면 해당 시점의 상세 거래 내역 일부가 여기에 표시됩니다.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>		
+		</div>
     </div>
 </div>
 
@@ -223,28 +238,52 @@
             
             const spec = {
                 "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+				"background": "#1e1e1e",
                 "title": titleText,
                 "width": "container",
                 "height": 400,
                 "data": { "values": chartData },
-                "mark": {"type": "line", "point": true},
-                "encoding": {
-                    "x": {"field": "date", "type": "temporal", "title": "월별", "axis": {"format": "%Y년 %m월"}},
-                    "y": {"field": "평균가격", "type": "quantitative", "title": "평당 평균가격 (만원)", "axis": {"format": ",.0f"}},
-                    "color": {"field": "계열", "type": "nominal", "title": "분석 계열"}, 
-                    "tooltip": [
-                        {"field": "date", "type": "temporal", "title": "월", "format": "%Y년 %m월"},
-                        {"field": "구", "type": "nominal", "title": "구"},
-                        {"field": "읍면동", "type": "nominal", "title": "읍면동"},
-                        {"field": "건물", "type": "nominal", "title": "건물 유형"},
-                        {"field": "거래유형", "type": "nominal", "title": "거래 유형"},
-                        {"field": "평균가격", "type": "quantitative", "title": "평당가격(만원)", "format": ",.0f"}
-                    ]
-                },
+                "layer": [
+				{
+					"mark": "line",
+	                "encoding": {
+	                    "x": {"field": "date", "type": "temporal", "title": "월별", "axis": {"format": "%Y년 %m월","tickCount": 6}},
+	                    "y": {"field": "평균가격", "type": "quantitative", "title": "평당 평균가격 (만원)", "axis": {"format": ",.0f","tickCount": 6}},
+	                    "color": {"field": "계열", "type": "nominal", "title": "분석 계열"}, 
+	                    "tooltip": [
+	                        {"field": "date", "type": "temporal", "title": "월", "format": "%Y년 %m월"},
+	                        {"field": "구", "type": "nominal", "title": "구"},
+	                        {"field": "읍면동", "type": "nominal", "title": "읍면동"},
+	                        {"field": "건물", "type": "nominal", "title": "건물 유형"},
+	                        {"field": "거래유형", "type": "nominal", "title": "거래 유형"},
+	                        {"field": "평균가격", "type": "quantitative", "title": "평당가격(만원)", "format": ",.0f"}
+	                    ]
+	                }
+				},
+					{
+						"mark": {"type": "point", "size": 20, "opacity": 1.0, "name": "data-point"},
+		                "encoding": {
+		                    "x": {"field": "date", "type": "temporal"},
+		                    "y": {"field": "평균가격", "type": "quantitative"},
+		                    "color": {"field": "계열", "type": "nominal"}, 
+		                    "tooltip": [
+		                        {"field": "date", "type": "temporal", "title": "월", "format": "%Y년 %m월"},
+		                        {"field": "구", "type": "nominal", "title": "구"},
+		                        {"field": "읍면동", "type": "nominal", "title": "읍면동"},
+		                        {"field": "건물", "type": "nominal", "title": "건물 유형"},
+		                        {"field": "거래유형", "type": "nominal", "title": "거래 유형"},
+		                        {"field": "평균가격", "type": "quantitative", "title": "평당가격(만원)", "format": ",.0f"}
+		                    ]
+		                },
+					}
+				],
+				"encoding": {},
                 "resolve": {"scale": {"y": "independent"}},
                 "config": {
                     "view": {"stroke": "transparent"},
-                    "header": {"titleFontSize": 14}
+                    "title": {"fontSize": 18, "color": "#e0e0e0"},
+					"axis": {"labelColor": "#e0e0e0", "titleColor": "#e0e0e0"},
+					"legend": {"labelColor": "#e0e0e0", "titleColor": "#e0e0e0"}
                 }
             };
 
@@ -253,11 +292,19 @@
             if (chartData.length > 0) {
                 vegaEmbed('#cheongju-avg-price-chart', spec, { 
                     actions: false 
-                }).catch(console.error);
+                }).then(result=>{
+					result.view.addEventListener('click', (event, item)=>{
+						if(item && item.mark.name === 'data-point' && item.datum){
+							showTotalDataExamples(item.datum.datum);
+						}
+					});
+				}).catch(console.error);
             } else {
                 chartContainer.innerHTML = `<p class="text-danger">선택한 필터 조건(${titleText} 기준)에 맞는 데이터가 없습니다.</p>`;
             }
         }
+		
+		
     </script>
 </th:block>
 
