@@ -198,56 +198,56 @@ public class CsvDataService {
                 try {
                     if (txType.equals("단독다가구(매매)")) {
                         tx.setAddress(line[1]);      
-                        tx.setBuildingName("-"); 
+                        tx.setBuildingName(line[13]); 
                         tx.setArea(Double.parseDouble(line[5])); 
                         tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
                         tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
                         tx.setRent(0); 
                     } else if (txType.equals("단독다가구(전월세)")) {
                         tx.setAddress(line[1]);      
-                        tx.setBuildingName("-"); 
+                        tx.setBuildingName(line[11]); 
                         tx.setArea(Double.parseDouble(line[4])); 
                         tx.setContractDate(line[6] + String.format("%02d", Integer.parseInt(line[7]))); 
                         tx.setPrice(Integer.parseInt(line[8].replace(",", ""))); 
                         tx.setRent(Integer.parseInt(line[9].replace(",", "")));  
                     } else if (txType.equals("아파트(매매)")) {
                         tx.setAddress(line[1]);      
-                        tx.setBuildingName(line[5]); 
+                        tx.setBuildingName(line[15]); 
                         tx.setArea(Double.parseDouble(line[6])); 
                         tx.setContractDate(line[7] + String.format("%02d", Integer.parseInt(line[8]))); 
                         tx.setPrice(Integer.parseInt(line[9].replace(",", ""))); 
                         tx.setRent(0); 
                     } else if (txType.equals("아파트(전월세)")) {
                         tx.setAddress(line[1]);      
-                        tx.setBuildingName(line[5]); 
+                        tx.setBuildingName(line[14]); 
                         tx.setArea(Double.parseDouble(line[7])); 
                         tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
                         tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
                         tx.setRent(Integer.parseInt(line[11].replace(",", "")));  
                     } else if (txType.equals("연립다세대(매매)")) {
                         tx.setAddress(line[1]);      
-                        tx.setBuildingName(line[5]); 
+                        tx.setBuildingName(line[15]); 
                         tx.setArea(Double.parseDouble(line[6])); 
                         tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
                         tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
                         tx.setRent(0); 
                     } else if (txType.equals("연립다세대(전월세)")) {
                         tx.setAddress(line[1]);      
-                        tx.setBuildingName(line[5]); 
+                        tx.setBuildingName(line[14]); 
                         tx.setArea(Double.parseDouble(line[7])); 
                         tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
                         tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
                         tx.setRent(Integer.parseInt(line[11].replace(",", "")));  
                     } else if (txType.equals("오피스텔(매매)")) {
                         tx.setAddress(line[1]);
-                        tx.setBuildingName(line[5]); 
+                        tx.setBuildingName(line[14]); 
                         tx.setArea(Double.parseDouble(line[6])); 
                         tx.setContractDate(line[7] + String.format("%02d", Integer.parseInt(line[8]))); 
                         tx.setPrice(Integer.parseInt(line[9].replace(",", ""))); 
                         tx.setRent(0); 
                     } else if (txType.equals("오피스텔(전월세)")) {
                         tx.setAddress(line[1]);      
-                        tx.setBuildingName(line[5]); 
+                        tx.setBuildingName(line[14]); 
                         tx.setArea(Double.parseDouble(line[7])); 
                         tx.setContractDate(line[8] + String.format("%02d", Integer.parseInt(line[9]))); 
                         tx.setPrice(Integer.parseInt(line[10].replace(",", ""))); 
