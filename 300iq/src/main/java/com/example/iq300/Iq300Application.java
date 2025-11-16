@@ -83,6 +83,7 @@ public class Iq300Application {
 
             csvDataService.loadRealEstateTerms(); 
 
+
             
             System.out.println("====== [CsvDataService] 모든 데이터 로드 완료 ======");
         };

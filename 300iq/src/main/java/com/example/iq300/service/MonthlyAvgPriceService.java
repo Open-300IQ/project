@@ -84,14 +84,19 @@ public class MonthlyAvgPriceService {
                                 // ⭐ 세분화된 거래 유형에 따른 유효 가격 결정 로직
                                 if (transactionType.equals("매매") || transactionType.equals("전세")) {
                                     effectivePrice = tx.getPrice(); 
+
+                                    if (effectivePrice > 0 && areaPyeong > 0) {
+                                        return effectivePrice / areaPyeong;
+                                    }
+                                    
                                 } else if (transactionType.equals("월세")) {
-                                    double convertedRent = tx.getRent() * RENT_TO_DEPOSIT_COEFFICIENT;
-                                    effectivePrice = tx.getPrice() + convertedRent;
+                                    double convertedRent = tx.getRent();
+                                    effectivePrice = convertedRent;
+                                    if (effectivePrice > 0 && areaPyeong > 0) {
+                                        return effectivePrice/ areaPyeong;
+                                    }
                                 }
 
-                                if (effectivePrice > 0 && areaPyeong > 0) {
-                                    return effectivePrice / areaPyeong;
-                                }
                                 return 0;
                             })
                             .sum();
@@ -145,14 +150,17 @@ public class MonthlyAvgPriceService {
                                 
                                 if (transactionType.equals("매매") || transactionType.equals("전세")) {
                                     effectivePrice = tx.getPrice(); 
+                                    if (effectivePrice > 0 && areaPyeong > 0) {
+                                        return effectivePrice/ areaPyeong;
+                                    }
                                 } else if (transactionType.equals("월세")) {
-                                    double convertedRent = tx.getRent() * 12;
-                                    effectivePrice = tx.getPrice() + convertedRent;
+                                    double convertedRent = tx.getRent();
+                                    effectivePrice = convertedRent;
+                                    if (effectivePrice > 0 && areaPyeong > 0) {
+                                        return effectivePrice/ areaPyeong;
+                                    }
                                 }
-
-                                if (effectivePrice > 0 && areaPyeong > 0) {
-                                    return effectivePrice / areaPyeong;
-                                }
+                                
                                 return 0;
                             })
                             .sum();

@@ -87,7 +87,7 @@
 			<div class="col-mb-12">
 				<div class="card shadow-sm">
 					<div class="card-header" style="background-color: #54c700 !important;">
-						<h5 class="mb-0" style="color: #121212;">선택된 시점의 상세 거래 내역</h5>
+						<h5 class="mb-0" style="color: #121212;">선택된 시의 상세 거래 내역</h5>
 					</div>
 					<div class="card-body">
 						<div id="total-data-table-container">
@@ -193,7 +193,8 @@
                         건물: item.id.buildingType,
                         거래유형: item.id.transactionType,
                         평균가격: item.avgPricePerPyeong,
-                        계열: seriesKey 
+                        계열: seriesKey, 
+					    sigungu: item.sigungu
                     };
                 } catch (e) {
                     console.error("Data mapping error:", e, item);
@@ -247,9 +248,9 @@
 				{
 					"mark": "line",
 	                "encoding": {
-	                    "x": {"field": "date", "type": "temporal", "title": "월별", "axis": {"format": "%Y년 %m월","tickCount": 6}},
-	                    "y": {"field": "평균가격", "type": "quantitative", "title": "평당 평균가격 (만원)", "axis": {"format": ",.0f","tickCount": 6}},
-	                    "color": {"field": "계열", "type": "nominal", "title": "분석 계열"}, 
+	                    "x": {"field": "date", "type": "temporal", "title": "월별", "axis": {"format": "%Y년 %m월","tickCount": 6, "grid": false}},
+						"y": {"field": "평균가격", "type": "quantitative", "title": "평당 평균 가격(만원)", "axis": {"format": ",.0f","tickCount": 6, "grid": false}},	                    
+						"color": {"field": "계열", "type": "nominal", "title": "분석 계열"}, 
 	                    "tooltip": [
 	                        {"field": "date", "type": "temporal", "title": "월", "format": "%Y년 %m월"},
 	                        {"field": "구", "type": "nominal", "title": "구"},
@@ -263,8 +264,8 @@
 					{
 						"mark": {"type": "point", "size": 20, "opacity": 1.0, "name": "data-point"},
 		                "encoding": {
-		                    "x": {"field": "date", "type": "temporal"},
-		                    "y": {"field": "평균가격", "type": "quantitative"},
+		                    "x": {"field": "date", "type": "temporal","title": null},
+		                    "y": {"field": "평균가격", "type": "quantitative","title": null},
 		                    "color": {"field": "계열", "type": "nominal"}, 
 		                    "tooltip": [
 		                        {"field": "date", "type": "temporal", "title": "월", "format": "%Y년 %m월"},
@@ -294,8 +295,10 @@
                     actions: false 
                 }).then(result=>{
 					result.view.addEventListener('click', (event, item)=>{
-						if(item && item.mark.name === 'data-point' && item.datum){
-							showTotalDataExamples(item.datum.datum);
+						const dataItem = item && item.datum ? item.datum : null;						
+						if(item && item.mark && item.mark.name === 'layer_1_marks' && item.datum){							
+							console.log("DATUM (2):", item.datum.datum);
+							showTotalDataExamples(dataItem);
 						}
 					});
 				}).catch(console.error);
@@ -303,7 +306,101 @@
                 chartContainer.innerHTML = `<p class="text-danger">선택한 필터 조건(${titleText} 기준)에 맞는 데이터가 없습니다.</p>`;
             }
         }
+		async function showTotalDataExamples(datum){
+			if(!datum||!datum.구){
+				console.error("[ERROR] showTotalDataExamples: Invalid or incomplete data object received:", datum);
+                const container = document.getElementById('total-data-table-container');
+                container.innerHTML = '<p class="text-danger">상세 거래 내역을 표시하기 위한 기본 정보가 누락되었습니다. 다른 데이터 포인트를 클릭해 주세요.</p>';
+                return;
+			}
+			
+			console.log("--- SHOW FUNCTION STARTED ---");
+			const container = document.getElementById('total-data-table-container');
+			
+			const dateObject = new Date(datum.date);
+	        const year = dateObject.getFullYear();
+	        const month = (dateObject.getMonth() + 1).toString().padStart(2, '0'); 
+	        const contractMonth = year + month;
+			
+			container.innerHTML = `<p class="text-info">선택된 차트(${datum.구} ${datum.읍면동}, ${year}년 ${month}월 기준)의 상세 거래 내역을 불러오는 중입니다...</p>`;			
+			const gu = datum.구;
+			const dong = datum.읍면동;
+            const buildingType = datum.건물;
+			const specificTransactionType = datum.거래유형;
+			const sigungu = datum.sigungu;
+			const url = `/analysis/getDetailTransactions?sigungu=${sigungu}&buildingType=${buildingType}&contractMonth=${contractMonth}&transactionType=${specificTransactionType}`;			
+			try{
+				const response =await fetch(url);
+				
+				if(!response.ok){
+					throw new Error(`HTTP error! : ${response.status}`);
+				}
+				const rawText = await response.text();
+				console.log("[FETCH DEBUG] Raw Response Start:", rawText.substring(0, 100) + '...');
+				
+				const transactions = JSON.parse(rawText);
+				
+				console.log("[DETAIL DEBUG] Received transactions:", transactions);
+				console.log("[DETAIL DEBUG] Transaction count:", transactions.length);
+				renderTransactionTable(transactions, gu, dong , contractMonth);
+				
+			}catch (error){
+				console.error("Error fetching detail transactions:", error);
+				container.innerHTML = `<p class="text-danger">상세 거래 내역을 불러오는데 실패했습니다: ${error.message}</p>`;
+			}
+		}
 		
+		function renderTransactionTable(transactions, gu, dong , contractMonth){
+			const container = document.getElementById('total-data-table-container');
+			
+			if(!transactions || transactions.length === 0){
+				container.innerHTML = `<p class="text-body-secondary">선택된 시점(${gu} ${dong}, ${contractMonth.substring(0, 4)}년 ${contractMonth.substring(4, 6)}월)에 해당하는 상세 거래 내역이 없습니다.</p>`;
+				return;
+			}
+			let tableHtml = `<p class="text-body-secondary">총 <strong>${transactions.length}건</strong>의 상세 거래 내역이 조회되었습니다. (일부 정보가 생략될 수 있습니다.)</p>`;
+			tableHtml += `
+				<div class="table-responsive" style="max-height :400px; overflow-y:auto;">
+				<table class="table table-sm table-striped table-hover">
+					<thead class="table-dark sticky-top">
+						<tr>
+							<th>주소</th>
+                            <th>전용면적(㎡)</th>
+                            <th>계약일</th>
+                            <th>거래유형</th>
+                            <th>거래/보증금(만원)</th>
+                            <th>월세(만원)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `; 
+			
+			transactions.forEach(tx => {
+				const priceFormatted = tx.price.toLocaleString('ko-KR');
+                const rentFormatted = tx.rent.toLocaleString('ko-KR');
+                const typeMatch = tx.transactionType.match(/\((.*?)\)/);
+                let displayType = typeMatch ? typeMatch[1] : tx.transactionType;
+
+                tableHtml += `
+                    <tr>
+						<td>${tx.address || '주소 미상'} ${tx.buildingName}</td> 
+                        <td class="text-center">${tx.area && !isNaN(tx.area) ? tx.area.toFixed(2) : '0.00'}</td>
+                        <td>${tx.contractDate.substring(0, 4)}년 ${tx.contractDate.substring(4, 6)}월 ${tx.contractDate.substring(6, 8)}일</td> 
+                        <td>${tx.transactionType || '-'}</td> 
+                        <td>${priceFormatted}</td>
+                        <td>${tx.rent > 0 ? rentFormatted : '0'}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+                </div>
+            `;
+            
+            container.innerHTML = tableHtml;
+		}
+
 		
     </script>
 </th:block>
