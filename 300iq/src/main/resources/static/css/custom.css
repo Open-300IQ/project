@@ -350,4 +350,18 @@ h2, h4 {
     background-color: #6c757d !important; 
     border-color: #6c757d !important;
 }
+/* 1. 평소 상태: 배경색 없음 (게시판과 똑같은 검은색/투명) */
+.notice-row {
+    background-color: transparent !important; 
+}
 
+/* 2. 마우스 올렸을 때(:hover): 눈이 아프지 않은 '아주 어두운 붉은색' */
+.notice-row:hover > td {
+    background-color: #2c1515 !important; /* 💡 아주 짙은 적갈색 (검정과 거의 비슷하지만 살짝 붉은 느낌) */
+    transition: background-color 0.3s ease;
+}
+
+/* (선택사항) 제목의 '📌' 아이콘과 글자색을 조금 더 밝고 예쁜 빨강으로 변경 */
+.notice-row a.text-danger {
+    color: #ff6b6b !important; /* 쨍한 원색 빨강 대신 부드러운 파스텔 레드 */
+}

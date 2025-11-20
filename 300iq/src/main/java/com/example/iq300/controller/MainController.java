@@ -6,17 +6,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-// (추가) Page 임포트
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.iq300.domain.Board;
 import com.example.iq300.domain.MapData;
 import com.example.iq300.domain.MonthlyAvgPrice;
-import com.example.iq300.service.BoardService;
+import com.example.iq300.service.MapService;
 import com.example.iq300.service.MonthlyAvgPriceService;
 import com.example.iq300.service.MapService; // (추가) MapService 임포트
 
@@ -26,39 +22,23 @@ import lombok.RequiredArgsConstructor;
 @Controller
 public class MainController {
 	
-	@Value("${map.api}")
+    @Value("${map.api}")
     private String mapApiKey;
 	
-	@Autowired
-	private MonthlyAvgPriceService monthlyAvgPriceService;
+    @Autowired
+    private MonthlyAvgPriceService monthlyAvgPriceService;
 	
-    private final BoardService boardService;
-    private final MapService mapService; // (추가) MapService 주입
+    // private final BoardService boardService; // [삭제] 이제 여기서 안 씁니다.
+    private final MapService mapService;
 
-    /**
-     * 메인 페이지 ("/") - 자유게시판
-     */
     @GetMapping("/")
-    public String root(Model model,
-       @RequestParam(value="page", defaultValue="0") int page,
-       @RequestParam(value="kw", defaultValue="") String kw,
-       @RequestParam(value="searchType", defaultValue="subject") String searchType,
-       @RequestParam(value="sort", defaultValue="latest") String sortType) {
-        
-        Page<Board> paging = this.boardService.getPage(page, kw, searchType, sortType);
-        
-        model.addAttribute("paging", paging);
-        model.addAttribute("kw", kw);
-        model.addAttribute("searchType", searchType);
-        model.addAttribute("sortType", sortType);
-        
-        return "index"; // templates/index.html
+    public String root() {
+        return "redirect:/board/list";
     }
-
 
     @GetMapping("/analysis")
     public String analysis(Model model) {
-	    	List<MonthlyAvgPrice> avgPriceList = monthlyAvgPriceService.getDistrictAvgPriceData(); 
+        List<MonthlyAvgPrice> avgPriceList = monthlyAvgPriceService.getDistrictAvgPriceData(); 
         model.addAttribute("avgPriceData", avgPriceList);
         model.addAttribute("activeMenu", "analysis");
         return "analysis";
@@ -66,7 +46,7 @@ public class MainController {
     
     @GetMapping("/map")
     public String map(Model model) {
-    	model.addAttribute("activeMenu", "map");
+        model.addAttribute("activeMenu", "map");
         model.addAttribute("mapApiKey", mapApiKey); 
         
         Map<String, List<String>> districtsAndNeighborhoods = mapService.getUniqueDistrictsAndNeighborhoods();
@@ -79,13 +59,5 @@ public class MainController {
         
         return "map";
     }
-    
-    /**
-     * AI 상담받기 페이지
-     */
-//    @GetMapping("/ai")
-//    public String aiPage() {
-//        return "ai"; // templates/ai.html
-//    }  GeminiController로 매핑 이동   
 
 }

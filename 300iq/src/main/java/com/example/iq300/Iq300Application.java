@@ -80,8 +80,9 @@ public class Iq300Application {
 //            
 //            // (중요!) 부동산 용어사전 CSV 로드 실행
 //
-            csvDataService.loadRealEstateTerms(); 
-            csvDataService.loadMapTransactions();
+ //           csvDataService.loadRealEstateTerms(); 
+ //           csvDataService.loadMapTransactions();
+//            csvDataService.loadHousingPolicies();
 
             
             System.out.println("====== [CsvDataService] 모든 데이터 로드 완료 ======");
