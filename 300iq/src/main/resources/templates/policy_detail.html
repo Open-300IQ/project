@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>300IQ - 정책 상세정보</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='policy')}"></div>
+
+    <div class="right-content">
+        
+        <div class="mb-4 border-bottom border-secondary pb-3">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-primary" style="color:black;" th:text="${policy.region}">지역</span>
+                <span class="badge bg-secondary" th:text="${policy.status}">상태</span>
+            </div>
+            <h2 class="fw-bold text-white" th:text="${policy.title}">정책 제목</h2>
+            <p class="text-secondary mt-2"><i class="fa-regular fa-building me-1"></i> 주관: <span th:text="${policy.organizer}"></span></p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title text-success fw-bold mb-3">📝 정책 소개</h5>
+                <p class="card-text text-light" style="white-space: pre-line; line-height: 1.6;" th:text="${policy.description}"></p>
+                
+                <hr class="border-secondary my-4">
+                
+                <h5 class="card-title text-success fw-bold mb-3">🎁 지원 혜택</h5>
+                <p class="card-text text-light" style="white-space: pre-line; line-height: 1.6;" th:text="${policy.benefits}"></p>
+
+                <hr class="border-secondary my-4">
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold text-info">🎯 지원 대상</h6>
+                        <p class="text-light" th:text="${policy.targetAge}"></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold text-info">📅 신청 방법</h6>
+                        <p class="text-light" style="white-space: pre-line;" th:text="${policy.applicationMethod}"></p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-dark border-secondary mt-3" role="alert" th:if="${policy.contactInfo != null}">
+                    <i class="fa-solid fa-phone me-2"></i> <strong>문의처:</strong> <span th:text="${policy.contactInfo}"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a th:href="@{/policy/list}" class="btn btn-secondary">목록으로</a>
+            
+            <a th:if="${policy.aplyUrl != null and policy.aplyUrl != ''}" 
+               th:href="${policy.aplyUrl}" target="_blank" 
+               class="btn btn-primary text-dark fw-bold">
+               신청 사이트 바로가기 <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+            </a>
+        </div>
+
+    </div> </div>
+
+</body>
+</html>
