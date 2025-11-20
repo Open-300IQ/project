@@ -14,7 +14,7 @@
 
 ---
 
-## 📸 주요 기능 (Key Features)
+##  주요 기능 (Key Features)
 
 ### 1. 부동산 데이터 시각화 (Data Visualization)
 - **지도 기반 검색:** 청주시 각 구별(상당/서원/청원/흥덕) 매물 위치 및 가격 정보 확인 (`MapController`)
