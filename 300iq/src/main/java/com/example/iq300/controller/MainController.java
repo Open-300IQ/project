@@ -14,6 +14,7 @@ import com.example.iq300.domain.MapData;
 import com.example.iq300.domain.MonthlyAvgPrice;
 import com.example.iq300.service.MapService;
 import com.example.iq300.service.MonthlyAvgPriceService;
+import com.example.iq300.service.MapService; // (추가) MapService 임포트
 
 import lombok.RequiredArgsConstructor;
 
