@@ -10,7 +10,7 @@
 
 <div layout:fragment="content">
 
-    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='data')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='analysis')}"></div>
 
     <div class="right-content">   
          
@@ -113,7 +113,7 @@
         let rawData;
         let dongListByGu = {}; 
         
-        // ⭐ [수정됨]: 각 구별로 고정된 5개의 동 카테고리 (전체 + 4개 동) 정의
+       
         const FIXED_DONG_LISTS = {
             "상당구": ["전체", "용암동", "금천동", "방서동", "탑동"], // 예시 4개 동 + 전체
             "서원구": ["전체", "분평동", "사창동", "모충동", "산남동"],
@@ -135,7 +135,6 @@
                 return;
             }
             
-            // ⭐ [수정됨]: 고정된 목록을 사용하도록 설정
             dongListByGu = FIXED_DONG_LISTS;
             updateDongFilter(); 
         })(); 
@@ -214,7 +213,6 @@
                     // Gu='전체' 선택 시: 동은 반드시 '전체' 집계 데이터만 통과 (구별 비교)
                     passDong = item.읍면동 === '전체'; 
                 } else if (dongFilter === '전체') {
-                    // ⭐ [수정됨]: 특정 Gu & Dong='전체' 선택 시, 해당 구의 고정된 5개 동(전체 포함)의 데이터만 통과
                     const fixedDongsForGu = FIXED_DONG_LISTS[guFilter] || ['전체'];
                     passDong = fixedDongsForGu.includes(item.읍면동);
                     

@@ -29,12 +29,16 @@
         부동산 정보 <i class="fa-solid fa-chevron-down fa-xs ms-1"></i>
     </h6>
     
-    <div class="collapse" id="collapseInfo"
-         th:classappend="${#lists.contains({'realty', 'calendar', 'dictionary'}, activeMenu)} ? 'show' : ''">
+	<div class="collapse" id="collapseInfo"
+	     th:classappend="${#lists.contains({'map', 'calendar', 'dictionary', 'policy'}, activeMenu)} ? 'show' : ''">
         <ul class="nav nav-pills flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="#">(준비중) 실제 매물 보기</a>
+                <a class="nav-link" th:href="@{/map}"
+                   th:classappend="${activeMenu == 'map'} ? 'active'"> 실제 매물 보기</a>
             </li>
+			<li class="nav-item">
+			    <a class="nav-link" th:href="@{/policy/list}"
+			       th:classappend="${activeMenu == 'policy'} ? 'active'"> 부동산 정책</a> </li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/calendar}"
                    th:classappend="${activeMenu == 'calendar'} ? 'active'"> 청약 일정</a>
@@ -85,25 +89,27 @@
         커뮤니티 <i class="fa-solid fa-chevron-down fa-xs ms-1"></i>
     </h6>
 
-    <div class="collapse" id="collapseCommunity"
-         th:classappend="${#lists.contains({'notice', 'board', 'qna', 'archive'}, activeMenu)} ? 'show' : ''">
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="#"> 공지사항</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/board/list}"
-                   th:classappend="${activeMenu == 'board'} ? 'active'"> 자유 게시판</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/question/list}"
-                   th:classappend="${activeMenu == 'qna'} ? 'active'"> 부동산 Q&A</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#"> 자료실</a>
-            </li>
-        </ul>
-    </div>
+	<div class="collapse" id="collapseCommunity"
+	         th:classappend="${#lists.contains({'notice', 'board', 'qna', 'archive'}, activeMenu)} ? 'show' : ''">
+	        <ul class="nav nav-pills flex-column">
+				<li class="nav-item">
+						    <a class="nav-link" th:href="@{/notice/list}"
+						       th:classappend="${activeMenu == 'notice'} ? 'active'"> 공지사항</a> </li>
+	                </li>
+	            <li class="nav-item">
+	                <a class="nav-link" th:href="@{/board/list}"
+	                   th:classappend="${activeMenu == 'board'} ? 'active'"> 자유 게시판</a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" th:href="@{/question/list}"
+	                   th:classappend="${activeMenu == 'qna'} ? 'active'"> 부동산 Q&A</a>
+	            </li>
+	            <li class="nav-item">
+	                <a class="nav-link" th:href="@{/archive/list}"
+	                   th:classappend="${activeMenu == 'archive'} ? 'active'"> 자료실</a>
+	            </li>
+	        </ul>
+	    </div>
 
 </nav>
 

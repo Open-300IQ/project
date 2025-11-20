@@ -1,9 +1,10 @@
 package com.example.iq300.controller;
 
 import com.example.iq300.domain.Board;
+import com.example.iq300.domain.Notice; 
 import com.example.iq300.domain.User;
-// import com.example.iq300.exception.DataNotFoundException; // (getPostById가 예외를 던지므로 필요 X)
 import com.example.iq300.service.BoardService;
+import com.example.iq300.service.NoticeService; 
 import com.example.iq300.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
-// 1. [추가] 댓글 폼 임포트
 import com.example.iq300.controller.CommentCreateForm;
 
 @Controller
@@ -26,60 +27,70 @@ public class BoardController {
 
     private final BoardService boardService;
     private final UserService userService;
+    private final NoticeService noticeService; 
 
-    // (list 메서드는 그대로)
+    // ▼▼▼ [수정] 파라미터 추가 (kw, searchType, sort) ▼▼▼
     @GetMapping("/list")
-    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Board> paging = this.boardService.getAllPosts(page);
-        model.addAttribute("paging", paging);
+    public String list(Model model, 
+                       @RequestParam(value = "page", defaultValue = "0") int page,
+                       @RequestParam(value = "kw", defaultValue = "") String kw,
+                       @RequestParam(value = "searchType", defaultValue = "subject") String searchType,
+                       @RequestParam(value = "sort", defaultValue = "latest") String sort) { // HTML name='sort'
+        
+        // 1. 서비스 호출 변경: getAllPosts(page) -> getPage(...)
+        Page<Board> paging = this.boardService.getPage(page, kw, searchType, sort);
+        
+        // 2. 모델에 데이터 담기 (HTML에서 쓸 이름으로 정확히 매핑)
+        model.addAttribute("paging", paging);      // ${paging}
+        model.addAttribute("kw", kw);              // ${kw}
+        model.addAttribute("searchType", searchType); // ${searchType}
+        model.addAttribute("sortType", sort);      // ${sortType} (HTML 변수명과 일치시킴)
         model.addAttribute("activeMenu", "board");
-        return "index"; 
-    }
 
-    // 2. [수정] detail 메서드에 CommentCreateForm 추가
+        // 3. 공지사항 데이터 전달 (null 방지)
+        List<Notice> notices = this.noticeService.getTop2Notices();
+        model.addAttribute("notices", notices);    // ${notices}
+        
+        return "index";
+    }
+    // ▲▲▲
+
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable("id") Long id, Model model, 
                          CommentCreateForm commentCreateForm) { 
-        
         Board board = boardService.getPostById(id);
         model.addAttribute("board", board);
         model.addAttribute("activeMenu", "board");
-        // commentCreateForm은 파라미터로 받으면 자동으로 모델에 추가됩니다.
-        
         return "board/detail";
     }
 
-    // (vote 메서드는 그대로)
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{id}")
     public String boardVote(Principal principal, @PathVariable("id") Long id) {
         Board board = this.boardService.getPostById(id);
         User user = this.userService.getUser(principal.getName());
         this.boardService.vote(board, user);
-        
         return String.format("redirect:/board/detail/%s", id);
     }
 
-    // (newPost 메서드는 그대로)
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String newPost(Model model, BoardPostForm boardPostForm) { // 1. Model model 추가
-        model.addAttribute("activeMenu", "board"); // 2. 이 줄 추가
+    public String newPost(Model model, BoardPostForm boardPostForm) { 
+        model.addAttribute("activeMenu", "board");
         return "board/post_form";
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/create")
-    public String createPost(@Valid BoardPostForm boardPostForm, BindingResult bindingResult, Principal principal, Model model) { // 1. Model model 추가
+    public String createPost(@Valid BoardPostForm boardPostForm, BindingResult bindingResult, Principal principal, Model model) { 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("activeMenu", "board"); // 2. 이 줄 추가
+            model.addAttribute("activeMenu", "board"); 
             return "board/post_form";
         }
         User user = this.userService.getUser(principal.getName());
         this.boardService.createPost(boardPostForm.getTitle(),
                 boardPostForm.getContent(), user);
                 
-        // 3. (추천) 새 사이드바 링크와 맞추기 위해 "/" -> "/board/list"로 변경
         return "redirect:/board/list"; 
     }
 }

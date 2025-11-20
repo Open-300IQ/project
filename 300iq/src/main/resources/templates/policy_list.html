@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>300IQ - 부동산 정책</title>
+    <style>
+        /* 제목 초록색 강조 및 폰트 크기 조정 */
+        .policy-title {
+            color: #54c700 !important; 
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+        .policy-title:hover {
+            color: #76ff03 !important; 
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='policy')}"></div>
+
+    <div class="right-content">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+            <h3 style="font-weight: 700; color: white;">📋 부동산 정책 정보</h3>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="search_kw" class="form-control" th:value="${kw}" placeholder="정책명이나 내용을 검색해보세요">
+                    <button class="btn btn-outline-secondary text-white" type="button" id="btn_search">검색</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-4" th:each="policy : ${paging}">
+                <div class="card h-100 shadow-sm" style="border: 1px solid #555; background-color: #212121;">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-success" th:text="${policy.status}">상태</span>
+                        </div>
+                        
+                        <h5 class="card-title mb-3">
+                            <a th:href="@{|/policy/detail/${policy.id}|}" th:text="${policy.title}" class="policy-title"></a>
+                        </h5>
+                        
+                        <p class="card-text text-light small flex-grow-1" 
+                           style="line-height: 1.5; opacity: 0.9;"
+                           th:text="${#strings.abbreviate(policy.description, 60)}">설명 요약</p>
+                        
+                        <div class="mt-3 pt-3 border-top border-secondary">
+                            <ul class="list-unstyled small text-light mb-3" style="opacity: 0.9;">
+                                <li class="mb-1"><i class="fa-solid fa-bullseye me-1 text-success"></i> <strong>대상:</strong> <span th:text="${policy.targetAge}"></span></li>
+                                <li><i class="fa-solid fa-building me-1 text-success"></i> <strong>주관:</strong> <span th:text="${policy.organizer}"></span></li>
+                            </ul>
+                            <div class="d-grid">
+                                <a th:href="@{|/policy/detail/${policy.id}|}" class="btn btn-sm btn-outline-success">자세히 보기</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${!paging.isEmpty()}" class="d-flex justify-content-center mt-4">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${paging.number-1}&kw=${kw}|}">&laquo;</a>
+                </li>
+                <li class="page-item" th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+                    th:if="${page >= paging.number-2 and page <= paging.number+2}"
+                    th:classappend="${page == paging.number} ? 'active'">
+                    <a class="page-link" th:text="${page+1}" th:href="@{|?page=${page}&kw=${kw}|}"></a>
+                </li>
+                <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${paging.number+1}&kw=${kw}|}">&raquo;</a>
+                </li>
+            </ul>
+        </div>
+        
+    </div> </div>
+
+<script layout:fragment="script" type='text/javascript'>
+const btn_search = document.getElementById("btn_search");
+btn_search.addEventListener('click', function() {
+    location.href = "/policy/list?page=0&kw=" + document.getElementById('search_kw').value;
+});
+</script>
+</body>
+</html>

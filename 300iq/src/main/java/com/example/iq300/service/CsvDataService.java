@@ -1,39 +1,39 @@
+
+
 package com.example.iq300.service;
 
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets; // 1. (추가) UTF-8 임포트
-import java.util.ArrayList;
-import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.stereotype.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-
-// 2. (추가) 새 도메인 임포트
-import com.example.iq300.domain.RealEstateTerm; 
-import com.example.iq300.domain.Population;
-import com.example.iq300.domain.RealEstateAgent;
-import com.example.iq300.domain.RealEstateTransaction;
-import com.example.iq300.domain.TotalData;
+import org.springframework.stereotype.Service;
 
 import com.example.iq300.domain.FinalData;
-
-// 3. (추가) 새 리포지토리 임포트
-import com.example.iq300.repository.RealEstateTermRepository; 
+import com.example.iq300.domain.HousingPolicy;
+import com.example.iq300.domain.MapData;
+import com.example.iq300.domain.Population;
+import com.example.iq300.domain.RealEstateAgent;
+import com.example.iq300.domain.RealEstateTerm;
+import com.example.iq300.domain.RealEstateTransaction;
+import com.example.iq300.domain.TotalData;
+import com.example.iq300.repository.FinalDataRepository;
+import com.example.iq300.repository.HousingPolicyRepository;
+import com.example.iq300.repository.MapDataRepository;
 import com.example.iq300.repository.PopulationRepository;
 import com.example.iq300.repository.RealEstateAgentRepository;
-import com.example.iq300.repository.TransactionRepository;
+import com.example.iq300.repository.RealEstateTermRepository;
 import com.example.iq300.repository.TotalDataRepository;
-import com.example.iq300.repository.FinalDataRepository;
-
+import com.example.iq300.repository.TransactionRepository;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+
 
 @Service
 public class CsvDataService {
@@ -47,13 +47,12 @@ public class CsvDataService {
     private final PopulationRepository populationRepository;
     private final TotalDataRepository totalDataRepository;
     private final FinalDataRepository finalDataRepository;
-    
-    // 4. (추가) 새 리포지토리 필드
+    private final MapService mapService;
+    private final MapDataRepository mapDataRepository;
     private final RealEstateTermRepository realEstateTermRepository;
-    
+    private final HousingPolicyRepository housingPolicyRepository;
     // CSV 파일 인코딩 설정.
     private static final String ENC_MS949 = "MS949";
-    // 5. (추가) 크롤링한 CSV는 UTF-8이므로 정의
     private static final String ENC_UTF8 = StandardCharsets.UTF_8.name(); 
 
     /**
@@ -67,8 +66,10 @@ public class CsvDataService {
             PopulationRepository populationRepository,
             TotalDataRepository totalDataRepository,
             FinalDataRepository finalDataRepository,
-            // 6. (추가) 생성자에 새 리포지토리 주입
-            RealEstateTermRepository realEstateTermRepository) { 
+            MapDataRepository mapDataRepository,
+            MapService mapService,
+            RealEstateTermRepository realEstateTermRepository,
+            HousingPolicyRepository housingPolicyRepository) { 
         this.resourceLoader = resourceLoader;
         this.jdbcTemplate = jdbcTemplate;
         this.transactionRepository = transactionRepository;
@@ -76,18 +77,19 @@ public class CsvDataService {
         this.populationRepository = populationRepository;
         this.totalDataRepository = totalDataRepository;
         this.finalDataRepository = finalDataRepository;
-        // 7. (추가) 리포지토리 초기화
+        this.mapDataRepository = mapDataRepository;
+        this.mapService = mapService;
         this.realEstateTermRepository = realEstateTermRepository;
+        this.housingPolicyRepository = housingPolicyRepository;
     }
 
     // --- 1. 실거래가 CSV 데이터 로드 및 DB 적재 ---
-    // (기존 코드와 동일)
     public List<RealEstateTransaction> loadTransactions() {
         System.out.println("[CsvService] 실거래가 CSV 파일 로드 시작...");
 
         jdbcTemplate.execute("TRUNCATE TABLE realestatetransaction");
         
-//        int skipLines = 20;
+//      int skipLines = 20;
         final String ENC_FOR_TRANSACTION = ENC_MS949;
         
         List<RealEstateTransaction> allTransactions = new ArrayList<>();
@@ -602,8 +604,175 @@ public class CsvDataService {
     	}
     	return list;
     }
+    
+    
+    //======== [ 부동산 거래(Map) CSV 로드 메서드 추가 ] ========
+    
+    public List<MapData> loadMapTransactions() {
+        System.out.println("[CsvService] map CSV 파일 로드 시작...");
+        
+        // 이전의 TRUNCATE 명령어 제거 (MapService.clearAndSaveAll에서 처리)
+        // jdbcTemplate.execute("TRUNCATE TABLE map");
+        
+        final String filePath = "map_data.csv"; 
+        final String encoding = ENC_UTF8; 
+        
+        // 1. CSV 파일을 파싱하여 MapData 객체 목록을 얻습니다.
+        List<MapData> transactions = parseMapFile(filePath, encoding, 1);
+        
+        
+        // 2. MapService를 호출하여 기존 데이터를 비우고 새로운 데이터를 저장합니다.
+        //    (DB TRUNCATE 및 saveAll 로직은 MapService로 위임)
+        mapService.clearAndSaveAll(transactions); 
+        
+        // MapService는 저장된 데이터 목록을 반환하지 않으므로, 파싱된 목록을 반환합니다.
+        System.out.println("[CsvService] 총 " + transactions.size() + "건의 map 데이터 로드 완료.");
+        System.out.println("[CsvService] 총 " + transactions.size() + "건의 map 데이터 DB 적재 완료.");
+        return transactions;
+    }
+    
+    private List<MapData> parseMapFile(String filePath, String encoding, int skipLines) {
+		// (수정) 반환 타입과 리스트를 Map으로 설정
+        List<MapData> list = new ArrayList<>();
+        
+        // (수정) 실제 CSV 헤더 키워드에 맞춰 "거래유형" 대신 "타입", "거래금액" 대신 "금액"을 사용하도록 수정
+        final List<String> EXPECTED_HEADER_KEYWORDS = Arrays.asList("주소", "면적", "금액", "월세", "위도");
+        final int MIN_HEADERS_TO_MATCH = 3;
+        
+        String fullPath = "classpath:csv/" + filePath;
+        CSVReader csvReader = null;
 
+        try (InputStreamReader reader = new InputStreamReader(resourceLoader.getResource(fullPath).getInputStream(), encoding);
+             BufferedReader bufferedReader = new BufferedReader(reader)) {
+        	
+        	// 기존 로직과 동일하게 실제 데이터 라인까지 건너뛰는 로직 (헤더 찾기)
+        	String currentLine;
+        	boolean headerFound = false;
+        	int linesRead = 0;
+        	
+        	while((currentLine = bufferedReader.readLine()) != null) {
+        		linesRead++;
+        		
+        		// 헤더 키워드가 현재 라인에 몇 개 포함되어 있는지 카운트
+        		long matchCount = EXPECTED_HEADER_KEYWORDS.stream().filter(currentLine::contains).count();
+        		
+        		if(matchCount >= MIN_HEADERS_TO_MATCH) {
+        			headerFound = true;
+        			break;
+        		}
+        		
+        		if(linesRead > 100) {
+        			// 헤더를 찾지 못하면 오류 발생
+        			throw new IOException("100줄을 지나도 헤더가 없습니다. : " + filePath);
+        		}
+        	}
+        	
+        	csvReader = new CSVReaderBuilder(bufferedReader).build();
+      
+            String[] line;
+            while ((line = csvReader.readNext()) != null) {
+                // Map 엔티티 필드(7개)에 맞게 최소 컬럼 개수를 7개로 가정
+                if (line.length < 7) continue; 
 
+                MapData mapTx = new MapData();
+                try {
+                    // CSV 파일의 컬럼 순서: 주소(0), 면적(1), 금액(2), 월세(3), 타입(4), 위도(5), 경도(6)
+                    mapTx.setAddress(line[0].trim());         // 주소 (인덱스 0)
+                    mapTx.setArea(Double.parseDouble(line[1].replace(",", "").trim())); // 면적 (인덱스 1)
+                    mapTx.setPrice(Integer.parseInt(line[2].replace(",", "").trim())); // 금액 (인덱스 2)
+                    mapTx.setRent(Integer.parseInt(line[3].replace(",", "").trim())); // 월세 (인덱스 3)
+                    mapTx.setTransactionType(line[4].trim()); // 타입 (인덱스 4)
+                    mapTx.setLatitude(Double.parseDouble(line[5].trim()));    // 위도 (인덱스 5)
+                    mapTx.setLongitude(Double.parseDouble(line[6].trim()));   // 경도 (인덱스 6)
+
+                    if (!mapTx.getAddress().isEmpty()) { 
+                        list.add(mapTx);
+                    }
+                } catch (Exception e) {
+                    System.err.println("[CsvService] Map 데이터 파싱 중 오류 발생: " + String.join(", ", line) + " - " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("[CsvService] 부동산 거래(Map) CSV 파싱 실패: " + filePath);
+        } finally {
+        	if(csvReader != null) {
+        		try {
+        			csvReader.close();
+        		} catch (IOException e) {
+        			e.printStackTrace();
+        		}
+        	}
+        }
+        return list;
+    }
+
+    public void loadHousingPolicies() {
+        System.out.println("[CsvService] 부동산 정책 CSV 파일 로드 시작...");
+        
+        housingPolicyRepository.deleteAll(); 
+        
+        final String filePath = "부동산_정책.csv";
+        List<HousingPolicy> policies = parsePolicyFile(filePath, ENC_UTF8, 1);
+        
+        housingPolicyRepository.saveAll(policies);
+        System.out.println("[CsvService] 총 " + policies.size() + "건의 부동산 정책 데이터 로드 완료.");
+    }
+
+    private List<HousingPolicy> parsePolicyFile(String filePath, String encoding, int skipLines) {
+        List<HousingPolicy> list = new ArrayList<>();
+        String fullPath = "classpath:csv/" + filePath;
+
+        try (InputStreamReader reader = new InputStreamReader(resourceLoader.getResource(fullPath).getInputStream(), encoding);
+             CSVReader csvReader = new CSVReaderBuilder(reader).withSkipLines(skipLines).build()) {
+
+            String[] line;
+            while ((line = csvReader.readNext()) != null) {
+                if (line.length < 8) continue; 
+
+                HousingPolicy p = new HousingPolicy();
+                try {
+                    p.setPolicyNo(line[1].trim());
+                    p.setTitle(line[2].trim());
+                    p.setOrganizer(line[3].trim());
+                    p.setRegion(line[4].trim());
+                    p.setTargetAge(line[5].trim());
+                    p.setBenefits(line[6].trim());
+                    p.setDescription(line[6].trim());
+                    p.setApplicationMethod(line[7].trim());
+                    if (line.length > 8) p.setAplyUrl(line[8].trim());
+                    p.setStatus("진행중");
+
+                    list.add(p);
+                } catch (Exception e) {
+                    System.err.println("[CsvService] 정책 데이터 파싱 오류: " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("[CsvService] 부동산 정책 CSV 파싱 실패: " + filePath);
+        }
+        return list;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // ======== [ 8. (신규) 부동산 용어사전 CSV 로드 메서드 추가 ] ========
     
     /**
@@ -631,6 +800,15 @@ public class CsvDataService {
         System.out.println("[CsvService] 총 " + savedTerms.size() + "건의 용어 데이터 DB 적재 완료.");
         return savedTerms;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     /**
      * 부동산 용어사전 CSV 파일을 파싱합니다.

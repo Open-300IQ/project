@@ -23,11 +23,11 @@
             <ul class="nav sort-tabs">
                 <li class="nav-item">
                     <a class="nav-link" th:classappend="${sortType == 'latest' ? 'active' : ''}"
-                       th:href="@{|/?sort=latest&searchType=${searchType}&kw=${kw}|}">최신순</a>
+                       th:href="@{/board/list(sort='latest', searchType=${searchType}, kw=${kw})}">최신순</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" th:classappend="${sortType == 'popularity' ? 'active' : ''}" 
-                       th:href="@{|/?sort=popularity&searchType=${searchType}&kw=${kw}|}">인기순</a>
+                       th:href="@{/board/list(sort='popularity', searchType=${searchType}, kw=${kw})}">인기순</a>
                 </li>
             </ul>
             <a th:href="@{/board/create}" class="btn btn-primary btn-sm" sec:authorize="isAuthenticated()">
@@ -35,14 +35,14 @@
             </a>
         </div>
 
-        <form th:action="@{/}" method="get" id="searchForm" class="search-form mb-3">
-            <input type="hidden" name="sort" th:value="${sortType}">
+        <form th:action="@{/board/list}" method="get" id="searchForm" class="search-form mb-3">
+            <input type="hidden" name="sort" th:value="${sortType}" />
             <select name="searchType" class="form-select form-select-sm">
                 <option value="subject" th:selected="${searchType == 'subject'}">제목</option>
                 <option value="content" th:selected="${searchType == 'content'}">게시글 내용</option>
                 <option value="author" th:selected="${searchType == 'author'}">글쓴이</option>
             </select>
-            <input type="text" name="kw" class="form-control form-control-sm" placeholder="검색어를 입력하세요" th:value="${kw}">
+            <input type="text" name="kw" class="form-control form-control-sm" placeholder="검색어를 입력하세요" th:value="${kw}" />
             <button class="btn btn-secondary btn-sm" type="submit">검색</button>
         </form>
 
@@ -58,27 +58,43 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="board, loop : ${paging}">
-                <td th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
+              <tr th:each="notice : ${notices}" class="notice-row" style="font-weight: bold;">
+                    <td class="text-center"><span class="badge bg-danger">공지</span></td>
+                    <td class="text-start">
+                        <a th:href="@{|/notice/detail/${notice.id}|}" 
+                           th:text="${'📌 ' + notice.title}" 
+                           class="text-decoration-none text-danger">
+                        </a>
+                    </td>
+                    <td class="text-center text-danger">관리자</td>
+                    <td class="text-center text-danger">-</td>
+                    <td class="text-center text-danger">-</td>
+                    <td class="text-center text-danger" 
+                        th:text="${#temporals.format(notice.createDate, 'yyyy-MM-dd')}">
+                    </td>
+                </tr>
+
+                <tr th:each="board, loop : ${paging}"> 
+                    <td th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
+                    
+                    <td class="text-start">
+                        <a th:href="@{|/board/detail/${board.id}|}" th:text="${board.title}"></a>
+                        <span class="text-danger ms-2 small"
+                              th:if="${board.commentList != null and #lists.size(board.commentList) > 0}"
+                              th:text="${#lists.size(board.commentList)}">
+                        </span>
+                    </td>
+                    
+                    <td th:text="${board.author != null ? board.author.username : '익명'}"></td>
+                    <td th:text="${board.voter != null ? #lists.size(board.voter) : 0}"></td>
+                    <td th:text="${board.viewCount}"></td>
+                    
+                    <td th:text="${#temporals.format(board.createdDate, 'yyyy-MM-dd')}"></td>
+                </tr>
                 
-                <td class="text-start">
-                    <a th:href="@{|/board/detail/${board.id}|}" th:text="${board.title}"></a>
-                    <span class="text-danger ms-2"
-                          th:if="${board.commentList != null and #lists.size(board.commentList) > 0}"
-                          th:text="${#lists.size(board.commentList)}"></span>
-                </td>
-                
-                <td th:text="${board.author != null ? board.author.username : '익명'}"></td>
-                
-                <td th:text="${#lists.size(board.voter)}"></td>
-                
-                <td th:text="${board.viewCount}"></td>
-                
-                <td th:text="${#temporals.format(board.createdDate, 'yyyy-MM-dd')}"></td>
-            </tr>
-            <tr th:if="${paging.isEmpty()}">
-                <td colspan="6" class="text-center py-4 text-body-secondary">게시글이 없습니다.</td>
-            </tr>
+                <tr th:if="${paging.isEmpty()}">
+                    <td colspan="6" class="text-center py-4 text-body-secondary">게시글이 없습니다.</td>
+                </tr>
             </tbody>
         </table>
 
@@ -86,19 +102,19 @@
             <ul class="pagination">
                 <li class="page-item" th:classappend="${paging.first} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{|/?page=${paging.number-1}&sort=${sortType}&searchType=${searchType}&kw=${kw}|}">&laquo;</a>
+                       th:href="@{/board/list(page=${paging.number-1}, sort=${sortType}, searchType=${searchType}, kw=${kw})}">&laquo;</a>
                 </li>
 
                 <li th:each="page : ${#numbers.sequence(0, paging.totalPages-1)}"
                     th:if="${page >= paging.number-2 and page <= paging.number+2}"
                     class="page-item" th:classappend="${page == paging.number} ? 'active'">
                     <a th:text="${page+1}" class="page-link"
-                       th:href="@{|/?page=${page}&sort=${sortType}&searchType=${searchType}&kw=${kw}|}"></a>
+                       th:href="@{/board/list(page=${page}, sort=${sortType}, searchType=${searchType}, kw=${kw})}"></a>
                 </li>
 
                 <li class="page-item" th:classappend="${paging.last} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{|/?page=${paging.number+1}&sort=${sortType}&searchType=${searchType}&kw=${kw}|}">&raquo;</a>
+                       th:href="@{/board/list(page=${paging.number+1}, sort=${sortType}, searchType=${searchType}, kw=${kw})}">&raquo;</a>
                 </li>
             </ul>
         </div>

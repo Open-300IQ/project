@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>실제 매물 보기</title>
+    
+	<script type="text/javascript" 
+	            th:src="|//dapi.kakao.com/v2/maps/sdk.js?appkey=${mapApiKey}&autoload=false&libraries=services|"></script>
+    
+    <style>
+        /* 'ㄱ','ㄴ','ㄷ' 탭 스타일 (다크 모드) */
+        .dic_button_dl {
+            display: flex; flex-wrap: wrap;
+            gap: 5px; padding: 10px;
+            background-color: #2a2a2a; /* 탭 배경 */
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .dic_button_dl a {
+            flex-grow: 1; text-align: center;
+            padding: 8px 5px;
+            background-color: #333;
+            color: #aaa;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            border: 1px solid #444;
+        }
+        .dic_button_dl a:hover {
+            background-color: #444; color: #fff;
+        }
+        /* 현재 선택된 탭 */
+        .dic_button_dl a.active {
+            background-color: #54c700; /* layout.html의 primary color */
+            color: #121212;
+            border-color: #54c700;
+        }
+        
+        /* 용어 목록 스타일 (다크 모드) */
+        .term-list-group {
+            margin-top: 20px;
+        }
+        .term-item {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            margin-bottom: -1px; /* 테두리 겹침 */
+            padding: 1rem 1.25rem;
+        }
+        .term-item:first-child { border-top-left-radius: .25rem; border-top-right-radius: .25rem; }
+        .term-item:last-child { margin-bottom: 0; border-bottom-left-radius: .25rem; border-bottom-right-radius: .25rem; }
+
+        .term-item dt {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #54c700; /* Primary color */
+            margin-bottom: 0.5rem;
+        }
+        .term-item dd {
+            color: #ddd;
+            margin-left: 0;
+            line-height: 1.6;
+        }
+
+        /* --- 지도/필터 레이아웃 스타일 --- */
+        .map-and-filters-wrapper {
+            display: flex;
+            gap: 20px; /* 필터와 지도 사이 간격 */
+        }
+		
+        /* 필터 사이드바 스타일 */
+        .map-filter-sidebar {
+            width: 250px; /* 필터 영역 고정 너비 */
+            min-height: 550px; /* 지도의 높이와 맞추기 위해 */
+            background-color: #1e1e1e; /* 다크 모드 배경 */
+            border: 1px solid #333;
+            border-radius: 8px;
+            align-self: flex-start; /* 상단 정렬 */
+        }
+		.map-filter-sidebar label {
+            font-size: 1.2rem; /* 글자 크기 확대 */
+            font-weight: 600; /* 굵게 */
+        }
+		
+        /* 필터 레이블의 포함 요소 중앙 정렬 유지 */
+        .map-filter-sidebar .mb-3 {
+            text-align: center;
+        }
+        /* 지도 컨테이너 스타일 */
+        #map {
+            flex-grow: 1; /* 남은 공간을 모두 차지하도록 확장 */
+            height: 550px; /* 지도의 높이 */
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+    </style>
+</head>
+<body>
+
+<div layout:fragment="content"> 
+    
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='map')}"></div>
+    
+    <div class="right-content">
+        <h2 class="border-bottom pb-2 mb-4">실제 매물 보기</h2>
+		
+        <div class="map-and-filters-wrapper">
+            
+            <div id="map"></div>
+            
+            <div class="map-filter-sidebar p-3">
+                <h5 style="font-weight: 700; text-align: center;">지역 필터</h5>
+                <hr class="text-secondary my-2">
+                
+                <div class="mb-3">
+                    <label for="guFilter" class="form-label text-body-secondary" >구</label>
+                    <select id="guFilter" class="form-select form-select-sm">
+                        <option th:each="gu : ${guList}" th:value="${gu}" th:text="${gu}"></option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="dongFilter" class="form-label text-body-secondary">동</label>
+                    <select id="dongFilter" class="form-select form-select-sm">
+						
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary btn-sm w-100 mt-3" id="applyFilterBtn">필터 적용</button>
+            </div>
+            
+        </div>
+
+	</div>
+	
+	<script th:inline="javascript" layout:fragment="script">
+		        
+		    // 1. Controller에서 전달받은 구/동 Map 데이터를 JavaScript 변수로 안전하게 저장
+		    var districtMap = /*[[${districtMap}]]*/ {};
+		    var allMapData = /*[[${allMapData}]]*/ []; 
+		    
+		    // 마커 관리를 위한 전역 변수
+		    var map = null;
+		    var markers = [];
+			var openedInfowindow = null;
+	        // 지도에 표시된 마커를 모두 제거하는 함수
+	        function removeMarkers() {
+	            for (var i = 0; i < markers.length; i++) {
+	                markers[i].setMap(null);
+	            }
+	            markers = [];
+	        }
+
+	        function displayMarkers(dataList) {
+	            // 지도가 없거나 카카오 객체가 없으면 실행하지 않음
+	            if (!window.kakao || !map) return; 
+
+	            removeMarkers(); // 기존 마커 모두 제거
+
+	            if (dataList.length === 0) {
+	                console.log("표시할 매물이 없습니다.");
+	                return;
+	            }
+
+	            var bounds = new kakao.maps.LatLngBounds();
+
+	            dataList.forEach(function(data) {
+	                // 위도/경도를 parseFloat()으로 변환하여 숫자로 사용
+	                var lat = parseFloat(data.latitude);
+	                var lng = parseFloat(data.longitude);
+	                
+	                if (isNaN(lat) || isNaN(lng)) {
+	                    console.error("유효하지 않은 좌표:", data.address);
+	                    return;
+	                }
+
+	                var position = new kakao.maps.LatLng(lat, lng);
+	                
+	                var marker = new kakao.maps.Marker({
+	                    map: map,
+	                    position: position,
+	                    title: data.address
+	                });
+
+	                var pyung = (data.area * 0.3025).toFixed(1); // 평수 계산 (소수점 1자리)
+	                
+	                var priceDisplay = "";
+	                if (data.rent > 0) {
+	                    priceDisplay = `보증금: ${data.price}만 / 월세: ${data.rent}만`;
+	                } else {
+	                    priceDisplay = `매매가: ${data.price}만원`;
+	                }
+	                
+	                // HTML 포맷 (템플릿 리터럴(` `) 사용)
+					var iwContent = `
+		                <div style="padding:10px; width:250px; font-size:12px; line-height:1.5; color:#121212; background-color:#fff; border:1px solid #54c700; ">
+		                    <h6 style="font-weight: bold; margin:0 0 5px 0; color:#54c700;">${data.address}</h6>
+		                    <hr style="margin:5px 0; border-color:#ddd;">
+		                    <div>면적: <span style="font-weight:bold;">${pyung}평</span> (${data.area}㎡)</div>
+		                    <div>${priceDisplay}</div>
+		                    <div>타입: ${data.transactionType}</div>
+		                </div>
+		            `;
+
+	                var infowindow = new kakao.maps.InfoWindow({
+	                    content: iwContent,
+	                    removable: false 
+	                });
+
+	                markers.push(marker);
+	                bounds.extend(position);
+
+	                
+	                // 마우스 오버 시 정보창 표시
+					kakao.maps.event.addListener(marker, 'click', function() {
+	                    // 이전에 열린 정보창이 있다면 닫기
+	                    if (openedInfowindow) {
+	                        openedInfowindow.close();
+	                    }
+	                    
+	                    // 현재 정보창 열기
+	                    infowindow.open(map, marker);
+	                    
+	                    // 열린 정보창을 전역 변수에 저장
+	                    openedInfowindow = infowindow;
+	                });
+	            });
+
+	            if (map) {
+	                map.setBounds(bounds);
+	            }
+	        }
+	        
+	        console.log("필터 데이터 (districtMap):", districtMap); 
+	        
+	        document.addEventListener('DOMContentLoaded', function() {
+	            var guFilter = document.getElementById('guFilter');
+	            var dongFilter = document.getElementById('dongFilter');
+	            var applyFilterBtn = document.getElementById('applyFilterBtn');
+
+	            // 2. 구(Gu) 선택 변경 시 동(Dong) 필터 목록 업데이트 리스너
+	            guFilter.addEventListener('change', function() {
+	                var selectedGu = this.value;
+	                dongFilter.innerHTML = ''; 
+	                
+	                if (selectedGu && districtMap[selectedGu]) {
+	                    var dongs = districtMap[selectedGu];
+	                    dongs.forEach(function(dong) {
+	                        var option = document.createElement('option');
+	                        option.value = dong;
+	                        option.textContent = dong;
+	                        dongFilter.appendChild(option);
+	                    });
+	                }
+	            });
+
+	            // 4. 필터 적용 버튼 클릭 이벤트 핸들러 (기존 로직 유지)
+	            applyFilterBtn.addEventListener('click', function() {
+	                var selectedGu = guFilter.value;
+	                var selectedDong = dongFilter.value;
+
+	                var filteredData = allMapData.filter(function(data) {
+	                    var addressParts = data.address.trim().split(/\s+/);
+	                    var dataGu = (addressParts.length >= 3 && addressParts[2].endsWith('구')) ? addressParts[2] : '';
+	                    var dataDong = (addressParts.length >= 4) ? addressParts[3] : '';
+	                    
+	                    var matchGu = !selectedGu || dataGu === selectedGu;
+	                    var matchDong = !selectedDong || dataDong === selectedDong;
+
+	                    return matchGu && matchDong;
+	                });
+
+	                console.log("필터링된 매물 수:", filteredData.length);
+	                displayMarkers(filteredData);
+	            });
+
+
+	            // 3. 카카오 지도 초기화 로직: window.kakao 객체가 로드된 후에만 시도
+	            if (window.kakao && window.kakao.maps) {
+	                window.kakao.maps.load(function() { 
+	                    var container = document.getElementById('map');
+	                    var options = {
+	                        center: new kakao.maps.LatLng(36.6385, 127.4891), // 청주 대략 중심
+	                        level: 4 
+	                    };
+
+	                    map = new kakao.maps.Map(container, options); // 전역 변수 map에 할당
+	                    
+	                    var mapTypeControl = new kakao.maps.MapTypeControl();
+	                    map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+	                    var zoomControl = new kakao.maps.ZoomControl();
+	                    map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+	                });
+	            } else {
+	                 console.error("Kakao Maps SDK load failed. Check your API Key and domain settings.");
+	            }
+	        });
+		</script>
+    
+</div> 
+
+</body>
+</html>

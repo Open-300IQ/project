@@ -1,0 +1,61 @@
+<html layout:decorate="~{layout}" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<div layout:fragment="content" class="container my-3">
+    <!-- 사이드바 -->
+    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='notice')}"></div>
+
+    <div class="right-content">
+        <div class="d-flex justify-content-between align-items-center border-bottom py-2 mb-3">
+            <h2 class="m-0 text-white">📢 공지사항</h2>
+            
+            <!-- ▼▼▼ [수정] 관리자일 때만 '공지 등록' 버튼 보이기 ▼▼▼ -->
+            <div sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/notice/create}" class="btn btn-danger fw-bold">
+                    <i class="fa-solid fa-pen"></i> 공지 등록
+                </a>
+            </div>
+            <!-- ▲▲▲ -->
+        </div>
+
+        <table class="table table-hover text-center my-3" style="background-color: #212121; border: 1px solid #444;">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 10%">번호</th>
+                    <th style="width: 50%">제목</th>
+                    <th style="width: 15%">작성자</th>
+                    <th style="width: 25%">작성일시</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="notice, loop : ${paging}">
+                    <td class="text-secondary" th:text="${paging.totalElements - (paging.number * paging.size) - loop.index}"></td>
+                    <td class="text-start">
+                        <a th:href="@{|/notice/detail/${notice.id}|}" th:text="${notice.title}" class="text-decoration-none text-white fw-bold"></a>
+                    </td>
+                    <td class="text-light" th:text="${notice.author != null ? notice.author.username : '관리자'}"></td>
+                    <td class="text-secondary small" th:text="${#temporals.format(notice.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${paging.isEmpty()}">
+                    <td colspan="4" class="text-center py-4 text-secondary">등록된 공지사항이 없습니다.</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- 페이징 -->
+        <div th:if="${!paging.isEmpty()}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${paging.number-1}|}">&laquo;</a>
+                </li>
+                <li class="page-item" th:each="page: ${#numbers.sequence(0, paging.totalPages-1)}"
+                    th:if="${page >= paging.number-5 and page <= paging.number+5}"
+                    th:classappend="${page == paging.number} ? 'active'">
+                    <a class="page-link" th:text="${page+1}" th:href="@{|?page=${page}|}"></a>
+                </li>
+                <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${paging.number+1}|}">&raquo;</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</html>
