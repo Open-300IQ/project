@@ -248,7 +248,14 @@
 	                "encoding": {
 	                    "x": {"field": "date", "type": "temporal", "title": "월별", "axis": {"format": "%Y년 %m월","tickCount": 6, "grid": false}},
 						"y": {"field": "평균가격", "type": "quantitative", "title": "평당 평균 가격(만원)", "axis": {"format": ",.0f","tickCount": 6, "grid": false}},	                    
-						"color": {"field": "계열", "type": "nominal", "title": "분석 계열"}, 
+						"color": {"field": "계열", "type": "nominal", "title": "분석 계열"},
+						"strokeWidth": {
+	                        "condition": {
+	                            "test": "datum.읍면동 === '전체'", // 읍면동이 '전체'일 경우
+	                            "value": 3 // 선 두께를 4로 설정
+	                        },
+	                        "value": 2 // 그 외에는 기본 두께 2로 설정
+	                    }, 
 	                    "tooltip": [
 	                        {"field": "date", "type": "temporal", "title": "월", "format": "%Y년 %m월"},
 	                        {"field": "구", "type": "nominal", "title": "구"},
@@ -260,7 +267,7 @@
 	                }
 				},
 					{
-						"mark": {"type": "point", "size": 20, "opacity": 1.0, "name": "data-point"},
+						"mark": {"type": "point", "size": 50, "opacity": 1.0, "name": "data-point", "filled": true},
 		                "encoding": {
 		                    "x": {"field": "date", "type": "temporal","title": null},
 		                    "y": {"field": "평균가격", "type": "quantitative","title": null},

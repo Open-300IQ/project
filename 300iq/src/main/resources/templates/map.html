@@ -116,14 +116,15 @@
                 <div class="mb-3">
                     <label for="guFilter" class="form-label text-body-secondary" >구</label>
                     <select id="guFilter" class="form-select form-select-sm">
-                        <option th:each="gu : ${guList}" th:value="${gu}" th:text="${gu}"></option>
+						<option value="">전체</option>
+						<option th:each="gu : ${guList}" th:value="${gu}" th:text="${gu}"></option>
                     </select>
                 </div>
                 
                 <div class="mb-3">
                     <label for="dongFilter" class="form-label text-body-secondary">동</label>
                     <select id="dongFilter" class="form-select form-select-sm">
-						
+						<option value="">전체</option>
                     </select>
                 </div>
                 
