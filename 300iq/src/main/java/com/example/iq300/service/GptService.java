@@ -43,8 +43,8 @@ public class GptService {
     private static final String DATA_END_MONTH = "202510";
 
     private static final List<String> ADDRESS_KEYWORDS = Arrays.asList("서원구", "흥덕구", "상당구", "청원구", "청주시 전체");
-    private static final List<String> INVESTMENT_KEYWORDS = Arrays.asList("투자", "갭투자", "전망", "거품", "버블");
-    private static final List<String> RESIDENTIAL_KEYWORDS = Arrays.asList("거주", "살기 좋은", "거주 가치", "실거주", "살기", "이사");
+    private static final List<String> INVESTMENT_KEYWORDS = Arrays.asList("투자", "갭투자", "전망", "거품", "버블", "급매", "고점", "하락세", "회복");
+    private static final List<String> RESIDENTIAL_KEYWORDS = Arrays.asList("거주", "살기 좋은", "거주 가치", "실거주", "살기", "이사", "살고");
     private static final List<String> BUILDING_TYPE_KEYWORDS = Arrays.asList("아파트", "오피스텔", "연립다세대", "단독다가구");
     
     public GptService(TotalDataRepository totalDataRepository,
@@ -105,6 +105,60 @@ public class GptService {
             chatHistory.add(new MessageModel("model", errorMsg));
             return errorMsg;
         }
+    }
+    
+    public String recommendBoardQuestions(String userTopic) {
+    	chatHistory.add(new MessageModel("user", "(게시글 추천 요청) " + userTopic));
+    	
+    	String systemContent = """
+            당신은 부동산 커뮤니티의 숙련된 에디터이자 도우미입니다.
+            사용자가 특정 주제(예: 부동산 정책, 세금, 특정 지역 전망 등)를 입력하면,
+            커뮤니티 게시판에 올렸을 때 사람들의 활발한 토론과 답변을 이끌어낼 수 있는 '매력적인 질문 제목과 본문' 3가지를 추천해주세요.
+            
+            [작성 원칙]
+            1. 3가지 옵션을 번호를 매겨 제안하세요.
+            2. 각 옵션은 '제목'과 '본문(간략한 질문 내용)'으로 구성하세요.
+            3. 질문은 구체적이고, 커뮤니티 이용자들의 경험이나 의견을 묻는 방식이 좋습니다.
+            """;
+
+        String userPrompt = String.format("사용자 입력 주제: \"%s\"\n위 주제와 관련하여 게시판에 올릴만한 좋은 질문 3가지를 추천해줘.", userTopic);
+
+        try {
+            String reply = callGptApi(systemContent, userPrompt);
+            chatHistory.add(new MessageModel("model", reply));
+            return reply;
+        } catch (Exception e) {
+            return "추천 중 오류가 발생했습니다.";
+        }
+    }
+    
+    private String callGptApi(String systemContent, String userPrompt) {
+    	RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
+
+        JsonObject requestBody = new JsonObject();
+        requestBody.addProperty("model", model);
+
+        JsonArray messages = new JsonArray();
+        JsonObject systemMessage = new JsonObject();
+        systemMessage.addProperty("role", "system");
+        systemMessage.addProperty("content", systemContent);
+        messages.add(systemMessage);
+
+        JsonObject userMsg = new JsonObject();
+        userMsg.addProperty("role", "user");
+        userMsg.addProperty("content", userPrompt);
+        messages.add(userMsg);
+
+        requestBody.add("messages", messages);
+        requestBody.addProperty("temperature", 0.7); // 추천은 약간 창의적이게 0.7
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
+        ResponseEntity<String> response = restTemplate.exchange(GPT_API_URL, HttpMethod.POST, entity, String.class);
+
+        return extractTextFromResponse(response.getBody());
     }
 
     private Map<String, Object> parseAndAnalyzeContext(String userMessage) {
@@ -177,16 +231,13 @@ public class GptService {
     	else if (userMessage.contains("전월세")) txType = "전월세";
     	
     	String searchKeyword = userMessage;
-    	
-    	if (!"청주시 전체".equals(region)) searchKeyword = searchKeyword.replace(region, "");
-    	
-    	if (buildingType != null) searchKeyword = searchKeyword.replace(buildingType, "");
-    	if (txType != null) searchKeyword = searchKeyword.replace(txType, "");
-    	
-    	for (String stopWord : Arrays.asList("거래내역", "알려줘", "좀", "매물", "월세", "전세", "해줘", "어때")) searchKeyword = searchKeyword.replace(stopWord, "");
-    	searchKeyword = searchKeyword.trim().replaceAll("\\s+", " ");
-    		
-    	Pageable pageable = PageRequest.of(0, 10);
+        if (!"청주시 전체".equals(region)) searchKeyword = searchKeyword.replace(region, "");
+        for (String stopWord : Arrays.asList("거래내역", "알려줘", "좀", "매물", "정보", "해줘", "어때", "보여줘", "에", "의", "아파트", "오피스텔", "매매", "전세", "월세")) {
+            searchKeyword = searchKeyword.replace(stopWord, "");
+        }
+        searchKeyword = searchKeyword.trim().replaceAll("\\s+", " ");
+        
+        Pageable pageable = PageRequest.of(0, 10);
     	List<TotalData> transactions = totalDataRepository.findByDynamicQuery("청주시 전체".equals(region) ? null : region, buildingType ,searchKeyword ,pageable);
     	
     	if (buildingType != null) {

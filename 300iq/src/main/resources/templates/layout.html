@@ -340,7 +340,7 @@
 			    
 			</head>
 			<body>
-
+				
 			<nav th:replace="~{fragments/header :: header}"></nav>
 
 			<div layout:fragment="content">
@@ -352,8 +352,9 @@
 
 			<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/main.min.js' defer></script>
 			<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/locales/ko.js' defer></script>
-
+			
 			<th:block layout:fragment="script"></th:block>
-
-			</body>
+			<nav th:replace="~{fragments/ai_popup :: aiPopup}"></nav>
+		
+		</body>
 			</html>

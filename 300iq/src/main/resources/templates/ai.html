@@ -6,26 +6,23 @@
   <head>
       <title>AI 상담</title>
       <style>
-
-		  .right-content .card{
-			background-color : #ffffff !important;
-			border : none;
-			box-shadow : 0 4px 12px rgba(0, 0, 0, 0.05);
-		  }
+          .right-content .card{
+            background-color : #ffffff !important;
+            border : none;
+            box-shadow : 0 4px 12px rgba(0, 0, 0, 0.05);
+          }
           #chatBox {
               padding: 20px;
               overflow-y: auto;
               display: flex;
               flex-direction: column;
               gap: 15px;
-			  height: 60vh;
-			  min-height: 400px;
+              height: 60vh;
+              min-height: 400px;
           }
 
-          .message-row {
-              display: flex;
-          }
-
+          /* 메시지 스타일 */
+          .message-row { display: flex; }
           .message-bubble {
               max-width: 75%;
               padding: 12px 18px;
@@ -34,47 +31,32 @@
               word-wrap: break-word;
               font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
           }
-
-          .message-row.user {
-              justify-content: flex-end;
-          }
+          .message-row.user { justify-content: flex-end; }
           .message-row.user .message-bubble {
               background-color: #54c700;
               color: white;
               border-bottom-right-radius: 5px;
           }
-          
-          .user { color: inherit; margin: 0; }
-          .model { color: inherit; margin: 0; }
-
-          .message-row.model {
-              justify-content: flex-start;
-          }
+          .message-row.model { justify-content: flex-start; }
           .message-row.model .message-bubble {
               background-color: #333;
               color: #f1f1f1;
               border-bottom-left-radius: 5px;
-              
               white-space: pre-wrap;
           }
-
-          .message-row.loading {
-              justify-content: flex-start;
-          }
+          .message-row.loading { justify-content: flex-start; }
           .message-row.loading .message-bubble {
               background-color: #f1f1f1;
               color: #888;
               font-style: italic;
           }
-          .loading { color: inherit; margin: 0; font-style: normal; }
 
-
+          /* 입력창 스타일 */
           .input-area { 
               display: flex; 
               gap: 10px; 
               align-items: center;
           }
-
           .input-area textarea {
               flex-grow: 1;
               border: 1px solid #ccc;
@@ -87,14 +69,13 @@
               font-family: inherit;
               line-height: 1.5;
               color: #ffffff;
-			  background-color: transparent;
+              background-color: transparent;
               margin-top: 0;
           }
           .input-area textarea:focus {
               outline: none;
               border-color: #54c700;
           }
-
           .input-area button {
               height: 40px;
               padding: 0 20px;
@@ -105,165 +86,221 @@
               font-size: 15px;
               font-weight: 600;
               cursor: pointer;
-              margin-top: 0;
               white-space: nowrap;
           }
-          .input-area button:hover {
-              background-color: #0056b3;
+          .input-area button:hover { background-color: #0056b3; }
+
+          /* 하단 추천 질문 버튼 스타일 */
+          .suggestion-area {
+              display: flex;
+              gap: 8px;
+              margin-top: 10px;
+              flex-wrap: wrap;
           }
-		  
-		  .suggestion-area {
-			  display: flex;
-		  	  gap: 8px;
-			  margin-top: 10px;
-			  flex-wrap: wrap;
-		  }
-		  
-		  .suggestion-btn {
-			  background-color: rgba(255, 255, 255, 0.1);
-			  border: 1px solid #555;
-			  border-radius: 15px;
-			  padding: 10px 20px;
-			  font-size: 13px;
-			  color: #ccc;
-			  cursor: pointer;
-			  transition: all 0.2s ease;
-		  }
-		  
-		  .suggestion-btn:hover {
-			  border-color: #54c700;
-			  color: #54c700;
-			  background-color: rgba(84, 199, 0, 0.1);
-		  }
+          .suggestion-btn {
+              background-color: rgba(255, 255, 255, 0.1);
+              border: 1px solid #555;
+              border-radius: 15px;
+              padding: 8px 16px;
+              font-size: 13px;
+              color: #ccc;
+              cursor: pointer;
+              transition: all 0.2s ease;
+          }
+          .suggestion-btn:hover {
+              border-color: #54c700;
+              color: #54c700;
+              background-color: rgba(84, 199, 0, 0.1);
+          }
+
+          /* [신규] 상단 모드 전환 탭 스타일 */
+          .mode-tabs {
+              display: flex;
+              justify-content: center;
+              gap: 10px;
+              margin-bottom: 15px;
+          }
+          .mode-tab-btn {
+              background-color: transparent;
+              border: 1px solid #555;
+              color: #888;
+              padding: 8px 20px;
+              border-radius: 20px;
+              cursor: pointer;
+              font-weight: 600;
+              transition: all 0.3s;
+          }
+          .mode-tab-btn.active {
+              background-color: #54c700;
+              color: white;
+              border-color: #54c700;
+          }
 
       </style>
   </head>
 
 <body>
-	<div layout:fragment="content" class="container my-5">
+    <div layout:fragment="content" class="container my-5">
 
-	    <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='ai')}"></div>
+        <div th:replace="~{fragments/sidebar :: sidebar(activeMenu='ai')}"></div>
 
-	    <div class="right-content">
-	        <div class="row justify-content-center">
-	            <div class="col-md-10">
-	                <h1 class="text-center mb-4">AI 부동산 상담</h1>
-	                <p class="text-center text-body-secondary mb-5">
-	                    청주시 부동산 데이터에 기반하여 Gemini AI가 답변해 드립니다.
-	                </p>
-	               
-	                        
+        <div class="right-content">
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <h1 class="text-center mb-4">AI 부동산 상담</h1>
+                    
+                    <div class="mode-tabs">
+                        <button class="mode-tab-btn active" onclick="setMode('chat')" id="btn-chat">📊 매물·분석 상담</button>
+                        <button class="mode-tab-btn" onclick="setMode('recommend')" id="btn-recommend">📝 게시글 추천</button>
+                    </div>
+
+                    <p class="text-center text-body-secondary mb-4" id="mode-desc">
+                        청주시 부동산 데이터에 기반하여 매물 검색 및 가치 분석을 해드립니다.
+                    </p>
+                           
                     <div id="chatBox" class="flex-grow-1 mb-3">
                         <div th:each="msg : ${chatHistory}" class="message-row" th:classappend="${msg.role}">
                             <div class="message-bubble" th:text="${msg.text}"></div>
                         </div>
                         
                         <div class="message-row model" th:if="${#lists.isEmpty(chatHistory)}">
-                            <div class="message-bubble">안녕하세요! AI 부동산 상담 챗봇입니다. 무엇이 궁금하신가요? (예: 서원구 거래 내역 알려줘)</div>
+                            <div class="message-bubble">안녕하세요! AI 챗봇입니다. 원하시는 상담 모드를 선택하고 질문해 주세요.</div>
                         </div>
                     </div>
 
                     <div class="input-area">
-                        <textarea id="message" placeholder="메시지를 입력하세요..."></textarea>
+                        <textarea id="message" placeholder="궁금한 지역이나 매물을 입력하세요..."></textarea>
                         <button id="sendBtn">전송</button>
                     </div>
-					
-					<div class="suggestion-area">
-						<button class="suggestion-btn" onclick="fillInput('서원구 아파트 거래내역 알려줘')">서원구 아파트 거래내역 알려줘</button>
-						<button class="suggestion-btn" onclick="fillInput('지웰시티 거래내역 알려줘')">지웰시티 거래내역 알려줘</button>
-						<button class="suggestion-btn" onclick="fillInput('거주적인 측면에서 서원구 어때?')">거주적인 측면에서 서원구 어때?</button>
-						<button class="suggestion-btn" onclick="fillInput('서원구 투자하기 좋아?')">서원구 투자하기 좋아?</button>
-					</div>
-					
+                    
+                    <div class="suggestion-area" id="suggestionArea">
+                        <button class="suggestion-btn" onclick="fillInput('서원구 아파트 거래내역 알려줘')">서원구 아파트 거래내역</button>
+                        <button class="suggestion-btn" onclick="fillInput('지웰시티 거래내역 알려줘')">지웰시티 거래내역</button>
+                        <button class="suggestion-btn" onclick="fillInput('거주적인 측면에서 서원구 어때?')">서원구 거주 가치</button>
+                        <button class="suggestion-btn" onclick="fillInput('서원구 투자하기 좋아?')">서원구 투자 전망</button>
+                    </div>
+                    
                     <script>
-					    const messageInput = document.getElementById("message");
-					    const chatBox = document.getElementById("chatBox");
-					    const sendBtn = document.getElementById("sendBtn");
-					
-                        // 페이지 로드 시 스크롤 맨 아래로
+                        const messageInput = document.getElementById("message");
+                        const chatBox = document.getElementById("chatBox");
+                        const sendBtn = document.getElementById("sendBtn");
+                        const suggestionArea = document.getElementById("suggestionArea");
+                        const modeDesc = document.getElementById("mode-desc");
+
+                        // 현재 모드 상태 (기본값: chat)
+                        let currentMode = 'chat';
+
+                        // 모드 변경 함수
+                        function setMode(mode) {
+                            currentMode = mode;
+
+                            // 탭 스타일 변경
+                            document.getElementById('btn-chat').classList.toggle('active', mode === 'chat');
+                            document.getElementById('btn-recommend').classList.toggle('active', mode === 'recommend');
+
+                            // UI 텍스트 및 추천 버튼 변경
+                            if (mode === 'chat') {
+                                modeDesc.textContent = "청주시 부동산 데이터에 기반하여 매물 검색 및 가치 분석을 해드립니다.";
+                                messageInput.placeholder = "궁금한 지역이나 매물을 입력하세요... (예: 서원구 아파트)";
+                                
+                                // 분석 모드용 버튼
+                                suggestionArea.innerHTML = `
+                                    <button class="suggestion-btn" onclick="fillInput('서원구 아파트 거래내역 알려줘')">서원구 아파트 거래내역</button>
+                                    <button class="suggestion-btn" onclick="fillInput('지웰시티 거래내역 알려줘')">지웰시티 거래내역</button>
+                                    <button class="suggestion-btn" onclick="fillInput('거주적인 측면에서 서원구 어때?')">서원구 거주 가치</button>
+                                    <button class="suggestion-btn" onclick="fillInput('서원구 투자하기 좋아?')">서원구 투자 전망</button>
+                                `;
+                            } else {
+                                modeDesc.textContent = "관심있는 주제를 입력하면, 게시판에 올릴 만한 좋은 질문 3가지를 추천해드립니다.";
+                                messageInput.placeholder = "게시글 주제를 입력하세요... (예: 부동산 정책, 금리 영향)";
+                                
+                                // 추천 모드용 버튼
+                                suggestionArea.innerHTML = `
+                                    <button class="suggestion-btn" onclick="fillInput('요즘 부동산 정책에 대해 질문 추천해줘')">부동산 정책 관련</button>
+                                    <button class="suggestion-btn" onclick="fillInput('청주 호재나 전망에 대한 글을 쓰고 싶어')">청주 지역 호재</button>
+                                    <button class="suggestion-btn" onclick="fillInput('전세 사기 예방 팁 공유하고 싶어')">전세 사기 예방</button>
+                                    <button class="suggestion-btn" onclick="fillInput('생애 첫 주택 구매 조언 구하기')">첫 주택 구매</button>
+                                `;
+                            }
+                        }
+
+                        // 페이지 로드 시 스크롤
                         chatBox.scrollTop = chatBox.scrollHeight;
 
-					    messageInput.addEventListener("keydown", function(e) {
-					        if (e.key === "Enter" && !e.shiftKey) {
-					            e.preventDefault();
-					            sendMessage();
-					        }
-					    });
-					
-					    sendBtn.addEventListener("click", sendMessage);
+                        messageInput.addEventListener("keydown", function(e) {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                sendMessage();
+                            }
+                        });
+
+                        sendBtn.addEventListener("click", sendMessage);
 
                         messageInput.addEventListener("input", function() {
-                            this.style.height = "auto";
-                            this.style.height = (this.scrollHeight < 120 ? this.scrollHeight : 120) + "px";
+                            resizeTextarea(this);
                         });
-						
-						function resizeTextarea(el) {
-							el.style.height = "auto";
-							el.style.height = (el.scrollHeight < 120 ? el.scrollHeight : 120) + "px";
-						}
-						
-						function fillInput(text) {
-							messageInput.value = text;
-							messageInput.focus();
-							resizeTextarea(messageInput);
-						}
-					
-					    async function sendMessage() {
-					        const msg = messageInput.value.trim();
-					        if (!msg.trim()) return;
-					
-					        appendMessage("user", msg);
-					        messageInput.value = "";
-                            messageInput.style.height = "40px";
-					
-					        const loadingEl = appendMessage("loading", "답변 생성 중...");
-					
-					        try {
-					            const res = await fetch("/ai/chat", {
-					                method: "POST",
-					                headers: { "Content-Type": "application/json" },
-					                body: JSON.stringify({ message: msg })
-					            });
-					
-					            const text = await res.text();
+                        
+                        function resizeTextarea(el) {
+                            el.style.height = "auto";
+                            el.style.height = (el.scrollHeight < 120 ? el.scrollHeight : 120) + "px";
+                        }
+                        
+                        function fillInput(text) {
+                            messageInput.value = text;
+                            messageInput.focus();
+                            resizeTextarea(messageInput);
+                        }
 
-					            if (!res.ok) {
-                                    throw new Error(`HTTP 오류 : ${res.status}`);
-					            }
-								
-					            loadingEl.remove();
-					            appendMessage("model", text);
-					
-					        } catch (error) {
+                        async function sendMessage() {
+                            const msg = messageInput.value.trim();
+                            if (!msg) return;
+
+                            appendMessage("user", msg);
+                            messageInput.value = "";
+                            messageInput.style.height = "40px";
+
+                            const loadingEl = appendMessage("loading", "답변 생성 중...");
+
+                            // 모드에 따라 요청 URL 결정
+                            const url = (currentMode === 'chat') ? "/ai/chat" : "/ai/recommend";
+
+                            try {
+                                const res = await fetch(url, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ message: msg })
+                                });
+
+                                const text = await res.text();
+
+                                if (!res.ok) throw new Error(`HTTP 오류 : ${res.status}`);
+                                
+                                loadingEl.remove();
+                                appendMessage("model", text);
+
+                            } catch (error) {
                                 const bubble = loadingEl.querySelector('.message-bubble');
-                                if (bubble) {
-                                    bubble.textContent = error.message;
-                                }
-					            loadingEl.classList.remove("loading");
-					            loadingEl.classList.add("model");
-					        }
-					    }
-					
-					    function appendMessage(role, text) {
+                                if (bubble) bubble.textContent = error.message;
+                                loadingEl.classList.remove("loading");
+                                loadingEl.classList.add("model");
+                            }
+                        }
+
+                        function appendMessage(role, text) {
                             const messageRow = document.createElement("div");
                             messageRow.className = `message-row ${role}`;
-
                             const messageBubble = document.createElement("div");
                             messageBubble.className = "message-bubble";
-                            
                             messageBubble.textContent = text;
-
                             messageRow.appendChild(messageBubble);
                             chatBox.appendChild(messageRow);
                             chatBox.scrollTop = chatBox.scrollHeight;
-                            
                             return messageRow;
-					    }
-					</script>
-	            </div>
-	        </div>
-	    </div>
-	</div>
-
+                        }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

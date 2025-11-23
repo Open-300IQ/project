@@ -26,4 +26,11 @@ public class GeminiController {
 		String cleanMsg = message.replace("{\"message\":\"", "").replace("\"}", "");
 		return geminiService.sendMessage(cleanMsg);
 	}
+	
+	@PostMapping("/ai/recommend")
+	@ResponseBody
+	public String recommendMessage(@RequestBody String message) {
+		String cleanMsg = message.replace("{\"message\":\"", "").replace("\"}", "");
+		return geminiService.recommendBoardQuestions(cleanMsg);
+	}
 }
