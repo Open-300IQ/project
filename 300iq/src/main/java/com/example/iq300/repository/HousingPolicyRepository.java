@@ -20,4 +20,6 @@ public interface HousingPolicyRepository extends JpaRepository<HousingPolicy, Lo
     // 검색 기능 (정책명 또는 내용에 검색어 포함)
     @Query("select p from HousingPolicy p where p.title like %:kw% or p.description like %:kw%")
     Page<HousingPolicy> findAllByKeyword(@Param("kw") String kw, Pageable pageable);
+    
+    List<HousingPolicy> findByTitleContainingOrDescriptionContaining(String titleKeyword, String descKeyword, Pageable pageable);
 }

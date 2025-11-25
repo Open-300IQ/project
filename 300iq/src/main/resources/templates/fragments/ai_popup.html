@@ -64,32 +64,45 @@
         }
 
         /* [추가됨] 모드 전환 탭 */
-        .ai-popup-tabs {
-            display: flex;
+		.ai-popup-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2열 그리드 */
             background-color: #2a2a2a;
             border-bottom: 1px solid #333;
         }
 
         .ai-popup-tab-btn {
-            flex: 1;
             background: none;
             border: none;
-            padding: 12px;
+            padding: 10px 5px; /* 내부 여백 조절 */
             color: #888;
-            font-size: 14px;
+            font-size: 13px; /* 글자 크기 살짝 축소 */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             border-bottom: 3px solid transparent;
+            border-right: 1px solid #333; /* 버튼 사이 구분선 */
+            border-top: 1px solid #333;
+        }
+        
+        /* 오른쪽 끝 버튼의 오른쪽 테두리 제거 (짝수 번째 자식) */
+        .ai-popup-tab-btn:nth-child(2n) {
+            border-right: none;
+        }
+        /* 첫 번째 줄의 위쪽 테두리 제거 */
+        .ai-popup-tab-btn:nth-child(1), .ai-popup-tab-btn:nth-child(2) {
+            border-top: none;
         }
 
         .ai-popup-tab-btn:hover {
             color: #ccc;
+            background-color: #333; /* 호버 시 배경색 살짝 변경 */
         }
 
         .ai-popup-tab-btn.active {
             color: #54c700;
             border-bottom-color: #54c700;
+            background-color: #222; /* 활성화된 탭 배경 */
         }
 
         /* 채팅 영역 */
@@ -240,7 +253,9 @@
         <div class="ai-popup-tabs">
             <button class="ai-popup-tab-btn active" id="popup-tab-chat" onclick="setPopupMode('chat')">📊 분석 상담</button>
             <button class="ai-popup-tab-btn" id="popup-tab-recommend" onclick="setPopupMode('recommend')">📝 글 추천</button>
-        </div>
+    		<button class="ai-popup-tab-btn" id="popup-tab-policy" onclick="setPopupMode('policy')">📝 정책 검색</button>
+			<button class="ai-popup-tab-btn" id="popup-tab-term" onclick="setPopupMode('term')">📕 용어 검색</button>
+		</div>
 
         <div id="popupChatBox">
             <div class="popup-message-row model">
@@ -260,7 +275,7 @@
         </div>
     </div>
 
-    <script>
+    <script th:inline="none">
         const popupChatBox = document.getElementById("popupChatBox");
         const popupMessageInput = document.getElementById("popupMessage");
         const popupSendBtn = document.getElementById("popupSendBtn");
@@ -287,17 +302,19 @@
             // 탭 활성화 스타일 처리
             document.getElementById('popup-tab-chat').classList.toggle('active', mode === 'chat');
             document.getElementById('popup-tab-recommend').classList.toggle('active', mode === 'recommend');
+			document.getElementById('popup-tab-policy').classList.toggle('active', mode === 'policy');
+			document.getElementById('popup-tab-term').classList.toggle('active', mode === 'term');
 
             // UI 변경 (플레이스홀더 및 추천 버튼)
             if (mode === 'chat') {
                 popupMessageInput.placeholder = "궁금한 지역이나 매물을 입력하세요...";
                 popupSuggestionArea.innerHTML = `
-                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('서원구 아파트 거래내역 알려줘')">서원구 거래내역</button>
-                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('지웰시티 거래내역 알려줘')">지웰시티 검색</button>
-                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('거주적인 측면에서 서원구 어때?')">서원구 거주가치</button>
-                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('서원구 투자하기 좋아?')">서원구 투자전망</button>
+                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('서원구 아파트 거래내역 알려줘')">지역 거래내역</button>
+                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('지웰시티 거래내역 알려줘')">건물 거래내역</button>
+                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('거주적인 측면에서 서원구 어때?')">거주가치</button>
+                    <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('서원구 투자하기 좋아?')">투자전망</button>
                 `;
-            } else {
+            } else if (mode === 'recommend') {
                 popupMessageInput.placeholder = "게시글 주제를 입력하세요...";
                 popupSuggestionArea.innerHTML = `
                     <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('요즘 부동산 정책 질문 추천')">정책 관련 질문</button>
@@ -305,7 +322,21 @@
                     <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('전세 사기 예방 팁')">전세 사기 예방</button>
                     <button class="ai-popup-suggestion-btn" onclick="fillPopupInput('생애 첫 주택 구매 조언')">첫 주택 구매</button>
                 `;
-            }
+            } else if (mode === 'policy') {
+				popupMessageInput.placeholder = "궁금한 정책 주제나 내용을 입력하세요...";
+				popupSuggestionArea.innerHTML = `
+					<button class="ai-popup-suggestion-btn" onclick="fillPopupInput('청년을 대상으로 한 정책들은 어떤게 있어?')">청년 정책</button>
+					<button class="ai-popup-suggestion-btn" onclick="fillPopupInput('청소년 관련 정책들 알려줘')">청소년 정책</button>
+					<button class="ai-popup-suggestion-btn" onclick="fillPopupInput('주택 관련 정책 진행중인거 있어?')">주택 정책</button>
+				`
+			} else if (mode === 'term') {
+				popupMessageInput.placeholder = "궁금한 용어를 입력하세요...";
+				popupSuggestionArea.innerHTML = `
+					<button class="ai-popup-suggestion-btn" onclick="fillPopupInput('가등기담보가 무슨 뜻이야?')">가등기담보란?</button>
+					<button class="ai-popup-suggestion-btn" onclick="fillPopupInput('방화지구에 대해서 설명해줘')">방화지구란?</button>
+					<button class="ai-popup-suggestion-btn" onclick="fillPopupInput('자유재량이 대체 뭐야?')">자유재량이란?</button>
+				`
+			}
         }
 
         // [추가] 텍스트 입력 채우기 및 높이 조절
@@ -345,9 +376,15 @@
             popupMessageInput.style.height = "40px";
 
             const loadingEl = appendPopupMessage("loading", "답변 생성 중...");
-
+			
+			
+			let url = "";
+			
             // 모드에 따라 요청 URL 결정
-            const url = (currentPopupMode === 'chat') ? "/ai/chat" : "/ai/recommend";
+			if (currentPopupMode === 'chat') { url = "/ai/chat"; }
+			else if (currentPopupMode == 'recommend') { url = "/ai/recommend"; }
+			else if (currentPopupMode == 'policy') { url = "/ai/policy"; }
+			else if (currentPopupMode == 'term') { url = "/ai/term"; }
 
             try {
                 const res = await fetch(url, {
@@ -374,6 +411,21 @@
                 loadingEl.classList.add("model");
             }
         }
+		
+		function formatMessage(text) {
+			// 링크 구현
+			let formatted = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_self" style="color: #add8e6; text-decoration: underline; font-weight: bold;">$1</a>');
+			// 볼드체 구현
+	        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+			// ### 처리
+			formatted = formatted.replace(/^### (.*$)/gm, '<h3 style="margin: 8px 0 5px 0; font-size: 16px; font-weight: bold; color: #fff;">$1</h3>');
+			// ## 처리
+			formatted = formatted.replace(/^## (.*$)/gm, '<h2 style="margin: 15px 0 10px 0; font-size: 18px; font-weight: bold; border-bottom: 1px solid #555; padding-bottom: 5px; color: #54c700;">$1</h2>');
+			// 줄바꿈 변환
+	        formatted = formatted.replace(/\n/g, '<br>');
+	
+	        return formatted;
+		}
 
         function appendPopupMessage(role, text) {
             const messageRow = document.createElement("div");
@@ -381,7 +433,12 @@
 
             const messageBubble = document.createElement("div");
             messageBubble.className = "popup-message-bubble";
-            messageBubble.textContent = text;
+			
+			if (role === 'model') {
+                messageBubble.innerHTML = formatMessage(text); 
+            } else {
+                messageBubble.textContent = text;
+            }
 
             messageRow.appendChild(messageBubble);
             popupChatBox.appendChild(messageRow);

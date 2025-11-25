@@ -33,4 +33,18 @@ public class GeminiController {
 		String cleanMsg = message.replace("{\"message\":\"", "").replace("\"}", "");
 		return geminiService.recommendBoardQuestions(cleanMsg);
 	}
+	
+	@PostMapping("/ai/policy")
+	@ResponseBody
+	public String policyMessage(@RequestBody String message) {
+		String cleanMsg = message.replace("{\"message\":\"", "").replace("\"}", "");
+		return geminiService.searchPolicy(cleanMsg);
+	}
+	
+	@PostMapping("/ai/term")
+	@ResponseBody
+	public String termMessage(@RequestBody String message) {
+		String cleanMsg = message.replace("{\"message\":\"", "").replace("\"}", "");
+		return geminiService.searchTerm(cleanMsg);
+	}
 }

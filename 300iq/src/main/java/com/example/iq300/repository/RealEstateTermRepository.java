@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface RealEstateTermRepository extends JpaRepository<RealEstateTerm, Long> {
 
     // ======== [ 4. 페이징 및 검색 메서드 3개 추가 ] ========
@@ -14,7 +16,9 @@ public interface RealEstateTermRepository extends JpaRepository<RealEstateTerm, 
 
     // 2. (검색용) term(용어)에서 kw를 포함하는 데이터 페이징 조회
     Page<RealEstateTerm> findByTermContaining(String kw, Pageable pageable);
-
+    
+    List<RealEstateTerm> findTop3ByTermContaining(String keyword, Pageable pagealbe);
+    
     // 3. (검색용) definition(설명)에서 kw를 포함하는 데이터 페이징 조회
     Page<RealEstateTerm> findByDefinitionContaining(String kw, Pageable pageable);
     
