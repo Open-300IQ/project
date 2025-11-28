@@ -32,7 +32,7 @@
             margin-bottom: 1rem;
         }
         .guide-section p {
-            color: #ddd; 
+            color: #ddd; /* 본문 텍스트 색상 추가 */
         }
         .guide-section ul {
             padding-left: 20px;
@@ -46,7 +46,7 @@
             color: #fff;
             font-weight: 600;
         }
-        /* 목차 링크 스타일 */
+        /* 목차 링크 스타일 추가 */
         .toc-link {
             color: #54c700;
             font-weight: 600;
@@ -57,72 +57,6 @@
             color: #8aff4d;
             text-decoration: underline;
         }
-        
-        /* PDF 링크 스타일 */
-        .guide-link {
-            color: #54c700 !important;
-            text-decoration: underline;
-            text-underline-offset: 4px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .guide-link:hover {
-            color: #8aff4d !important;
-            text-decoration-color: #8aff4d; 
-        }
-        .guide-link i {
-            margin-right: 4px;
-        }
-
-        /* ▼▼▼ [추가] 목차 바로가기 스타일 (청약 가이드와 동일) ▼▼▼ */
-        .toc-card {
-            background-color: #333; /* 목차 카드 배경 */
-            border: 1px solid #444;
-            margin-bottom: 2.5rem;
-            border-radius: 8px; /* 카드 둥글게 */
-        }
-        .toc-card .card-header {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #54c700; /* 헤더 강조 색상 */
-            border-bottom: 1px solid #444;
-            padding: 1rem; /* 패딩 추가 */
-        }
-        .toc-card .card-body {
-            padding: 1rem;
-        }
-        .toc-list {
-            list-style-type: none;
-            padding-left: 0;
-            margin-bottom: 0;
-            display: flex;
-            flex-wrap: wrap; /* 항목이 많으면 줄바꿈 */
-        }
-        .toc-list li {
-            padding: 0.5rem 1rem;
-            flex-basis: 33.33%; /* 3열 레이아웃 */
-            box-sizing: border-box;
-        }
-        .toc-list li a {
-            text-decoration: none;
-            color: #e0e0e0;
-            font-weight: 500;
-            transition: color 0.2s;
-            display: block; /* 클릭 영역 확대 */
-        }
-        .toc-list li a:hover {
-            color: #ffffff;
-            text-decoration: underline;
-            color: #54c700; /* 호버 시 색상 변경 */
-        }
-        /* 모바일 반응형: 화면이 좁을 때는 1열로 표시 */
-        @media (max-width: 768px) {
-            .toc-list li {
-                flex-basis: 100%;
-            }
-        }
-        /* ▲▲▲ */
-
     </style>
 </head>
 
@@ -138,24 +72,16 @@
             "알아두면 힘이 되는 도민 로스쿨" 교재를 바탕으로, 안전한 부동산 거래를 위한 등기, 매매, 임대차 계약의 핵심 사항을 정리합니다.
         </p>
 
-        <div class="card toc-card">
-            <div class="card-header">
-                <i class="fa-solid fa-list-ul me-2"></i>목차 바로가기
-            </div>
-            <div class="card-body">
-                <ul class="toc-list">
-                    <li><a href="#section-registration">I. 부동산 등기제도 📜</a></li>
-                    <li><a href="#section-sale">II. 부동산 매매 계약 🤝</a></li>
-                    <li><a href="#section-lease">III. 부동산 임대차 계약 🔑</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="guide-section">
+		<div class="guide-section">
 		    <h2 id="section-registration">I. 부동산 등기제도</h2>
 		    
 		    <blockquote class="blockquote" style="background-color: #2a2a2a; border-left: 5px solid #54c700; padding: 1rem; margin-left: 0;">
 		        <p class="mb-0" style="color: #ddd;">"부동산 사무소의 말만 믿고 덜컥 집을 계약해 버린 세입자들. 집주인이 아닌 다른 사람과 임대차 계약을 맺는 바람에 큰 돈을 떼이고 말았습니다."</p>
-				<footer class="blockquote-footer mt-2">MBC뉴스(2010.2.23.)</footer>
+		        <p>
+					
+				</p>
+				
+				<footer class="blockquote-footer">MBC뉴스(2010.2.23.)</footer>
 		    </blockquote>
 
 		    <h3 class="mt-4">부동산, 너는 누구냐?</h3>
@@ -181,12 +107,7 @@
 		        </li>
 		    </ul>
 
-			<h3>
-			        등기부 등본: 표제부, 갑구, 을구
-			        <a th:href="@{/pdf/1_2.pdf}" target="_blank" class="guide-link ms-2" style="font-size: 1.2rem; font-weight: 500;">
-			            <i class="fa-regular fa-file-pdf"></i> 등기부 등본 PDF
-			        </a>
-			    </h3>
+		    <h3>등기부 등본: 표제부, 갑구, 을구</h3>
 		    <p>
 		        등기부는 등기소에 비치된 공적인 장부로, 부동산의 지번, 구조, 면적 등 '표시사항'과 소유권, 저당권, 전세권, 가압류 등 '권리관계'를 자세히 알 수 있습니다.
 		    </p>
@@ -271,7 +192,7 @@
 		        </li>
 		    </ul>
 
-		    <h3 class="mt-4">매매 계약서를 쓸 때 유의하세요 </h3>
+		    <h3 class="mt-4">매매 계약서를 쓸 때 유의하세요 (p6)</h3>
 		    <p>
 		        계약서 작성 시 다음 사항들을 반드시 확인해야 합니다.
 		    </p>
@@ -297,11 +218,7 @@
 		        </li>
 		    </ul>
 
-		    <h3 class="mt-4">부동산 매매계약서 (상세 양식) 
-                <a th:href="@{/pdf/6_23.pdf}" target="_blank" class="guide-link ms-2" style="font-size:1.2rem; font-weight: 500;">
-                    <i class="fa-regular fa-file-pdf"></i> 부동산매매계약서 PDF
-                </a> 
-            </h3>
+		    <h3 class="mt-4">부동산 매매계약서 (상세 양식) (p5-6)</h3>
 		    <p>
 		        표준 부동산 매매계약서의 주요 구성 항목입니다.
 		    </p>
@@ -368,7 +285,7 @@
 		    <p>중개업자는 중개대상물 확인·설명서를 작성하고 업무보증관계증서(공제증서등) 사본을 ________년 ____월 ____일 거래당사자 쌍방에게 교부한다.</p>
 
 
-		    <h3 class="mt-4">매매 대금을 지급할 때는 이렇게 하세요 </h3>
+		    <h3 class="mt-4">매매 대금을 지급할 때는 이렇게 하세요 (p7-8)</h3>
 		    <ul>
 		        <li>
 		            <strong>계약금을 지불할 때</strong>
@@ -412,7 +329,7 @@
 		        </li>
 		    </ul>
 
-		    <h3 class="mt-4">부동산 매매시 세금 및 중개 수수료 </h3>
+		    <h3 class="mt-4">부동산 매매시 세금 및 중개 수수료 (p8)</h3>
 		    
 		    <h5>부동산 관련 세금</h5>
 		    <p>부동산 거래 시 취득, 보유, 양도 단계에서 다양한 세금이 부과됩니다.</p>
@@ -482,7 +399,7 @@
 		        <li><strong>계약 해지 시:</strong> 중개업자의 고의 또는 과실로 인하여 중개의뢰인 간의 거래 행위가 무효·취소 또는 해제된 경우가 아니라면, 중개수수료를 지급해야 합니다.</li>
 		    </ul>
 
-		    <h3 class="mt-4">부동산 거래 신고 절차 </h3>
+		    <h3 class="mt-4">부동산 거래 신고 절차 (p9)</h3>
 		    <p>
 		        부동산 거래를 투명하게 하기 위해 2006년 1월 1일부터 시행된 부동산 실거래가격 신고 의무제도입니다.
 		    </p>
@@ -530,11 +447,7 @@
 		        </li>
 		    </ul>
 
-		    <h3 class="mt-4">임대차 계약을 하기 전에 알아둘 것 
-                <a th:href="@{/pdf/8_18.pdf}" target="_blank" class="guide-link ms-2" style="font-size: 1.2rem; font-weight: 500;">
-                    <i class="fa-regular fa-file-pdf"></i> 부동산임대차계약서 PDF
-                </a>
-            </h3>
+		    <h3 class="mt-4">임대차 계약을 하기 전에 알아둘 것 (p10)</h3>
 		    <ul>
 		        <li>
 		            <strong>등기부 등본 확인은 필수</strong><br/>
@@ -550,7 +463,7 @@
 		        </li>
 		    </ul>
 
-		    <h3 class="mt-4">임대차 계약서를 작성할 때는 이렇게 </h3>
+		    <h3 class="mt-4">임대차 계약서를 작성할 때는 이렇게 (p10)</h3>
 		    <p>
 		        계약서에 들어가야 하는 필수 내용을 살펴봐야 합니다.
 		    </p>
@@ -562,7 +475,7 @@
 		        <li>특약사항</li>
 		    </ul>
 
-		    <h3 class="mt-4">주택 임대차 보호법 </h3>
+		    <h3 class="mt-4">주택 임대차 보호법 (p11-12)</h3>
 		    <p>
 		        임차인의 주거와 보증금의 회수를 보장하고 과도한 집세 인상으로부터 세입자를 보호하기 위해 제정된 법률입니다.
 		    </p>
@@ -610,7 +523,7 @@
 		        </li>
 		    </ul>
 
-		    <h3 class="mt-4">임대한 집의 수리비용 누가 부담하나요? </h3>
+		    <h3 class="mt-4">임대한 집의 수리비용 누가 부담하나요? (p12)</h3>
 		    <p>
 		        집주인(임대인)은 계약이 존속하는 동안 세입자가 임대 목적물을 제대로 사용할 수 있게 해 주어야 합니다. 따라서 사례처럼 꼭 필요한 수리비용의 경우, 세입자는 집주인에게 비용을 청구할 수 있습니다.
 		    </p>
@@ -625,7 +538,7 @@
 		        </li>
 		    </ul>
 
-		    <h3 class="mt-4">내 보증금은 내가 지킨다! 임대차 보증금 돌려받기 </h3>
+		    <h3 class="mt-4">내 보증금은 내가 지킨다! 임대차 보증금 돌려받기 (p12-14)</h3>
 		    <p>
 		        계약기간이 끝났는데도 임대인(집주인)이 돈을 안 돌려줄 때의 해결 방법입니다.
 		    </p>

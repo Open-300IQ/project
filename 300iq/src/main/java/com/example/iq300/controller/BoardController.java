@@ -58,7 +58,7 @@ public class BoardController {
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable("id") Long id, Model model, 
                          CommentCreateForm commentCreateForm) { 
-        Board board = boardService.getPostById(id); // (OK) Detail 페이지에서는 조회수 증가 필요
+        Board board = boardService.getPostById(id);
         model.addAttribute("board", board);
         model.addAttribute("activeMenu", "board");
         return "board/detail";
@@ -67,9 +67,7 @@ public class BoardController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{id}")
     public String boardVote(Principal principal, @PathVariable("id") Long id) {
-        // ▼▼▼ [수정] getPostById 대신 getPostWithoutViewCount 사용 ▼▼▼
-        Board board = this.boardService.getPostWithoutViewCount(id); 
-        // ▲▲▲
+        Board board = this.boardService.getPostById(id);
         User user = this.userService.getUser(principal.getName());
         this.boardService.vote(board, user);
         return String.format("redirect:/board/detail/%s", id);

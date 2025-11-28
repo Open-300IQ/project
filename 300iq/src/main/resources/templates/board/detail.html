@@ -49,33 +49,17 @@
             </div>
             </div>
         
-			<h4 class="comment-count" th:text="|${#lists.size(board.commentList)}개의 댓글|"></h4>
-
-			<div class="card mb-3" th:each="comment : ${board.commentList}">
-			    <div class="card-body">
-			        <div class="d-flex justify-content-between mb-2">
-			            <div>
-			                <span class="fw-bold" th:if="${comment.author != null}" th:text="${comment.author.username}"></span>
-			                <span class="text-body-secondary ms-2" th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
-			            </div>
-			            
-			            <div sec:authorize="isAuthenticated()"
-			                 th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.author.username}">
-			                <a th:href="@{|/comment/modify/${comment.id}|}" class="btn btn-sm btn-outline-secondary me-1">수정</a>
-			                <a href="javascript:void(0);" th:data-uri="@{|/comment/delete/${comment.id}|}"
-			                   class="delete btn btn-sm btn-outline-danger" onclick="if(confirm('정말로 삭제하시겠습니까?')) location.href=this.dataset.uri;">삭제</a>
-			            </div>
-			        </div>
-			        
-			        <p class="card-text" th:utext="${#strings.replace(comment.content, '\n', '<br/>')}"></p>
-			        
-			        <div th:if="${comment.modifyDate != null}" class="text-end">
-			            <small class="text-muted text-opacity-50">
-			                (수정됨: <span th:text="${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')}"></span>)
-			            </small>
-			        </div>
-			    </div>
-			</div>
+        <h4 class="comment-count" th:text="|${#lists.size(board.commentList)}개의 댓글|"></h4>
+        <div class="card mb-3" th:each="comment : ${board.commentList}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold" th:if="${comment.author != null}" th:text="${comment.author.username}"></span>
+                    <span class="text-body-secondary" th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                </div>
+                <p class="card-text" 
+                   th:utext="${#strings.replace(comment.content, '\n', '<br/>')}"></p>
+            </div>
+        </div>
         
         <div sec:authorize="isAnonymous()" class="card p-4 text-center">
              <p class="text-body-secondary mb-2">댓글을 작성하려면 로그인이 필요합니다.</p>
