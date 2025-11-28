@@ -84,7 +84,7 @@ public class QuestionController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/vote/{id}")
     public String questionVote(Principal principal, @PathVariable("id") Long id) {
-    	Question question = this.questionService.getQuestionWithoutViewCount(id);
+        Question question = this.questionService.getQuestion(id);
         User user = this.userService.getUser(principal.getName());
         this.questionService.vote(question, user);
         return String.format("redirect:/question/detail/%s", id);

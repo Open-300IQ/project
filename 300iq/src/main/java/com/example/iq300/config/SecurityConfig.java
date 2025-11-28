@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -49,11 +48,7 @@ public class SecurityConfig {
             )
             .csrf((csrf) -> csrf
                 .ignoringRequestMatchers(new AntPathRequestMatcher("/**")))
-            .headers((headers) -> headers
-                    .cacheControl(cache -> cache
-                        .disable() // 브라우저가 페이지를 캐싱하지 못하게 설정 (no-cache, no-store 등 자동 적용)
-                    )
-                )
+                
             .formLogin((formLogin) -> formLogin
                 .loginPage("/user/login")       
                 .defaultSuccessUrl("/"))      

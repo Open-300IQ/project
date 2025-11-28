@@ -18,7 +18,7 @@ public class Comment {
     private String content;
 
     private LocalDateTime createDate;
-    private LocalDateTime modifyDate;
+
     // 댓글은 Board(게시글)에 달려있음
     @ManyToOne
     private Board board; 

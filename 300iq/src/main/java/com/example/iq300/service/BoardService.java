@@ -79,17 +79,6 @@ public class BoardService {
         return this.boardRepository.findAll(spec, pageable);
     }
 
-    // [추가] 조회수를 증가시키지 않고 게시글을 가져오는 메서드 (Vote 기능용)
-    public Board getPostWithoutViewCount(Long id) {
-        Optional<Board> boardOpt = this.boardRepository.findById(id);
-        if (boardOpt.isPresent()) {
-            return boardOpt.get();
-        } else {
-            throw new DataNotFoundException("board not found");
-        }
-    }
-
-
     // --- (이하 나머지 메서드는 동일) ---
 
     public Page<Board> getAllPosts(int page) {
@@ -112,7 +101,7 @@ public class BoardService {
         Optional<Board> boardOpt = this.boardRepository.findById(id);
         if (boardOpt.isPresent()) {
             Board board = boardOpt.get();
-            board.setViewCount(board.getViewCount() + 1); // <-- 조회수 증가 로직 (Detail 페이지용)
+            board.setViewCount(board.getViewCount() + 1);
             return board;
         } else {
             throw new DataNotFoundException("board not found");
