@@ -68,9 +68,10 @@
                 <a class="nav-link" th:href="@{/guide}"
                    th:classappend="${activeMenu == 'guide'} ? 'active'"> 부동산 거래 가이드</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">(준비중) 전세사기 방지 가이드</a>
-            </li>
+			<li class="nav-item">
+			    <a class="nav-link" th:href="@{/guide/fraud}"
+			       th:classappend="${activeMenu == 'guide_fraud'} ? 'active'"> 전세사기 예방 가이드</a>
+			</li>
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/guide/subscription}"
                    th:classappend="${activeMenu == 'guide_sub'} ? 'active'"> 청약 가이드</a>

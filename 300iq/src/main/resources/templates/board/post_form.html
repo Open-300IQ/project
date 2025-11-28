@@ -8,11 +8,14 @@
 </head>
 
 <body>
-<div layout:fragment="content" class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-9 col-lg-8">
-            <h3 class="text-center mb-4" style="font-weight: 700; color: var(--bs-primary);">새 글 작성</h3>
-            
+<div layout:fragment="content">
+
+    <nav th:replace="~{fragments/sidebar :: sidebar(activeMenu='board')}"></nav>
+    
+    <div class="right-content">
+        <h3 class="mb-4" style="font-weight: 700;">새 글 작성</h3>
+        
+        <div class="card p-4">
             <form th:action="@{/board/create}" th:object="${boardPostForm}" method="post">
                 
                 <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger" role="alert">

@@ -20,4 +20,9 @@ public class GuideController {
         model.addAttribute("activeMenu", "guide_sub");
         return "subscription_guide";
     }
+    @GetMapping("/fraud")
+    public String fraudPreventionGuide(Model model) {
+        model.addAttribute("activeMenu", "guide_fraud"); 
+        return "guide_fraud"; 
+    }
 }

@@ -88,12 +88,21 @@ public class QuestionService {
         return this.questionRepository.findAll(spec, pageable);
     }
     
+    public Question getQuestionWithoutViewCount(Long id) {
+        Optional<Question> questionOpt = this.questionRepository.findById(id);
+        if (questionOpt.isPresent()) {
+            return questionOpt.get();
+        } else {
+            throw new DataNotFoundException("question not found");
+        }
+    }
+
     @Transactional 
     public Question getQuestion(Long id) {
         Optional<Question> questionOpt = this.questionRepository.findById(id);
         if (questionOpt.isPresent()) {
             Question question = questionOpt.get();
-            question.setViewCount(question.getViewCount() + 1); 
+            question.setViewCount(question.getViewCount() + 1); // <-- 조회수 증가 로직 (Detail 페이지용)
             return question;
         } else {
             throw new DataNotFoundException("question not found");

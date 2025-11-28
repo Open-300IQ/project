@@ -330,12 +330,23 @@
         
 		    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">IQ 300</title>
 
-		    <script th:inline="javascript">
-		        window.addEventListener('pageshow', function(event) {
-		            if (event.persisted) {
-		                window.location.reload();
-		            }
-		        });
+			<script th:inline="javascript">
+			    // 뒤로가기 진입 시 발생하는 'pageshow' 이벤트를 감지
+			    window.addEventListener('pageshow', function(event) {
+			        // 1. 브라우저 캐시(BFCache)를 통해 들어온 경우(뒤로가기 등) 강제 새로고침
+			        if (event.persisted || (window.performance && window.performance.navigation.type == 2)) {
+			            window.location.reload();
+			        }
+			        
+			        // 2. [핵심] 페이지 로드 시 모든 폼(댓글창, 글쓰기 등)의 내용을 깨끗하게 비움
+			        // (약간의 딜레이를 주어 브라우저의 자동완성 복구를 무력화)
+			        setTimeout(function() {
+			            var forms = document.querySelectorAll('form');
+			            forms.forEach(function(form) {
+			                form.reset();
+			            });
+			        }, 10);
+			    });
 			</script>
 			    
 			</head>

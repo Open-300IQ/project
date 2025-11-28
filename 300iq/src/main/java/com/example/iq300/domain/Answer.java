@@ -17,7 +17,7 @@ public class Answer { // <-- 이 파일이 없어서 오류가 난 겁니다.
     private String content; // 답변 내용
 
     private LocalDateTime createDate; // 생성일시
-
+    private LocalDateTime modifyDate;
     @ManyToOne // 답변자
     private User author;
 

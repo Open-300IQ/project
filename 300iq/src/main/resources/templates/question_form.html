@@ -10,26 +10,7 @@
 <body>
 <div layout:fragment="content">
     
-    <nav class="left-sidebar">
-        <h6 class="nav-category">부동산 정보</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item"><a class="nav-link" href="#">안전 거래 가이드</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">부동산 용어사전</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">청약 가이드</a></li>
-            <li class="nav-item"><a class="nav-link" href="#">청약 일정</a></li>
-        </ul>
-        <h6 class="nav-category">커뮤니티</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item"><a class="nav-link" href="#">공지사항</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/}">자유 게시판</a></li>
-            <li class="nav-item"><a class="nav-link active" th:href="@{/question/list}">부동산 Q&A</a></li> <li class="nav-item"><a class="nav-link" href="#">자료실</a></li>
-        </ul>
-        <h6 class="nav-category">300IQ</h6>
-        <ul class="nav nav-pills flex-column">
-            <li class="nav-item"><a class="nav-link" th:href="@{/analysis}">자료 분석</a></li>
-            <li class="nav-item"><a class="nav-link" th:href="@{/ai}">AI 상담</a></li>
-        </ul>
-    </nav>
+    <nav th:replace="~{fragments/sidebar :: sidebar(activeMenu='qna')}"></nav>
     
     <div class="right-content">
         <h3 class="mb-4" style="font-weight: 700;">새 질문 작성</h3>
