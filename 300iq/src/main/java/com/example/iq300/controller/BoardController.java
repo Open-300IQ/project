@@ -58,7 +58,7 @@ public class BoardController {
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable("id") Long id, Model model, 
                          CommentCreateForm commentCreateForm) { 
-        Board board = boardService.getPostById(id); // (OK) Detail 페이지에서는 조회수 증가 필요
+        Board board = boardService.getPostById(id);
         model.addAttribute("board", board);
         model.addAttribute("activeMenu", "board");
         return "board/detail";
@@ -77,7 +77,7 @@ public class BoardController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/create")
-    public String newPost(Model model, BoardPostForm boardPostForm) { 
+    public String newPost(Model model, BoardPostForm boardPostForm) { https://github.com/Open-300IQ/project/pull/21/conflict?name=300iq%252Fsrc%252Fmain%252Fjava%252Fcom%252Fexample%252Fiq300%252Fcontroller%252FGeminiController.java&ancestor_oid=f555a321400bac61018e25787d6427149daade90&base_oid=6e433ceccad97630821ea2fe92960f9ec6554a49&head_oid=c4f17b21d67dfb4eb7cdecaedd487dbccd39c4dc
         model.addAttribute("activeMenu", "board");
         return "board/post_form";
     }

@@ -2,12 +2,14 @@ package com.example.iq300.service;
 
 import com.example.iq300.model.MessageModel;
 import com.example.iq300.repository.FinalDataRepository;
-import com.example.iq300.domain.FinalData;
 import com.example.iq300.repository.TotalDataRepository;
-import com.example.iq300.repository.RealEstateAgentRepository;
-import com.example.iq300.repository.PopulationRepository;
+import com.example.iq300.repository.RealEstateTermRepository;
+import com.example.iq300.repository.HousingPolicyRepository;
+import com.example.iq300.domain.FinalData;
 import com.example.iq300.domain.TotalData;
 import com.example.iq300.domain.IFinalDataAgg;
+import com.example.iq300.domain.RealEstateTerm;
+import com.example.iq300.domain.HousingPolicy;
 
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +40,8 @@ public class GptService {
 
     private final TotalDataRepository totalDataRepository;
     private final FinalDataRepository finalDataRepository;
+    private final HousingPolicyRepository housingPolicyRepository;
+    private final RealEstateTermRepository realEstateTermRepository;
     
     private static final String DATA_START_MONTH = "202301";
     private static final String DATA_END_MONTH = "202510";
@@ -48,9 +52,13 @@ public class GptService {
     private static final List<String> BUILDING_TYPE_KEYWORDS = Arrays.asList("아파트", "오피스텔", "연립다세대", "단독다가구");
     
     public GptService(TotalDataRepository totalDataRepository,
-                      FinalDataRepository finalDataRepository) {
+                      FinalDataRepository finalDataRepository,
+                      HousingPolicyRepository housingPolicyRepository,
+                      RealEstateTermRepository realEstateTermRepository) {
         this.totalDataRepository = totalDataRepository;
         this.finalDataRepository = finalDataRepository;
+        this.housingPolicyRepository = housingPolicyRepository;
+        this.realEstateTermRepository = realEstateTermRepository;
     }
 
     public List<MessageModel> getChatHistory() {
@@ -107,6 +115,140 @@ public class GptService {
         }
     }
     
+    // 정책 검색 프롬프트
+    public String searchPolicy(String userTopic) {
+        String keyword = extractKeyword(userTopic, "policy");
+        
+        Pageable limit = PageRequest.of(0, 5);
+        List<HousingPolicy> policies = housingPolicyRepository.findByTitleContainingOrDescriptionContaining(keyword, keyword, limit);
+
+        if (policies.isEmpty()) {
+            return "죄송합니다. '" + keyword + "'와 관련된 주거 정책을 찾을 수 없습니다. 다른 키워드로 검색해 보세요.";
+        }
+
+        StringBuilder policyContext = new StringBuilder();
+        for (HousingPolicy p : policies) {
+            policyContext.append(String.format("""
+                [정책 ID] : %d
+                [제목] : %s
+                [대상 연령] : %s
+                [지역] : %s
+                [정책 번호] : %s
+                [주관 기관] : %s
+                [설명] : %s
+                -----------------------------------
+                """, 
+                p.getId(), p.getTitle(), p.getTargetAge(), p.getRegion(), 
+                p.getPolicyNo(), p.getOrganizer(), p.getDescription()));
+        }
+
+        String systemContent = """
+            당신은 대한민국 주거 정책 상담 전문가입니다.
+            사용자의 질문과 관련된 정책을 아래 [제공된 데이터]에서 찾아서 친절하게 안내해 주세요.
+            
+            [작성 원칙]
+            1. [제공된 데이터]에 있는 정책만 언급하세요. 없는 내용을 지어내지 마세요.
+            2. 각 정책의 제목, 주요 내용(설명 요약), 대상 연령, 주관 기관을 보기 좋게 정리하세요.
+            3. **가장 중요** : 각 정책의 마지막에는 반드시 상세 페이지로 이동하는 링크를 아래 포맷 그대로 출력하세요.
+               포맷: [상세보기](/policy/detail/{정책ID})
+               예시: [상세보기](/policy/detail/15)
+            """;
+
+        String userPrompt = String.format("""
+            사용자 검색어 : "%s"
+            (검색된 키워드 : %s)
+            
+            [제공된 데이터] :
+            %s
+            
+            위 데이터를 바탕으로 사용자의 검색 의도에 맞는 정책들을 소개해주세요.
+            """,userTopic, keyword, policyContext.toString());
+
+        return callGptApi(systemContent, userPrompt, "search");
+    }
+    
+    // 단어 검색 프롬프트
+    public String searchTerm(String userTopic) {
+    	String keyword = extractKeyword(userTopic, "term");
+    	
+    	Pageable limit = PageRequest.of(0, 1);
+    	List<RealEstateTerm> terms = realEstateTermRepository.findTop3ByTermContaining(keyword, limit);
+    	
+    	if (terms.isEmpty()) {
+    		return "죄송합니다. '" + keyword + "'와 관련된 단어를 찾을 수 없습니다. 다른 키워드로 검색해 보세요.";
+    	}
+    	
+    	StringBuilder termContext = new StringBuilder();
+    	for (RealEstateTerm t : terms) {
+    		termContext.append(String.format("""
+    			[단어 이름] : %s
+    			[단어 설명] : %s
+    		""", t.getTerm(), t.getDefinition()));
+    	}
+    	
+        String systemContent = """
+                당신은 대한민국 부동산 단어 검색 엔진입니다.
+                사용자의 질문과 관련된 단어를 아래 [제공된 데이터]에서 찾아서 친절하게 안내해 주세요.
+                
+                [작성 원칙]
+                1. [제공된 데이터]에 있는 단어만 출력하세요. 없는 단어를 지어내지 마세요.
+                2. 각 단어 이름과 해당 단어 이름에 대한 단어 설명을 보기 좋게 정리하세요.
+                
+        		""";
+
+            String userPrompt = String.format("""
+                사용자 검색어 : "%s"
+                (검색된 키워드 : %s)
+                
+                [제공된 데이터] :
+                %s
+                
+                위 데이터를 바탕으로 사용자의 검색 의도에 맞는 정책들을 소개해주세요.
+                """,userTopic, keyword, termContext.toString());
+
+            return callGptApi(systemContent, userPrompt, "search");
+    }
+        
+    
+    private String extractKeyword(String userQuestion, String option) {
+    	if ("policy".equals(option)) {
+	    	String systemContent = """
+	    			당신은 검색 엔진의 키워드 추출기입니다.
+	    			사용자의 질문에서 데이터베이스 검색에 사용할 핵심적인 '단어'를 추출해서 출력하세요.
+	    			정책, 혜택과 같이 포괄적인 단어는 포함하지 말고 목적이 확실한 단어만 추출하세요.
+	    			조사나 서술어는 모두 제거하고, 핵심적인 명사 위주로 남기세요.
+	    			
+	    			[예시]
+	    			Q : "청년과 관련된 정책에 대해 알려줘" -> 청년
+	    			Q : "청년 전세 자금 대출에 대해 알려줘" -> 청년 전세 자금 대출
+	    			Q : "혹시 청소년과 관련된 정책에는 어떤게 있어?" -> 청소년
+	    			Q : "신혼부부 혜택 궁금해" -> 신혼부부
+	    			Q : "경기도 주거 지원" -> 경기도 주거
+	    	""";
+	    	
+	    	String keyword = callGptApi(systemContent, userQuestion, "search").trim();
+	    	
+	    	return keyword.replace("\"", "").replace("'", "").trim();
+    	}
+    	else {
+    		String systemContent = """
+    				당신은 검색 엔진의 키워드 추출기입니다.
+    				사용자의 질문에서 데이터베이스 검색에 사용할 핵심적인 '단어 하나'를 추출해서 출력하세요.
+    				조사나 서술어는 모두 제거하고, 핵심적인 명사만 남기세요.
+    				
+    				[예시]
+    				Q : "가건물이 무슨 뜻이야?" -> 가건물
+    				Q : "가사소송법에 대해서 자세히 알려줘" -> 가사소송법
+    				Q : "과세표준이 대체 뭐임?" -> 과세표준
+    		""";
+    		
+    		String keyword = callGptApi(systemContent, userQuestion, "search").trim();
+    		
+    		return keyword.replace("\"", "").replace("'", "").trim();
+    	}
+    }
+    
+    // 게시글 추천 프롬프트
     public String recommendBoardQuestions(String userTopic) {
     	chatHistory.add(new MessageModel("user", "(게시글 추천 요청) " + userTopic));
     	
@@ -124,7 +266,7 @@ public class GptService {
         String userPrompt = String.format("사용자 입력 주제: \"%s\"\n위 주제와 관련하여 게시판에 올릴만한 좋은 질문 3가지를 추천해줘.", userTopic);
 
         try {
-            String reply = callGptApi(systemContent, userPrompt);
+            String reply = callGptApi(systemContent, userPrompt, "recommend");
             chatHistory.add(new MessageModel("model", reply));
             return reply;
         } catch (Exception e) {
@@ -132,7 +274,7 @@ public class GptService {
         }
     }
     
-    private String callGptApi(String systemContent, String userPrompt) {
+    private String callGptApi(String systemContent, String userPrompt, String option) {
     	RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -153,8 +295,9 @@ public class GptService {
         messages.add(userMsg);
 
         requestBody.add("messages", messages);
-        requestBody.addProperty("temperature", 0.7); // 추천은 약간 창의적이게 0.7
-
+        if ("recommend".equals(option)) requestBody.addProperty("temperature", 0.7);
+        else if ("search".equals(option)) requestBody.addProperty("temperature", 0.3);
+        
         HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
         ResponseEntity<String> response = restTemplate.exchange(GPT_API_URL, HttpMethod.POST, entity, String.class);
 

@@ -32,6 +32,8 @@ public class SecurityConfig {
                         new AntPathRequestMatcher("/ai"),
                         new AntPathRequestMatcher("/ai/chat"),
                         new AntPathRequestMatcher("/ai/recommend"),
+                        new AntPathRequestMatcher("/ai/policy"),
+                        new AntPathRequestMatcher("/ai/term"),
                         new AntPathRequestMatcher("/calendar"),
                         new AntPathRequestMatcher("/question/list"),
                         new AntPathRequestMatcher("/question/detail/"),
