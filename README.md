@@ -1,5 +1,3 @@
-<br>
-
 ##  프로젝트 데모 (Demo Video)
 
 아래 이미지를 클릭하시면 유튜브 데모 영상을 시청하실 수 있습니다.
@@ -7,8 +5,6 @@
 [![IQ300 시연 영상](http://img.youtube.com/vi/2DmqeSTgyTY/0.jpg)](https://youtu.be/2DmqeSTgyTY)
 
 > **영상 보러가기:** [https://youtu.be/2DmqeSTgyTY](https://youtu.be/2DmqeSTgyTY)
-
-<br>
 
 
 #  300IQ (Cheongju Real Estate Insight)
