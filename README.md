@@ -116,4 +116,4 @@
 
 ### 2.  협업 도구
 * **Pull-Request**를 통해 코드 업로드 및 주의 사항과 전달 사항 공지
-* **Trello - Jira**를 통해 각자 업무를 부여하고 기한 내에 완료할 수 있도록 환경 구축
+* **Jira**를 통해 각자 업무를 부여하고 기한 내에 완료할 수 있도록 환경 구축 (https://300iq.atlassian.net/jira/core/projects/TGNW300/board?filter=&groupBy=status)
