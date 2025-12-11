@@ -105,3 +105,15 @@
 │   ├── static      # CSS, JS, PDF, CSV 파일
 │   └── application.properties
 └── build.gradle****
+```
+
+---
+
+## 버전 관리 및 협업 도구
+
+### 1.  버전 관리
+* **GitHub**을 통해 버전 관리
+
+### 2.  협업 도구
+* **Pull-Request**를 통해 코드 업로드 및 주의 사항과 전달 사항 공지
+* **Trello - Jira**를 통해 각자 업무를 부여하고 기한 내에 완료할 수 있도록 환경 구축
